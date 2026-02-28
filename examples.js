@@ -398,7 +398,7 @@ function comp_reviews(rng, pal, cat) {
             render();
         };
     })();
-    <\/script>`;
+    </scr"+"ipt>`;
 }
 
 function comp_contact(rng, pal, cat) {
@@ -427,7 +427,7 @@ function comp_contact(rng, pal, cat) {
         setTimeout(function(){ ok.style.display = 'none'; }, 4000);
         return false;
     };
-    <\/script>`;
+    </scr"+"ipt>`;
 }
 
 function comp_newsletter(rng, pal) {
@@ -452,7 +452,7 @@ function comp_newsletter(rng, pal) {
         setTimeout(function(){ document.getElementById('${id}-ok').style.display = 'none'; }, 3000);
         return false;
     };
-    <\/script>`;
+    </scr"+"ipt>`;
 }
 
 function comp_booking(rng, pal, cat) {
@@ -489,7 +489,7 @@ function comp_booking(rng, pal, cat) {
         setTimeout(function(){ document.getElementById('${id}-ok').style.display = 'none'; }, 4000);
         return false;
     };
-    <\/script>`;
+    </scr"+"ipt>`;
 }
 
 function comp_pricing(rng, pal, cat) {
@@ -582,7 +582,7 @@ function comp_gallery(rng, pal, cat) {
         document.getElementById('${id}-lb').style.display = 'none';
         document.body.style.overflow = '';
     };
-    <\/script>`;
+    </scr"+"ipt>`;
 }
 
 function comp_stats(rng, pal, cat) {
@@ -626,7 +626,7 @@ function comp_stats(rng, pal, cat) {
         var el = document.getElementById('${id}-0');
         if(el) observer.observe(el);
     })();
-    <\/script>`;
+    </scr"+"ipt>`;
 }
 
 function comp_hours(rng, pal) {
@@ -763,7 +763,7 @@ function comp_chat(rng, pal) {
         msgs.scrollTop = msgs.scrollHeight;
         return false;
     };
-    <\/script>`;
+    </scr"+"ipt>`;
 }
 
 function comp_cookie(pal) {
@@ -778,13 +778,13 @@ function comp_cookie(pal) {
             </div>
         </div>
     </div>
-    <script>if(!localStorage.getItem('${id}_ok')){document.getElementById('${id}').style.display='block';}<\/script>`;
+    <script>if(!localStorage.getItem('${id}_ok')){document.getElementById('${id}').style.display='block';}</scr"+"ipt>`;
 }
 
 function comp_backtotop(pal) {
     return `
     <button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="display:none;position:fixed;bottom:20px;left:20px;z-index:8999;width:44px;height:44px;border-radius:50%;background:${pal.card};border:1px solid ${pal.border};color:${pal.text};font-size:18px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.1);align-items:center;justify-content:center">↑</button>
-    <script>window.addEventListener('scroll',function(){document.getElementById('btt').style.display=window.scrollY>400?'flex':'none';});<\/script>`;
+    <script>window.addEventListener('scroll',function(){document.getElementById('btt').style.display=window.scrollY>400?'flex':'none';});</scr"+"ipt>`;
 }
 
 function comp_countdown(rng, pal) {
@@ -815,7 +815,7 @@ function comp_countdown(rng, pal) {
         }
         update(); setInterval(update, 1000);
     })();
-    <\/script>`;
+    </scr"+"ipt>`;
 }
 
 function comp_map(rng, pal) {
@@ -894,7 +894,7 @@ function comp_login(rng, pal) {
             <div id="${id}-ok" style="display:none;margin-top:12px;padding:12px;background:#16a34a15;border-radius:8px;color:#16a34a;font-weight:600;text-align:center;font-size:14px">✓ Erfolgreich eingeloggt!</div>
         </div>
     </section>
-    <script>window['${id}_login']=function(e){e.preventDefault();e.target.reset();document.getElementById('${id}-ok').style.display='block';setTimeout(function(){document.getElementById('${id}-ok').style.display='none';},3000);return false;};<\/script>`;
+    <script>window['${id}_login']=function(e){e.preventDefault();e.target.reset();document.getElementById('${id}-ok').style.display='block';setTimeout(function(){document.getElementById('${id}-ok').style.display='none';},3000);return false;};</scr"+"ipt>`;
 }
 
 function comp_notification(rng, pal) {
