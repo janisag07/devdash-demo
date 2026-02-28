@@ -323,6 +323,33 @@
         .act:hover{transform:translateY(-4px) rotateX(2deg);box-shadow:var(--shadow-lg)}
         .act.buy{background:var(--green-bg);border-color:rgba(22,163,74,0.15)}
         .act.buy:hover{box-shadow:0 8px 32px rgba(22,163,74,0.12)}
+        .act.discard{border-color:rgba(239,68,68,0.15)}
+        .act.discard:hover{border-color:rgba(239,68,68,0.3);box-shadow:0 8px 32px rgba(239,68,68,0.08)}
+
+        /* CONFIRM MODAL */
+        .confirm-bg{display:none;position:fixed;inset:0;z-index:10001;background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:24px}
+        .confirm-bg.on{display:flex;animation:fadeIn 0.2s}
+        .confirm-box{
+            background:var(--bg2);border:1px solid var(--border2);
+            border-radius:24px;padding:36px;max-width:400px;width:100%;text-align:center;
+            box-shadow:var(--shadow-xl);animation:scaleIn 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        .confirm-box .warn-icon{font-size:48px;margin-bottom:16px}
+        .confirm-box h3{font-size:18px;font-weight:800;margin-bottom:8px}
+        .confirm-box p{font-size:14px;color:var(--text3);line-height:1.6;margin-bottom:24px}
+        .confirm-box .warn{color:var(--red);font-weight:600;font-size:13px;margin-bottom:20px}
+        .confirm-btns{display:flex;flex-direction:column;gap:8px}
+        .btn-danger{
+            width:100%;padding:14px;border:none;border-radius:14px;
+            background:#ef4444;color:#fff;font-size:15px;font-weight:700;
+            cursor:pointer;font-family:inherit;transition:all 0.2s;
+        }
+        .btn-danger:hover{background:#dc2626}
+        .btn-back{
+            width:100%;padding:12px;border:1px solid var(--border2);border-radius:14px;
+            background:transparent;color:var(--text2);font-size:14px;font-weight:600;
+            cursor:pointer;font-family:inherit;
+        }
         .act .ic{font-size:20px}
         .act h4{font-size:13px;font-weight:600}
         .act p{font-size:11px;color:var(--text4)}
@@ -523,7 +550,7 @@
             <div class="act buy" onclick="showPay()"><span class="ic">💰</span><div><h4>Kaufen & Download</h4><p>Wasserzeichen entfernen</p></div></div>
             <div class="act" onclick="openRev()"><span class="ic">🔄</span><div><h4>Revision</h4><p id="revLbl">3 verbleibend</p></div></div>
             <div class="act" onclick="openFull()"><span class="ic">🔍</span><div><h4>Vollbild</h4><p>Neuer Tab</p></div></div>
-            <div class="act" onclick="newOrder()"><span class="ic">✨</span><div><h4>Neuer Auftrag</h4><p>Von vorne</p></div></div>
+            <div class="act discard" onclick="confirmDiscard()"><span class="ic">⚠️</span><div><h4>Verwerfen</h4><p>Unwiderruflich</p></div></div>
         </div>
         <div class="swipe-hint">← swipen →</div>
         <div class="rev-panel" id="revPanel">
@@ -533,6 +560,20 @@
         </div>
     </div>
     <footer><p>© 2026 DevDash</p></footer>
+</div>
+
+<!-- CONFIRM DISCARD MODAL -->
+<div class="confirm-bg" id="confirmModal">
+    <div class="confirm-box">
+        <div class="warn-icon">⚠️</div>
+        <h3>Bist du sicher?</h3>
+        <p>Wenn du verwirfst, wird dein aktuelles Ergebnis <strong>unwiderruflich gelöscht</strong>. Du kannst danach nicht mehr darauf zugreifen — auch keine Revisionen mehr anfordern.</p>
+        <div class="warn">Diese Aktion kann nicht rückgängig gemacht werden.</div>
+        <div class="confirm-btns">
+            <button class="btn-danger" onclick="doDiscard()">Ja, verwerfen</button>
+            <button class="btn-back" onclick="closeConfirm()">Zurück zum Ergebnis</button>
+        </div>
+    </div>
 </div>
 
 <!-- MODAL -->
@@ -553,7 +594,8 @@
 
 <script src="examples.js"></script>
 <script>
-let cat='website',revs=0,mx=3,html='',freeUsed=localStorage.getItem('dd_free')==='1',emailOk=!!localStorage.getItem('dd_email');
+let cat='website',revs=0,mx=3,html='',genCount=parseInt(localStorage.getItem('dd_gens')||'0'),emailOk=!!localStorage.getItem('dd_email');
+// 1 free generation without email, then email required. After email: unlimited generations (pay per result).
 updateBadge();
 
 const times={website:'~12 Min',bot:'~20 Min',bugfix:'~8 Min',automation:'~18 Min'};
@@ -574,14 +616,14 @@ function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.
 function pickSvc(el,c){document.querySelectorAll('.svc-opt').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');cat=c;document.getElementById('guideList').innerHTML=gd[c].map(i=>`<li>${i}</li>`).join('');document.getElementById('promptInput').placeholder=ph[c];document.getElementById('orderNote').textContent='⚡ Geschätzte Lieferzeit: '+times[c]}
 function selectAndGo(c){showPage('order');setTimeout(()=>{const o=document.querySelectorAll('.svc-opt');['website','bot','bugfix','automation'].forEach((x,i)=>{if(x===c)pickSvc(o[i],c)})},50)}
 function updateCC(){document.getElementById('cc').textContent=document.getElementById('promptInput').value.length+' Zeichen'}
-function updateBadge(){const b=document.getElementById('creditsBadge');if(!freeUsed){b.textContent='1 × Gratis';b.style.color='var(--green)';b.style.background='var(--green-bg)'}else if(emailOk){b.textContent='✓ Verifiziert';b.style.color='var(--accent)';b.style.background='rgba(79,110,247,0.06)'}else{b.textContent='0 Credits';b.style.color='var(--red)';b.style.background='rgba(239,68,68,0.06)'}}
-function updateGate(){const f=document.getElementById('freeBox'),e=document.getElementById('emailGate');if(!freeUsed){f.style.display='flex';e.style.display='none'}else if(!emailOk){f.style.display='none';e.style.display='block'}else{f.style.display='none';e.style.display='none'}}
+function updateBadge(){const b=document.getElementById('creditsBadge');if(genCount===0){b.textContent='1 × Gratis';b.style.color='var(--green)';b.style.background='var(--green-bg)'}else if(emailOk){b.textContent='✓ Verifiziert';b.style.color='var(--accent)';b.style.background='rgba(79,110,247,0.06)'}else{b.textContent='E-Mail nötig';b.style.color='var(--red)';b.style.background='rgba(239,68,68,0.06)'}}
+function updateGate(){const f=document.getElementById('freeBox'),e=document.getElementById('emailGate');if(genCount===0){f.style.display='flex';e.style.display='none'}else if(!emailOk){f.style.display='none';e.style.display='block'}else{f.style.display='none';e.style.display='none'}}
 function unlockEmail(){const e=document.getElementById('emailInput').value.trim();if(!e||!e.includes('@')){document.getElementById('emailInput').style.borderColor='var(--red)';return}localStorage.setItem('dd_email',e);emailOk=true;updateBadge();updateGate()}
 
 function startGen(){
     const p=document.getElementById('promptInput').value.trim();
     if(!p){document.getElementById('promptInput').focus();return}
-    if(freeUsed&&!emailOk){updateGate();return}
+    if(genCount>0&&!emailOk){updateGate();return}
     showPage('gen');
     const fill=document.getElementById('gFill'),pct=document.getElementById('gPct'),st=document.getElementById('gStatus');
     fill.style.width='0';pct.textContent='0%';
@@ -591,7 +633,7 @@ function startGen(){
     let i=0;const iv=setInterval(()=>{
         if(i<steps.length){const s=steps[i];fill.style.width=s.p+'%';pct.textContent=s.p+'%';st.textContent=s.t;
         for(let j=1;j<=5;j++){const e=document.getElementById('s'+j);if(j<s.s){e.className='gs done';e.querySelector('.ck').textContent='✓'}else if(j===s.s){e.className='gs on';e.querySelector('.ck').textContent='◉'}else{e.className='gs';e.querySelector('.ck').textContent='○'}}i++}
-        else{clearInterval(iv);if(!freeUsed){freeUsed=true;localStorage.setItem('dd_free','1');updateBadge()}setTimeout(()=>{html=getExampleForPrompt(p);revs=0;document.getElementById('resFrame').srcdoc=html;updRev();showPage('result')},600)}
+        else{clearInterval(iv);genCount++;localStorage.setItem('dd_gens',genCount);updateBadge();setTimeout(()=>{html=getExampleForPrompt(p);revs=0;document.getElementById('resFrame').srcdoc=html;updRev();showPage('result')},600)}
     },800);
 }
 
@@ -600,7 +642,10 @@ function openRev(){if(revs>=mx){alert('Alle Revisionen verbraucht.');return}docu
 function closeRev(){document.getElementById('revPanel').classList.remove('open')}
 function submitRev(){const t=document.getElementById('revInput').value.trim();if(!t)return;revs++;updRev();closeRev();document.getElementById('revInput').value='';showPage('gen');setTimeout(()=>{document.getElementById('resFrame').srcdoc=html;showPage('result')},3000)}
 function openFull(){const w=window.open();w.document.write(html);w.document.close()}
-function newOrder(){showPage('order');updateGate()}
+function confirmDiscard(){document.getElementById('confirmModal').classList.add('on')}
+function closeConfirm(){document.getElementById('confirmModal').classList.remove('on')}
+function doDiscard(){closeConfirm();html='';revs=0;document.getElementById('resFrame').srcdoc='';showPage('order');updateGate()}
+document.getElementById('confirmModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeConfirm()})
 
 function showPay(){
     const pr={website:{g:80,s:94,t:199},bot:{g:120,s:154,t:299},bugfix:{g:25,s:29,t:79},automation:{g:95,s:129,t:249}};
