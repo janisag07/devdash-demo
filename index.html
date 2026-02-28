@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevDash — IT-Services in Minuten</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #ff4d00;
+            --primary-dark: #e04400;
+            --bg: #0a0a0a;
+            --bg-card: #141414;
+            --bg-card-hover: #1a1a1a;
+            --text: #ffffff;
+            --text-muted: #888;
+            --border: #222;
+            --success: #00c853;
+            --radius: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            background: rgba(10,10,10,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo {
+            font-size: 24px; font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), #ff8c00);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .logo span { font-weight: 400; opacity: 0.7; }
+        .nav-links { display: flex; gap: 24px; align-items: center; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--text); }
+        .nav-cta {
+            background: var(--primary); color: white; padding: 8px 20px;
+            border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;
+            transition: background 0.2s;
+        }
+        .nav-cta:hover { background: var(--primary-dark); }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            padding: 120px 24px 80px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(255,77,0,0.08) 0%, transparent 60%);
+        }
+        .badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,77,0,0.1); border: 1px solid rgba(255,77,0,0.2);
+            padding: 6px 16px; border-radius: 99px; font-size: 13px; color: var(--primary);
+            margin-bottom: 24px;
+        }
+        .badge::before { content: '⚡'; }
+        .hero h1 {
+            font-size: clamp(40px, 7vw, 80px); font-weight: 800;
+            line-height: 1.1; margin-bottom: 24px; max-width: 800px;
+        }
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--primary), #ff8c00);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 18px; color: var(--text-muted); max-width: 560px; margin-bottom: 40px;
+        }
+        .hero-cta {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--primary); color: white; padding: 16px 32px;
+            border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 24px rgba(255,77,0,0.3);
+        }
+        .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(255,77,0,0.4); }
+        .hero-stats {
+            display: flex; gap: 48px; margin-top: 64px; padding-top: 48px;
+            border-top: 1px solid var(--border);
+        }
+        .stat { text-align: center; }
+        .stat-value { font-size: 32px; font-weight: 800; }
+        .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+        /* SECTIONS */
+        section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+        .section-label {
+            color: var(--primary); font-size: 13px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;
+        }
+        section h2 { font-size: 40px; font-weight: 800; margin-bottom: 16px; }
+        section .subtitle { color: var(--text-muted); font-size: 18px; margin-bottom: 48px; max-width: 600px; }
+
+        /* CATEGORIES */
+        .categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        .cat-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 32px; cursor: pointer;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .cat-card:hover {
+            border-color: var(--primary); background: var(--bg-card-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(255,77,0,0.1);
+        }
+        .cat-icon { font-size: 40px; margin-bottom: 16px; display: block; }
+        .cat-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .cat-card p { color: var(--text-muted); font-size: 14px; line-height: 1.5; }
+        .cat-time {
+            display: inline-flex; align-items: center; gap: 4px;
+            margin-top: 16px; font-size: 13px; color: var(--success); font-weight: 600;
+        }
+        .cat-time::before { content: '🕐'; }
+
+        /* HOW IT WORKS */
+        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; counter-reset: step; }
+        .step { position: relative; padding-left: 0; }
+        .step::before {
+            counter-increment: step;
+            content: counter(step);
+            display: flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border-radius: 12px;
+            background: rgba(255,77,0,0.1); color: var(--primary);
+            font-size: 20px; font-weight: 800; margin-bottom: 16px;
+        }
+        .step h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .step p { color: var(--text-muted); font-size: 14px; }
+
+        /* DEMO PROMPT */
+        .demo-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 48px; }
+        .demo-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .demo-tab {
+            padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border);
+            background: transparent; color: var(--text-muted); cursor: pointer;
+            font-size: 14px; font-weight: 500; transition: all 0.2s;
+        }
+        .demo-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .demo-tab:hover:not(.active) { border-color: #444; color: var(--text); }
+
+        .prompt-area {
+            width: 100%; min-height: 160px; background: var(--bg);
+            border: 1px solid var(--border); border-radius: 12px;
+            padding: 20px; color: var(--text); font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 14px; resize: vertical; outline: none; transition: border-color 0.2s;
+        }
+        .prompt-area:focus { border-color: var(--primary); }
+        .prompt-area::placeholder { color: #444; }
+
+        .prompt-guide {
+            background: rgba(255,77,0,0.05); border: 1px solid rgba(255,77,0,0.15);
+            border-radius: 12px; padding: 20px; margin-bottom: 24px;
+        }
+        .prompt-guide h4 { font-size: 14px; color: var(--primary); margin-bottom: 8px; }
+        .prompt-guide ul { list-style: none; padding: 0; }
+        .prompt-guide li { font-size: 13px; color: var(--text-muted); padding: 3px 0; }
+        .prompt-guide li::before { content: '→ '; color: var(--primary); }
+
+        .submit-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+        .submit-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 14px 32px; border-radius: 10px; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .submit-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .submit-info { font-size: 13px; color: var(--text-muted); }
+
+        /* RESULT DEMO */
+        .result-panel {
+            display: none; margin-top: 32px; background: var(--bg);
+            border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+        }
+        .result-panel.visible { display: block; animation: fadeIn 0.5s ease; }
+        .result-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px; border-bottom: 1px solid var(--border);
+        }
+        .result-status {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 14px; font-weight: 600; color: var(--success);
+        }
+        .result-status::before {
+            content: ''; width: 8px; height: 8px; border-radius: 50%;
+            background: var(--success); animation: pulse 1.5s infinite;
+        }
+        .result-body { padding: 24px; }
+        .result-preview {
+            background: white; border-radius: 12px; height: 300px;
+            display: flex; align-items: center; justify-content: center;
+            color: #333; font-size: 14px; overflow: hidden;
+        }
+        .result-preview iframe { width: 100%; height: 100%; border: none; }
+        .result-actions { display: flex; gap: 12px; margin-top: 16px; }
+        .result-btn {
+            padding: 10px 20px; border-radius: 8px; font-size: 14px;
+            font-weight: 600; cursor: pointer; transition: all 0.2s; border: none;
+        }
+        .btn-accept { background: var(--success); color: white; }
+        .btn-revise { background: transparent; border: 1px solid var(--border) !important; color: var(--text); }
+        .btn-revise:hover { border-color: #444 !important; }
+
+        /* PRICING */
+        .pricing-example {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 32px;
+        }
+        .price-row {
+            display: flex; justify-content: space-between; padding: 12px 0;
+            border-bottom: 1px solid var(--border); font-size: 15px;
+        }
+        .price-row:last-child { border: none; }
+        .price-row .label { color: var(--text-muted); }
+        .price-row .value { font-weight: 600; }
+        .price-total {
+            display: flex; justify-content: space-between; padding: 16px 0;
+            font-size: 24px; font-weight: 800; margin-top: 8px;
+            border-top: 2px solid var(--primary);
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center; padding: 48px 24px; border-top: 1px solid var(--border);
+            color: var(--text-muted); font-size: 13px;
+        }
+
+        /* LOADING ANIMATION */
+        .loading-bar {
+            display: none; height: 3px; background: var(--border); border-radius: 3px;
+            margin-top: 24px; overflow: hidden;
+        }
+        .loading-bar.active { display: block; }
+        .loading-bar::after {
+            content: ''; display: block; height: 100%; width: 30%;
+            background: var(--primary); border-radius: 3px;
+            animation: loading 1.5s ease infinite;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(400%); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+            nav { padding: 12px 16px; }
+            .nav-links { display: none; }
+            .hero h1 { font-size: 36px; }
+            .hero-stats { gap: 24px; flex-wrap: wrap; justify-content: center; }
+            .demo-section { padding: 24px; }
+            section { padding: 60px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">Dev<span>Dash</span></div>
+    <div class="nav-links">
+        <a href="#services">Services</a>
+        <a href="#how">So funktioniert's</a>
+        <a href="#demo">Demo</a>
+        <a href="#pricing">Preise</a>
+        <a href="#demo" class="nav-cta">Jetzt starten →</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="badge">Durchschnittliche Lieferzeit: 8 Minuten</div>
+    <h1>IT-Services.<br><span class="highlight">In Minuten.</span></h1>
+    <p>Websites, Bots, Bugfixes & Automatisierungen — sofort geliefert, fair berechnet. Kein Warten, kein Verhandeln, kein Bullshit.</p>
+    <a href="#demo" class="hero-cta">Jetzt bestellen ⚡</a>
+    <div class="hero-stats">
+        <div class="stat">
+            <div class="stat-value">~8 Min</div>
+            <div class="stat-label">Ø Lieferzeit</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">3×</div>
+            <div class="stat-label">Gratis Revisionen</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">Pay-per-Use</div>
+            <div class="stat-label">Kein Abo, kein Festpreis</div>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+    <div class="section-label">Services</div>
+    <h2>Was brauchst du?</h2>
+    <p class="subtitle">Wähle eine Kategorie und beschreib was du willst. Den Rest erledigen wir.</p>
+    <div class="categories">
+        <div class="cat-card" onclick="selectCategory('website')">
+            <span class="cat-icon">🌐</span>
+            <h3>Website</h3>
+            <p>Landing Pages, Portfolios, Shops, Firmenseiten — responsive & modern.</p>
+            <div class="cat-time">5–15 Minuten</div>
+        </div>
+        <div class="cat-card" onclick="selectCategory('bot')">
+            <span class="cat-icon">🤖</span>
+            <h3>Bot</h3>
+            <p>Discord, Telegram, WhatsApp — Chatbots, Moderations-Bots, Custom Commands.</p>
+            <div class="cat-time">10–20 Minuten</div>
+        </div>
+        <div class="cat-card" onclick="selectCategory('bugfix')">
+            <span class="cat-icon">🔧</span>
+            <h3>Bugfix</h3>
+            <p>Code kaputt? Schick uns den Fehler und den Code. Wir fixen es.</p>
+            <div class="cat-time">5–10 Minuten</div>
+        </div>
+        <div class="cat-card" onclick="selectCategory('automation')">
+            <span class="cat-icon">⚡</span>
+            <h3>Automatisierung</h3>
+            <p>Scripts, Workflows, API-Integrationen, Datenverarbeitung.</p>
+            <div class="cat-time">10–30 Minuten</div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+    <div class="section-label">So funktioniert's</div>
+    <h2>4 Schritte. Fertig.</h2>
+    <p class="subtitle">Einfacher als Pizza bestellen.</p>
+    <div class="steps">
+        <div class="step">
+            <h3>Kategorie wählen</h3>
+            <p>Website, Bot, Bugfix oder Automatisierung — was brauchst du?</p>
+        </div>
+        <div class="step">
+            <h3>Prompt schreiben</h3>
+            <p>Beschreib genau was du willst. Ein Prompt, alle Details. Unsere Anleitung hilft dir dabei.</p>
+        </div>
+        <div class="step">
+            <h3>Ergebnis erhalten</h3>
+            <p>Innerhalb von Minuten ist dein Produkt fertig. Bis zu 3 kostenlose Änderungen inklusive.</p>
+        </div>
+        <div class="step">
+            <h3>Zufrieden? Zahlen.</h3>
+            <p>Du zahlst nur was es wirklich gekostet hat. Transparente Preisberechnung, keine Überraschungen.</p>
+        </div>
+    </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+    <div class="section-label">Demo</div>
+    <h2>Probier es aus</h2>
+    <p class="subtitle">Wähle eine Kategorie und schreib deinen Prompt.</p>
+    
+    <div class="demo-section">
+        <div class="demo-tabs">
+            <button class="demo-tab active" onclick="switchTab(this, 'website')">🌐 Website</button>
+            <button class="demo-tab" onclick="switchTab(this, 'bot')">🤖 Bot</button>
+            <button class="demo-tab" onclick="switchTab(this, 'bugfix')">🔧 Bugfix</button>
+            <button class="demo-tab" onclick="switchTab(this, 'automation')">⚡ Automatisierung</button>
+        </div>
+
+        <div class="prompt-guide" id="guide">
+            <h4>📋 Anleitung — Website</h4>
+            <ul>
+                <li>Beschreib den <strong>Zweck</strong> der Website (Portfolio, Firma, Shop...)</li>
+                <li>Nenne <strong>gewünschte Farben</strong> oder Stil (modern, minimalistisch, bunt...)</li>
+                <li>Welche <strong>Sektionen</strong>? (Hero, Über uns, Kontakt, Preise...)</li>
+                <li>Gibt es <strong>Texte/Inhalte</strong> die rein sollen?</li>
+                <li>Soll es <strong>responsive</strong> sein? (Standard: ja)</li>
+            </ul>
+        </div>
+
+        <textarea class="prompt-area" id="prompt" placeholder="Beschreib hier genau was du brauchst...
+
+Beispiel: Ich brauche eine Landing Page für mein Fitnessstudio 'PowerGym'. Farben: Schwarz und Rot. Sektionen: Hero mit Slogan, Kursplan, Preistabelle (3 Pakete), Trainer-Vorstellung (3 Personen), Kontaktformular. Stil: modern und energetisch."></textarea>
+
+        <div class="loading-bar" id="loader"></div>
+
+        <div class="submit-row">
+            <span class="submit-info">💡 Je genauer dein Prompt, desto besser das Ergebnis</span>
+            <button class="submit-btn" onclick="submitPrompt()">Generieren ⚡</button>
+        </div>
+
+        <!-- RESULT -->
+        <div class="result-panel" id="result">
+            <div class="result-header">
+                <div class="result-status">Fertig — generiert in 7 Sekunden</div>
+                <span style="font-size:13px; color:var(--text-muted)">Revision 1/3</span>
+            </div>
+            <div class="result-body">
+                <div class="result-preview" id="preview">
+                    <div style="text-align:center; padding:40px;">
+                        <div style="font-size:48px; margin-bottom:16px;">🏋️</div>
+                        <div style="font-size:24px; font-weight:800; color:#e00;">POWERGYM</div>
+                        <div style="color:#666; margin-top:8px;">Deine Website-Vorschau würde hier erscheinen</div>
+                        <div style="margin-top:24px; display:flex; gap:8px; justify-content:center;">
+                            <span style="background:#f0f0f0; padding:6px 12px; border-radius:6px; font-size:12px;">Hero</span>
+                            <span style="background:#f0f0f0; padding:6px 12px; border-radius:6px; font-size:12px;">Kursplan</span>
+                            <span style="background:#f0f0f0; padding:6px 12px; border-radius:6px; font-size:12px;">Preise</span>
+                            <span style="background:#f0f0f0; padding:6px 12px; border-radius:6px; font-size:12px;">Kontakt</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-actions">
+                    <button class="result-btn btn-accept" onclick="acceptResult()">✅ Passt — Preis anzeigen</button>
+                    <button class="result-btn btn-revise">🔄 Revision anfordern</button>
+                    <button class="result-btn btn-revise">📥 Code herunterladen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+    <div class="section-label">Preise</div>
+    <h2>Fair berechnet. Immer.</h2>
+    <p class="subtitle">Kein Abo, kein Festpreis. Du zahlst nur den echten Aufwand — transparent aufgeschlüsselt.</p>
+    
+    <div class="pricing-example">
+        <h3 style="margin-bottom:24px; font-size:18px;">📊 Beispiel: Landing Page "PowerGym"</h3>
+        <div class="price-row">
+            <span class="label">KI-Generierung (Prompt → Code)</span>
+            <span class="value">€2,40</span>
+        </div>
+        <div class="price-row">
+            <span class="label">1× Revision</span>
+            <span class="value">€0,80</span>
+        </div>
+        <div class="price-row">
+            <span class="label">Qualitätsprüfung</span>
+            <span class="value">€0,50</span>
+        </div>
+        <div class="price-row">
+            <span class="label">Infrastruktur & Service</span>
+            <span class="value">€8,00</span>
+        </div>
+        <div class="price-total">
+            <span>Gesamt</span>
+            <span style="color: var(--primary);">€11,70</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 16px; text-align: center;">
+            Preise variieren je nach Komplexität. Du siehst den Preis BEVOR du zahlst.
+        </p>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="logo" style="font-size: 20px; margin-bottom: 12px;">Dev<span>Dash</span></div>
+    <p>IT-Services in Minuten, nicht Wochen. &copy; 2026</p>
+</footer>
+
+<script>
+    const guides = {
+        website: {
+            title: '📋 Anleitung — Website',
+            items: [
+                'Beschreib den <strong>Zweck</strong> der Website (Portfolio, Firma, Shop...)',
+                'Nenne <strong>gewünschte Farben</strong> oder Stil (modern, minimalistisch, bunt...)',
+                'Welche <strong>Sektionen</strong>? (Hero, Über uns, Kontakt, Preise...)',
+                'Gibt es <strong>Texte/Inhalte</strong> die rein sollen?',
+                'Soll es <strong>responsive</strong> sein? (Standard: ja)'
+            ],
+            placeholder: 'Beispiel: Ich brauche eine Landing Page für mein Fitnessstudio \'PowerGym\'. Farben: Schwarz und Rot. Sektionen: Hero mit Slogan, Kursplan, Preistabelle, Trainer-Vorstellung, Kontaktformular. Stil: modern und energetisch.'
+        },
+        bot: {
+            title: '📋 Anleitung — Bot',
+            items: [
+                'Welche <strong>Plattform</strong>? (Discord, Telegram, WhatsApp)',
+                'Was soll der Bot <strong>können</strong>? (Commands, Auto-Antworten, Moderation...)',
+                'Gibt es <strong>externe APIs</strong> die angebunden werden sollen?',
+                'Welche <strong>Sprache</strong> soll der Bot sprechen?',
+                'Soll er auf bestimmte <strong>Events</strong> reagieren?'
+            ],
+            placeholder: 'Beispiel: Discord Bot für meinen Gaming-Server. Commands: !rank (zeigt Spieler-Rank), !stats (Server-Statistiken), !poll (erstellt Abstimmungen). Soll Willkommensnachrichten senden und Spam filtern. Sprache: Deutsch.'
+        },
+        bugfix: {
+            title: '📋 Anleitung — Bugfix',
+            items: [
+                '<strong>Programmiersprache</strong> und Framework',
+                'Beschreib den <strong>Fehler</strong> so genau wie möglich',
+                'Füg den <strong>relevanten Code</strong> ein',
+                'Was ist das <strong>erwartete Verhalten</strong>?',
+                'Gibt es eine <strong>Fehlermeldung</strong>? (Komplett einfügen!)'
+            ],
+            placeholder: 'Beispiel: React-App (Next.js 14). Beim Laden der Startseite bekomme ich "TypeError: Cannot read property \'map\' of undefined" in der Komponente ProductList. Der API-Call in useEffect gibt manchmal null zurück. Erwartetes Verhalten: Produkte werden geladen und angezeigt.'
+        },
+        automation: {
+            title: '📋 Anleitung — Automatisierung',
+            items: [
+                'Was soll <strong>automatisiert</strong> werden?',
+                'Welche <strong>Datenquellen/APIs</strong> sind beteiligt?',
+                'Wie oft soll es <strong>laufen</strong>? (Einmalig, täglich, bei Event...)',
+                'Welches <strong>Format</strong> soll das Ergebnis haben?',
+                'Gibt es <strong>Zugangsdaten</strong> die benötigt werden?'
+            ],
+            placeholder: 'Beispiel: Script das täglich alle neuen Bewertungen von Google Maps für mein Restaurant abruft, in eine Excel-Tabelle speichert, und mir eine Zusammenfassung per E-Mail schickt. Bei Bewertungen unter 3 Sternen soll es sofort Alarm schlagen.'
+        }
+    };
+
+    function switchTab(el, category) {
+        document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        const guide = guides[category];
+        const guideEl = document.getElementById('guide');
+        guideEl.innerHTML = `<h4>${guide.title}</h4><ul>${guide.items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+        document.getElementById('prompt').placeholder = guide.placeholder;
+        document.getElementById('result').classList.remove('visible');
+        document.getElementById('loader').classList.remove('active');
+    }
+
+    function selectCategory(cat) {
+        const tabs = document.querySelectorAll('.demo-tab');
+        const names = ['website', 'bot', 'bugfix', 'automation'];
+        const idx = names.indexOf(cat);
+        if (idx >= 0) {
+            switchTab(tabs[idx], cat);
+            document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    function submitPrompt() {
+        const prompt = document.getElementById('prompt').value.trim();
+        if (!prompt) {
+            document.getElementById('prompt').focus();
+            document.getElementById('prompt').style.borderColor = '#ff4d00';
+            setTimeout(() => document.getElementById('prompt').style.borderColor = '', 1500);
+            return;
+        }
+        document.getElementById('loader').classList.add('active');
+        document.getElementById('result').classList.remove('visible');
+
+        // Simulate generation
+        setTimeout(() => {
+            document.getElementById('loader').classList.remove('active');
+            document.getElementById('result').classList.add('visible');
+        }, 3000);
+    }
+
+    function acceptResult() {
+        alert('💰 Stripe Payment würde hier starten!\n\nGesamtpreis: €11,70\n\n(Demo — noch nicht aktiv)');
+    }
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+
+</body>
+</html>
