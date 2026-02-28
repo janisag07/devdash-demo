@@ -190,11 +190,12 @@
         .cmp-w{
             background:var(--glass2);backdrop-filter:blur(20px);
             border:1px solid var(--glass-border);border-radius:var(--r);
-            overflow:hidden;box-shadow:var(--shadow-md);
+            box-shadow:var(--shadow-md);
+            overflow-x:auto;-webkit-overflow-scrolling:touch;
         }
-        .ct{width:100%;border-collapse:collapse;font-size:14px}
-        .ct th{text-align:left;padding:16px 20px;font-size:11px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:1.5px;border-bottom:1px solid var(--border)}
-        .ct td{padding:14px 20px;border-bottom:1px solid var(--border)}
+        .ct{width:100%;border-collapse:collapse;font-size:14px;min-width:500px}
+        .ct th{text-align:left;padding:16px 20px;font-size:11px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:1.5px;border-bottom:1px solid var(--border);white-space:nowrap}
+        .ct td{padding:14px 20px;border-bottom:1px solid var(--border);white-space:nowrap}
         .ct .us{color:var(--g1);font-weight:700}.ct .them{color:var(--text4)}
         .ct tbody tr:last-child td{border:none}
 
