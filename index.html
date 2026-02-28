@@ -252,6 +252,35 @@
         .tips li{font-size:12px;color:var(--text3);padding:3px 0}
         .tips li::before{content:'→ ';color:var(--g1)}
         .cc{font-size:11px;color:var(--text4);text-align:right;margin-top:6px}
+
+        /* FILE UPLOAD */
+        .upload-zone{
+            border:2px dashed var(--border2);border-radius:14px;
+            padding:20px;text-align:center;cursor:pointer;
+            transition:all 0.25s;margin-top:12px;background:var(--bg2);
+        }
+        .upload-zone:hover,.upload-zone.dragover{border-color:var(--g1);background:rgba(108,92,231,0.02)}
+        .upload-zone .uz-icon{font-size:28px;margin-bottom:8px}
+        .upload-zone p{font-size:13px;color:var(--text3)}
+        .upload-zone .uz-small{font-size:11px;color:var(--text4);margin-top:4px}
+        .upload-zone input{display:none}
+        .file-list{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+        .file-item{
+            display:flex;align-items:center;justify-content:space-between;
+            background:var(--bg2);border:1px solid var(--border);
+            border-radius:10px;padding:10px 14px;font-size:13px;
+        }
+        .file-item .fi-left{display:flex;align-items:center;gap:8px}
+        .file-item .fi-icon{font-size:18px}
+        .file-item .fi-name{font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .file-item .fi-size{color:var(--text4);font-size:11px}
+        .file-item .fi-remove{
+            background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;
+            padding:4px 8px;border-radius:6px;transition:background 0.2s;
+        }
+        .file-item .fi-remove:hover{background:rgba(255,107,107,0.08)}
+        .file-item .fi-scan{font-size:11px;color:var(--green);font-weight:600}
+        .file-item .fi-warn{font-size:11px;color:var(--red);font-weight:600}
         .of{display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:12px}
         .on2{font-size:12px;color:var(--text4)}
 
@@ -527,6 +556,13 @@
         </ul></details>
         <textarea class="pb" id="pi" placeholder="Beschreib genau was du brauchst..." oninput="ucc()"></textarea>
         <div class="cc" id="cc">0 Zeichen</div>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="event.preventDefault();this.classList.remove('dragover');handleFiles(event.dataTransfer.files)">
+            <div class="uz-icon">📎</div>
+            <p>Dateien hier ablegen oder klicken zum hochladen</p>
+            <div class="uz-small">Bilder, Code-Dateien, Screenshots — max. 10MB pro Datei</div>
+            <input type="file" id="fileInput" multiple onchange="handleFiles(this.files)">
+        </div>
+        <div class="file-list" id="fileList"></div>
         <div class="of"><span class="on2" id="oNote">⚡ Geschätzte Lieferzeit: ~12 Min</span><button class="btn-lg btn-primary" onclick="startGen()">Generieren →</button></div>
     </div>
 </div>
@@ -681,6 +717,35 @@ function showPay(){
 function closeP(){document.getElementById('pM').classList.remove('on')}
 document.getElementById('pM').addEventListener('click',e=>{if(e.target===e.currentTarget)closeP()});
 uGate();
+
+// FILE UPLOAD
+let uploadedFiles=[];
+const dangerousExts=['.exe','.bat','.cmd','.msi','.scr','.pif','.com','.vbs','.js','.wsf','.ps1','.sh','.dll','.sys'];
+const allowedExts=['.png','.jpg','.jpeg','.gif','.webp','.svg','.html','.css','.py','.ts','.tsx','.jsx','.json','.xml','.md','.txt','.csv','.zip','.rar','.pdf','.doc','.docx','.rb','.go','.rs','.java','.c','.cpp','.h','.php','.vue','.svelte'];
+
+function handleFiles(files){
+    for(const f of files){
+        if(f.size>10*1024*1024){alert(`${f.name} ist zu groß (max 10MB)`);continue}
+        const ext='.'+f.name.split('.').pop().toLowerCase();
+        const isDangerous=dangerousExts.includes(ext);
+        const isAllowed=allowedExts.includes(ext);
+        uploadedFiles.push({name:f.name,size:f.size,safe:!isDangerous&&isAllowed,dangerous:isDangerous,file:f});
+        renderFiles();
+    }
+}
+function renderFiles(){
+    const el=document.getElementById('fileList');
+    el.innerHTML=uploadedFiles.map((f,i)=>{
+        const sz=f.size>1024*1024?(f.size/1024/1024).toFixed(1)+'MB':(f.size/1024).toFixed(0)+'KB';
+        const icon=f.name.match(/\.(png|jpg|jpeg|gif|webp|svg)$/i)?'🖼️':f.name.match(/\.(zip|rar)$/i)?'📦':'📄';
+        const status=f.dangerous?'<span class="fi-warn">⚠️ Blockiert</span>':f.safe?'<span class="fi-scan">✓ Geprüft</span>':'<span class="fi-warn">⚠️ Unbekannt</span>';
+        return `<div class="file-item${f.dangerous?' dangerous':''}">
+            <div class="fi-left"><span class="fi-icon">${icon}</span><span class="fi-name">${f.name}</span><span class="fi-size">${sz}</span>${status}</div>
+            <button class="fi-remove" onclick="removeFile(${i})">✕</button>
+        </div>`;
+    }).join('');
+}
+function removeFile(i){uploadedFiles.splice(i,1);renderFiles();}
 </script>
 </body>
 </html>
