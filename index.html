@@ -292,47 +292,58 @@
         .gs .ck{width:20px;text-align:center;flex-shrink:0}
 
         /* ===== RESULT ===== */
-        .result-page{padding:96px 24px 40px}
+        .result-page{padding:96px 24px 40px;max-width:640px;margin:0 auto}
         .result-top{
-            max-width:1040px;margin:0 auto 14px;
-            display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;
+            display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:24px;
         }
         .rok{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--green)}
         .rok .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px rgba(0,184,148,0.5)}
         .rct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text4)}
 
-        .rf{
-            max-width:1040px;margin:0 auto 18px;
-            border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;
-            background:#fff;position:relative;
-            box-shadow:var(--shadow-lg);
+        /* RESULT INFO CARD */
+        .result-info{
+            background:var(--glass2);backdrop-filter:blur(20px);
+            border:1px solid var(--glass-border);border-radius:var(--r);
+            padding:32px;box-shadow:var(--shadow-md);margin-bottom:20px;text-align:center;
         }
-        .rf iframe{width:100%;height:580px;border:none;display:block}
-        .wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:10}
-        .wm span{font-size:40px;font-weight:900;color:rgba(0,0,0,0.035);transform:rotate(-25deg);letter-spacing:6px;text-transform:uppercase}
+        .result-info .big-check{font-size:56px;margin-bottom:16px}
+        .result-info h2{font-size:22px;font-weight:800;margin-bottom:6px}
+        .result-info p{font-size:14px;color:var(--text3);margin-bottom:24px}
+        .result-info .meta-row{
+            display:flex;justify-content:center;gap:24px;flex-wrap:wrap;
+            padding-top:16px;border-top:1px solid var(--border);font-size:13px;color:var(--text3);
+        }
+        .result-info .meta-row span{display:flex;align-items:center;gap:6px}
 
-        .ab{
-            max-width:1040px;margin:0 auto;
-            display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:4px 0;perspective:800px;
+        /* PREVIEW BUTTON */
+        .preview-btn{
+            width:100%;padding:18px;border:none;border-radius:16px;
+            background:var(--grad-btn);color:#fff;font-size:16px;font-weight:700;
+            cursor:pointer;font-family:inherit;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
+            box-shadow:var(--shadow-glow);display:flex;align-items:center;justify-content:center;gap:10px;
+            margin-bottom:16px;
         }
-        .ab::-webkit-scrollbar{display:none}
-        .ac{
-            flex:0 0 auto;
+        .preview-btn:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 16px 56px rgba(108,92,231,0.3)}
+        .preview-btn svg{width:20px;height:20px}
+
+        /* ACTION GRID */
+        .action-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+        .ag-btn{
             background:var(--glass);backdrop-filter:blur(20px);
             border:1px solid var(--glass-border);
-            border-radius:14px;padding:16px 22px;cursor:pointer;
-            display:flex;align-items:center;gap:10px;white-space:nowrap;
+            border-radius:14px;padding:18px 12px;cursor:pointer;text-align:center;
             box-shadow:var(--shadow-sm);
             transition:all 0.4s cubic-bezier(0.16,1,0.3,1);
             transform-style:preserve-3d;
         }
-        .ac:hover{transform:translateY(-5px) rotateX(2deg);box-shadow:var(--shadow-lg)}
-        .ac.buy{background:var(--green-bg);border-color:rgba(0,184,148,0.15)}
-        .ac.buy:hover{box-shadow:0 12px 40px rgba(0,184,148,0.12)}
-        .ac.danger{border-color:rgba(255,107,107,0.15)}
-        .ac.danger:hover{border-color:rgba(255,107,107,0.3);box-shadow:0 8px 30px rgba(255,107,107,0.08)}
-        .ac .ic{font-size:20px}.ac h4{font-size:13px;font-weight:600}.ac p{font-size:11px;color:var(--text4)}
-        .swh{text-align:center;margin-top:8px;font-size:11px;color:var(--text4)}
+        .ag-btn:hover{transform:translateY(-4px) rotateX(2deg);box-shadow:var(--shadow-lg)}
+        .ag-btn.buy{background:var(--green-bg);border-color:rgba(0,184,148,0.15)}
+        .ag-btn.buy:hover{box-shadow:0 12px 40px rgba(0,184,148,0.12)}
+        .ag-btn.danger{border-color:rgba(255,107,107,0.12)}
+        .ag-btn.danger:hover{border-color:rgba(255,107,107,0.3)}
+        .ag-btn .ic{font-size:24px;margin-bottom:6px}
+        .ag-btn h4{font-size:12px;font-weight:600}
+        .ag-btn p{font-size:10px;color:var(--text4);margin-top:2px}
 
         .rp{
             max-width:1040px;margin:20px auto 0;
@@ -377,13 +388,55 @@
 
         footer{text-align:center;padding:40px;color:var(--text4);font-size:12px}
 
+        /* TABLET */
+        @media(max-width:860px){
+            .cards{grid-template-columns:repeat(2,1fr)}
+            .sg{grid-template-columns:repeat(2,1fr)}
+            .ct{font-size:13px}
+            .ct th,.ct td{padding:12px 14px}
+        }
+        /* MOBILE */
         @media(max-width:640px){
-            nav{width:calc(100% - 16px);top:8px;padding:8px 14px}
+            nav{width:calc(100% - 16px);top:8px;padding:8px 14px;height:50px}
             .nav-link{display:none}
-            .hero{padding:120px 16px 40px}.hero h1{font-size:34px}
-            .ss{grid-template-columns:1fr}
-            .rf iframe{height:380px}
-            .cards,.svc-sec,.cmp-sec{padding-left:16px;padding-right:16px}
+            .credits-badge{font-size:10px;padding:4px 10px}
+            .nav-btn{padding:7px 16px;font-size:12px}
+            .hero{padding:110px 16px 32px}
+            .hero h1{font-size:32px;letter-spacing:-1.5px}
+            .hero p{font-size:15px}
+            .hero-btns{flex-direction:column;align-items:center}
+            .btn-lg{width:100%;justify-content:center;padding:14px 24px}
+            .cards{grid-template-columns:1fr;padding:12px 16px 60px;gap:10px}
+            .gcard{padding:24px}
+            .svc-sec{padding:0 16px 60px}
+            .sg{grid-template-columns:1fr;gap:10px}
+            .sc{padding:24px}
+            .cmp-sec{padding:0 16px 60px}
+            .cmp-w{border-radius:14px}
+            .ct{font-size:12px}
+            .ct th,.ct td{padding:10px 12px}
+            .lcta{padding:32px 16px 60px}
+            .lcta h2{font-size:28px}
+            .order-page{padding:88px 16px 60px}
+            .ss{grid-template-columns:1fr;gap:8px}
+            .so{padding:16px}
+            .pb{min-height:120px;font-size:12px}
+            .of{flex-direction:column;align-items:stretch}
+            .of .btn-lg{width:100%;justify-content:center}
+            .gen-center{padding:0 8px}
+            .gen-orb{width:70px;height:70px}
+            .result-page{padding:88px 16px 40px}
+            .result-info{padding:24px}
+            .result-info .big-check{font-size:44px}
+            .result-info h2{font-size:18px}
+            .result-info .meta-row{flex-direction:column;gap:8px;align-items:center}
+            .preview-btn{padding:16px;font-size:15px}
+            .action-grid{grid-template-columns:1fr;gap:8px}
+            .ag-btn{padding:14px;display:flex;align-items:center;gap:12px;text-align:left}
+            .ag-btn .ic{font-size:20px;margin-bottom:0}
+            .mbox{padding:28px;border-radius:20px;margin:12px}
+            .cbox .wi{font-size:44px}
+            footer{padding:32px 16px}
         }
     </style>
 </head>
@@ -502,15 +555,31 @@
 <div class="page" id="page-result">
     <div class="result-page">
         <button class="back-btn" onclick="confirmDiscard()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg> Zurück (verwirft Ergebnis)</button>
-        <div class="result-top"><div class="rok"><span class="dot"></span> Fertig</div><span class="rct" id="rCt">Revisionen: 0/3</span></div>
-        <div class="rf"><iframe id="rF" sandbox="allow-scripts"></iframe><div class="wm" id="wm"><span>DEVDASH PREVIEW</span></div></div>
-        <div class="ab">
-            <div class="ac buy" onclick="showPay()"><span class="ic">💰</span><div><h4>Kaufen & Download</h4><p>Wasserzeichen entfernen</p></div></div>
-            <div class="ac" onclick="openRev()"><span class="ic">🔄</span><div><h4>Revision</h4><p id="rL">3 verbleibend</p></div></div>
-            <div class="ac" onclick="openFull()"><span class="ic">🔍</span><div><h4>Vollbild</h4><p>Neuer Tab</p></div></div>
-            <div class="ac danger" onclick="confirmDiscard()"><span class="ic">⚠️</span><div><h4>Verwerfen</h4><p>Unwiderruflich</p></div></div>
+
+        <div class="result-top"><div class="rok"><span class="dot"></span> Fertig — bereit zur Ansicht</div><span class="rct" id="rCt">Revisionen: 0/3</span></div>
+
+        <div class="result-info">
+            <div class="big-check">✅</div>
+            <h2>Dein Projekt ist fertig!</h2>
+            <p>Öffne die Vorschau um dein Ergebnis im Vollbild zu sehen.</p>
+            <div class="meta-row">
+                <span>🕐 Generiert in ~12 Min</span>
+                <span id="rCatLabel">🌐 Website</span>
+                <span id="rRevLabel">🔄 0/3 Revisionen</span>
+            </div>
         </div>
-        <div class="swh">← swipen →</div>
+
+        <button class="preview-btn" onclick="openFull()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            Vorschau im Vollbild öffnen
+        </button>
+
+        <div class="action-grid">
+            <div class="ag-btn buy" onclick="showPay()"><div class="ic">💰</div><h4>Kaufen</h4><p>Code erhalten</p></div>
+            <div class="ag-btn" onclick="openRev()"><div class="ic">🔄</div><h4>Revision</h4><p id="rL">3 übrig</p></div>
+            <div class="ag-btn danger" onclick="confirmDiscard()"><div class="ic">⚠️</div><h4>Verwerfen</h4><p>Unwiderruflich</p></div>
+        </div>
+
         <div class="rp" id="rP"><h3>🔄 Revision</h3><textarea class="ri" id="rI" placeholder="Was soll geändert werden?"></textarea><div class="rft"><button class="rc" onclick="closeRev()">Abbrechen</button><button class="nav-btn" onclick="submitRev()">Senden</button></div></div>
     </div>
     <footer><p>© 2026 DevDash</p></footer>
@@ -586,19 +655,20 @@ function startGen(){
     let i=0;const iv=setInterval(()=>{
         if(i<steps.length){const s=steps[i];fill.style.width=s.p+'%';pct.textContent=s.p+'%';st.textContent=s.t;
         for(let j=1;j<=5;j++){const e=document.getElementById('s'+j);if(j<s.s){e.className='gs done';e.querySelector('.ck').textContent='✓'}else if(j===s.s){e.className='gs on';e.querySelector('.ck').textContent='◉'}else{e.className='gs';e.querySelector('.ck').textContent='○'}}i++}
-        else{clearInterval(iv);gc++;localStorage.setItem('dd_g',gc);uBadge();setTimeout(()=>{html=getExampleForPrompt(p);revs=0;document.getElementById('rF').srcdoc=html;uRev();showPage('result')},600)}
+        else{clearInterval(iv);gc++;localStorage.setItem('dd_g',gc);uBadge();setTimeout(()=>{html=getExampleForPrompt(p);revs=0;uRev();showPage('result')},600)}
     },800);
 }
 
-function uRev(){document.getElementById('rCt').textContent=`Revisionen: ${revs}/${mx}`;document.getElementById('rL').textContent=(mx-revs)+' verbleibend'}
+const catNames={website:'🌐 Website',bot:'🤖 Bot',bugfix:'🔧 Bugfix',automation:'⚡ Automation'};
+function uRev(){document.getElementById('rCt').textContent=`Revisionen: ${revs}/${mx}`;document.getElementById('rL').textContent=(mx-revs)+' übrig';document.getElementById('rRevLabel').textContent=`🔄 ${revs}/${mx} Revisionen`;document.getElementById('rCatLabel').textContent=catNames[cat]||'🌐 Website'}
 function openRev(){if(revs>=mx){alert('Alle Revisionen verbraucht.');return}document.getElementById('rP').classList.add('open')}
 function closeRev(){document.getElementById('rP').classList.remove('open')}
-function submitRev(){const t=document.getElementById('rI').value.trim();if(!t)return;revs++;uRev();closeRev();document.getElementById('rI').value='';showPage('gen');setTimeout(()=>{document.getElementById('rF').srcdoc=html;showPage('result')},3000)}
+function submitRev(){const t=document.getElementById('rI').value.trim();if(!t)return;revs++;uRev();closeRev();document.getElementById('rI').value='';showPage('gen');setTimeout(()=>{showPage('result')},3000)}
 function openFull(){const w=window.open();w.document.write(html);w.document.close()}
 
 function confirmDiscard(){document.getElementById('cM').classList.add('on')}
 function closeCM(){document.getElementById('cM').classList.remove('on')}
-function doDiscard(){closeCM();html='';revs=0;document.getElementById('rF').srcdoc='';showPage('order');uGate()}
+function doDiscard(){closeCM();html='';revs=0;showPage('order');uGate()}
 document.getElementById('cM').addEventListener('click',e=>{if(e.target===e.currentTarget)closeCM()})
 
 function showPay(){
