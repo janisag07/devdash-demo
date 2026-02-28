@@ -8,409 +8,433 @@
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         :root{
-            --bg:#09090b;--surface:#111113;--surface2:#18181b;--surface3:#1e1e22;
-            --border:#27272a;--border-light:#3f3f46;
-            --text:#fafafa;--text2:#a1a1aa;--text3:#71717a;--text4:#52525b;
-            --accent:#3b82f6;--accent2:#60a5fa;--accent-glow:rgba(59,130,246,0.15);
-            --green:#22c55e;--green-glow:rgba(34,197,94,0.15);
+            --bg:#f8f9fc;--bg2:#ffffff;--surface:rgba(255,255,255,0.7);
+            --glass:rgba(255,255,255,0.55);--glass-border:rgba(255,255,255,0.8);
+            --border:rgba(0,0,0,0.06);--border2:rgba(0,0,0,0.1);
+            --text:#0f0f12;--text2:#3c3c43;--text3:#6e6e80;--text4:#a0a0b0;
+            --accent:#4f6ef7;--accent2:#7c5cfc;--accent3:#c850c0;--accent4:#ff6b9d;
+            --grad1:linear-gradient(135deg,#4f6ef7,#7c5cfc,#c850c0);
+            --grad2:linear-gradient(135deg,#4f6ef7,#7c5cfc);
+            --grad-soft:linear-gradient(135deg,#e8ecff,#f3e8ff,#ffe8f3);
+            --green:#16a34a;--green-bg:rgba(22,163,74,0.08);
             --red:#ef4444;
-            --radius:12px;
+            --shadow-sm:0 1px 3px rgba(0,0,0,0.04),0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md:0 4px 16px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04);
+            --shadow-lg:0 12px 40px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);
+            --shadow-xl:0 24px 64px rgba(0,0,0,0.1),0 8px 20px rgba(0,0,0,0.05);
+            --shadow-glow:0 8px 40px rgba(79,110,247,0.15);
+            --radius:16px;
         }
         html{scroll-behavior:smooth}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+        /* AMBIENT GRADIENT BG */
+        .ambient{
+            position:fixed;inset:0;z-index:-1;overflow:hidden;
+        }
+        .ambient .orb{
+            position:absolute;border-radius:50%;filter:blur(120px);opacity:0.35;
+            animation:orbFloat 30s infinite alternate;
+        }
+        .orb-a{width:700px;height:700px;background:linear-gradient(135deg,#c7d2fe,#ddd6fe);top:-20%;right:-10%;animation-delay:0s}
+        .orb-b{width:500px;height:500px;background:linear-gradient(135deg,#fbcfe8,#fecdd3);bottom:-15%;left:-10%;animation-delay:-10s}
+        .orb-c{width:400px;height:400px;background:linear-gradient(135deg,#a5f3fc,#bfdbfe);top:40%;left:50%;animation-delay:-20s}
+        @keyframes orbFloat{
+            0%{transform:translate(0,0) scale(1)}
+            33%{transform:translate(60px,-40px) scale(1.08)}
+            66%{transform:translate(-30px,50px) scale(0.95)}
+            100%{transform:translate(40px,20px) scale(1.03)}
+        }
 
         /* PAGE SYSTEM */
-        .page{display:none;min-height:100vh;animation:pageIn 0.4s ease}
+        .page{display:none;min-height:100vh;animation:pageIn 0.5s cubic-bezier(0.16,1,0.3,1)}
         .page.active{display:block}
-        @keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes pageIn{from{opacity:0;transform:translateY(16px) scale(0.99)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-        /* NAV */
+        /* NAV — glass */
         nav{
-            position:fixed;top:0;width:100%;z-index:1000;
-            padding:0 32px;height:64px;
+            position:fixed;top:12px;left:50%;transform:translateX(-50%);
+            width:calc(100% - 24px);max-width:1100px;z-index:1000;
+            padding:12px 24px;height:56px;
             display:flex;align-items:center;justify-content:space-between;
-            background:rgba(9,9,11,0.8);backdrop-filter:blur(24px);
-            border-bottom:1px solid var(--border);
+            background:var(--glass);backdrop-filter:blur(24px) saturate(180%);
+            border:1px solid var(--glass-border);
+            border-radius:16px;
+            box-shadow:var(--shadow-md);
         }
-        .logo{font-size:18px;font-weight:800;letter-spacing:-0.5px;color:var(--text);cursor:pointer}
-        .logo span{color:var(--accent)}
+        .logo{font-size:17px;font-weight:800;letter-spacing:-0.5px;cursor:pointer;color:var(--text)}
+        .logo span{background:var(--grad2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
         .nav-r{display:flex;gap:8px;align-items:center}
-        .nav-link{color:var(--text3);font-size:13px;font-weight:500;text-decoration:none;padding:8px 16px;border-radius:8px;transition:all 0.2s}
-        .nav-link:hover{color:var(--text);background:var(--surface)}
+        .nav-link{color:var(--text3);font-size:13px;font-weight:500;text-decoration:none;padding:8px 14px;border-radius:10px;transition:all 0.2s}
+        .nav-link:hover{color:var(--text);background:rgba(0,0,0,0.03)}
         .nav-btn{
-            background:var(--accent);color:#fff;padding:8px 20px;border-radius:8px;
+            background:var(--grad2);color:#fff;padding:8px 20px;border-radius:10px;
             font-size:13px;font-weight:600;text-decoration:none;border:none;cursor:pointer;
-            font-family:inherit;transition:all 0.2s;
+            font-family:inherit;transition:all 0.2s;box-shadow:var(--shadow-glow);
         }
-        .nav-btn:hover{opacity:0.9}
+        .nav-btn:hover{transform:translateY(-1px);box-shadow:0 12px 48px rgba(79,110,247,0.25)}
         .credits-badge{
-            font-family:'JetBrains Mono',monospace;font-size:12px;
-            color:var(--green);background:var(--green-glow);
-            padding:6px 14px;border-radius:6px;font-weight:600;
+            font-family:'JetBrains Mono',monospace;font-size:11px;
+            color:var(--green);background:var(--green-bg);
+            padding:6px 12px;border-radius:8px;font-weight:600;
         }
 
-        /* ==================== PAGE 1: LANDING ==================== */
-        .hero{
-            max-width:800px;margin:0 auto;padding:160px 24px 80px;text-align:center;
-        }
+        /* ===== PAGE 1: LANDING ===== */
+        .hero{max-width:760px;margin:0 auto;padding:140px 24px 60px;text-align:center}
         .hero-chip{
             display:inline-flex;align-items:center;gap:8px;
-            padding:6px 16px;border-radius:99px;font-size:13px;font-weight:500;
-            color:var(--accent2);background:var(--accent-glow);
-            border:1px solid rgba(59,130,246,0.1);margin-bottom:32px;
+            padding:7px 18px;border-radius:99px;font-size:13px;font-weight:500;
+            color:var(--accent);background:rgba(79,110,247,0.06);
+            border:1px solid rgba(79,110,247,0.1);margin-bottom:28px;
         }
         .hero-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
         .hero h1{
-            font-size:clamp(44px,7vw,72px);font-weight:900;line-height:1.05;
-            letter-spacing:-3px;color:var(--text);margin-bottom:20px;
+            font-size:clamp(40px,7vw,68px);font-weight:900;line-height:1.08;
+            letter-spacing:-2.5px;margin-bottom:18px;
         }
-        .hero p{font-size:18px;line-height:1.7;color:var(--text3);max-width:520px;margin:0 auto 40px}
+        .hero h1 .grad{background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .hero p{font-size:17px;line-height:1.7;color:var(--text3);max-width:500px;margin:0 auto 36px}
         .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
         .btn-lg{
             display:inline-flex;align-items:center;gap:8px;
-            padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;
-            text-decoration:none;transition:all 0.2s;cursor:pointer;border:none;font-family:inherit;
+            padding:14px 30px;border-radius:14px;font-size:15px;font-weight:600;
+            text-decoration:none;transition:all 0.25s;cursor:pointer;border:none;font-family:inherit;
         }
-        .btn-primary{background:var(--accent);color:#fff}
-        .btn-primary:hover{opacity:0.9;transform:translateY(-1px)}
-        .btn-secondary{background:var(--surface);color:var(--text2);border:1px solid var(--border)}
-        .btn-secondary:hover{border-color:var(--border-light);color:var(--text)}
+        .btn-primary{background:var(--grad2);color:#fff;box-shadow:var(--shadow-glow)}
+        .btn-primary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 16px 48px rgba(79,110,247,0.25)}
+        .btn-secondary{background:var(--bg2);color:var(--text2);border:1px solid var(--border2);box-shadow:var(--shadow-sm)}
+        .btn-secondary:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
 
-        /* FEATURES */
-        .features{max-width:1000px;margin:0 auto;padding:40px 24px 100px}
-        .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-        .feat{
-            background:var(--surface);border:1px solid var(--border);
-            border-radius:var(--radius);padding:28px;transition:all 0.3s;
+        /* 3D CARDS */
+        .cards-3d{
+            max-width:1060px;margin:0 auto;padding:20px 24px 100px;
+            display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;
+            perspective:1200px;
         }
-        .feat:hover{border-color:var(--border-light);transform:translateY(-2px)}
-        .feat-icon{font-size:28px;margin-bottom:14px}
-        .feat h3{font-size:15px;font-weight:700;margin-bottom:6px}
-        .feat p{font-size:13px;color:var(--text3);line-height:1.5}
-
-        /* SERVICES ON LANDING */
-        .landing-services{max-width:1000px;margin:0 auto;padding:0 24px 100px}
-        .ls-head{text-align:center;margin-bottom:48px}
-        .ls-head h2{font-size:32px;font-weight:800;letter-spacing:-1px}
-        .ls-head p{color:var(--text3);font-size:15px;margin-top:8px}
-        .ls-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-        .ls-card{
-            background:var(--surface);border:1px solid var(--border);
-            border-radius:var(--radius);padding:32px;cursor:pointer;transition:all 0.3s;
+        .card-3d{
+            background:var(--glass);backdrop-filter:blur(16px);
+            border:1px solid var(--glass-border);
+            border-radius:20px;padding:32px;
+            box-shadow:var(--shadow-md);
+            transition:all 0.4s cubic-bezier(0.16,1,0.3,1);
+            transform-style:preserve-3d;
+            cursor:default;
         }
-        .ls-card:hover{border-color:var(--accent);transform:translateY(-3px)}
-        .ls-card .icon{font-size:32px;margin-bottom:16px}
-        .ls-card h3{font-size:18px;font-weight:700;margin-bottom:6px}
-        .ls-card p{font-size:13px;color:var(--text3);line-height:1.5;margin-bottom:16px}
-        .ls-card .meta{display:flex;justify-content:space-between;font-size:12px;padding-top:12px;border-top:1px solid var(--border)}
-        .ls-card .time{color:var(--green);font-weight:600}
-        .ls-card .price{color:var(--accent);font-weight:600}
+        .card-3d:hover{
+            transform:translateY(-8px) rotateX(2deg) rotateY(-2deg);
+            box-shadow:var(--shadow-xl);
+        }
+        .card-3d .icon-3d{
+            width:52px;height:52px;border-radius:14px;
+            display:flex;align-items:center;justify-content:center;
+            font-size:24px;margin-bottom:16px;
+            background:var(--grad-soft);
+            box-shadow:0 4px 12px rgba(79,110,247,0.08);
+        }
+        .card-3d h3{font-size:16px;font-weight:700;margin-bottom:6px}
+        .card-3d p{font-size:13px;color:var(--text3);line-height:1.5}
 
-        /* COMPARE TABLE */
-        .compare-sec{max-width:900px;margin:0 auto;padding:0 24px 100px}
-        .compare-sec h2{font-size:28px;font-weight:800;letter-spacing:-1px;text-align:center;margin-bottom:32px}
+        /* SERVICES */
+        .svc-section{max-width:1060px;margin:0 auto;padding:0 24px 100px}
+        .sec-head{text-align:center;margin-bottom:48px}
+        .sec-head h2{font-size:32px;font-weight:800;letter-spacing:-1px}
+        .sec-head p{color:var(--text3);font-size:15px;margin-top:8px}
+        .svc-grid{
+            display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;
+            perspective:1200px;
+        }
+        .svc-card{
+            background:var(--glass);backdrop-filter:blur(16px);
+            border:1px solid var(--glass-border);border-radius:20px;
+            padding:32px;cursor:pointer;
+            box-shadow:var(--shadow-sm);
+            transition:all 0.4s cubic-bezier(0.16,1,0.3,1);
+            transform-style:preserve-3d;
+        }
+        .svc-card:hover{
+            transform:translateY(-8px) rotateX(2deg);
+            box-shadow:var(--shadow-lg);
+            border-color:rgba(79,110,247,0.2);
+        }
+        .svc-card .svc-ic{font-size:32px;margin-bottom:16px}
+        .svc-card h3{font-size:18px;font-weight:700;margin-bottom:6px}
+        .svc-card p{font-size:13px;color:var(--text3);line-height:1.5;margin-bottom:16px}
+        .svc-card .meta{display:flex;justify-content:space-between;font-size:12px;font-weight:600;padding-top:14px;border-top:1px solid var(--border)}
+        .svc-card .time{color:var(--green)}.svc-card .price{color:var(--accent)}
+
+        /* COMPARE */
+        .compare-sec{max-width:860px;margin:0 auto;padding:0 24px 100px}
+        .compare-sec h2{font-size:28px;font-weight:800;letter-spacing:-1px;text-align:center;margin-bottom:28px}
+        .cmp-wrap{
+            background:var(--glass);backdrop-filter:blur(16px);
+            border:1px solid var(--glass-border);border-radius:20px;
+            overflow:hidden;box-shadow:var(--shadow-md);
+        }
         .cmp-table{width:100%;border-collapse:collapse;font-size:14px}
-        .cmp-table th{text-align:left;padding:14px 16px;font-size:12px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
-        .cmp-table td{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.03)}
-        .cmp-table .us{color:var(--accent);font-weight:600}
+        .cmp-table th{text-align:left;padding:16px 20px;font-size:11px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:1.5px;border-bottom:1px solid var(--border)}
+        .cmp-table td{padding:14px 20px;border-bottom:1px solid var(--border)}
+        .cmp-table .us{color:var(--accent);font-weight:700}
         .cmp-table .them{color:var(--text4)}
-        .cmp-table tr:nth-child(even){background:rgba(255,255,255,0.01)}
+        .cmp-table tbody tr:last-child td{border:none}
 
         /* CTA */
-        .landing-cta{text-align:center;padding:80px 24px 120px}
-        .landing-cta h2{font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:12px}
-        .landing-cta p{color:var(--text3);margin-bottom:32px}
+        .landing-cta{text-align:center;padding:60px 24px 100px}
+        .landing-cta h2{font-size:36px;font-weight:800;letter-spacing:-1.5px;margin-bottom:12px}
+        .landing-cta p{color:var(--text3);margin-bottom:28px}
 
-        /* ==================== PAGE 2: ORDER ==================== */
-        .order-page{max-width:680px;margin:0 auto;padding:100px 24px 80px}
-        .order-page h1{font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:4px}
-        .order-page .sub{color:var(--text3);font-size:14px;margin-bottom:32px}
+        /* ===== PAGE 2: ORDER ===== */
+        .order-page{max-width:640px;margin:0 auto;padding:100px 24px 80px}
+        .order-page h1{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px}
+        .order-page .sub{color:var(--text3);font-size:14px;margin-bottom:28px}
 
-        .step-indicator{display:flex;gap:8px;margin-bottom:40px}
-        .step-dot{
-            flex:1;height:3px;border-radius:3px;background:var(--surface2);
-            transition:background 0.3s;
-        }
-        .step-dot.done{background:var(--accent)}
-        .step-dot.current{background:var(--accent);animation:pulseBg 2s infinite}
-        @keyframes pulseBg{0%,100%{opacity:1}50%{opacity:0.5}}
+        .step-bar{display:flex;gap:6px;margin-bottom:36px}
+        .step-pip{flex:1;height:4px;border-radius:4px;background:rgba(0,0,0,0.05);transition:background 0.3s}
+        .step-pip.done{background:var(--grad2)}
+        .step-pip.now{background:var(--accent);animation:pulseBar 2s infinite}
+        @keyframes pulseBar{0%,100%{opacity:1}50%{opacity:0.4}}
 
         .form-label{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px;display:block}
 
-        .service-select{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:32px}
+        .svc-select{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:28px}
         .svc-opt{
-            background:var(--surface);border:1px solid var(--border);
-            border-radius:10px;padding:20px;cursor:pointer;transition:all 0.2s;text-align:center;
+            background:var(--bg2);border:1px solid var(--border2);
+            border-radius:14px;padding:20px;cursor:pointer;transition:all 0.25s;text-align:center;
+            box-shadow:var(--shadow-sm);
         }
-        .svc-opt:hover{border-color:var(--border-light)}
-        .svc-opt.selected{border-color:var(--accent);background:var(--accent-glow)}
-        .svc-opt .ic{font-size:24px;margin-bottom:8px}
+        .svc-opt:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+        .svc-opt.sel{border-color:var(--accent);background:rgba(79,110,247,0.04);box-shadow:0 0 0 3px rgba(79,110,247,0.1)}
+        .svc-opt .ic{font-size:28px;margin-bottom:8px}
         .svc-opt h4{font-size:14px;font-weight:700}
         .svc-opt .pr{font-size:12px;color:var(--text3);margin-top:2px}
 
         .prompt-box{
-            width:100%;min-height:160px;background:var(--surface);
-            border:1px solid var(--border);border-radius:10px;
-            padding:16px;color:var(--text);font-family:'JetBrains Mono',monospace;
-            font-size:13px;line-height:1.6;resize:vertical;outline:none;
-            transition:border-color 0.2s;
+            width:100%;min-height:160px;background:var(--bg2);
+            border:1px solid var(--border2);border-radius:14px;
+            padding:18px;color:var(--text);font-family:'JetBrains Mono',monospace;
+            font-size:13px;line-height:1.7;resize:vertical;outline:none;
+            transition:all 0.2s;box-shadow:var(--shadow-sm);
         }
-        .prompt-box:focus{border-color:var(--accent)}
+        .prompt-box:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,110,247,0.08)}
         .prompt-box::placeholder{color:var(--text4)}
 
-        .guide-tips{
-            background:var(--surface);border:1px solid var(--border);
-            border-radius:10px;padding:16px;margin-bottom:16px;
+        .tips{
+            background:var(--bg2);border:1px solid var(--border);
+            border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow-sm);
         }
-        .guide-tips summary{font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;list-style:none}
-        .guide-tips summary::before{content:'💡 '}
-        .guide-tips ul{margin-top:10px;list-style:none}
-        .guide-tips li{font-size:12px;color:var(--text3);padding:3px 0}
-        .guide-tips li::before{content:'→ ';color:var(--accent)}
+        .tips summary{font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;list-style:none}
+        .tips summary::before{content:'💡 '}
+        .tips ul{margin-top:10px;list-style:none}
+        .tips li{font-size:12px;color:var(--text3);padding:3px 0}
+        .tips li::before{content:'→ ';color:var(--accent)}
 
         .char-count{font-size:11px;color:var(--text4);text-align:right;margin-top:6px}
+        .order-foot{display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:12px}
+        .order-note{font-size:12px;color:var(--text4)}
 
-        .order-footer{display:flex;justify-content:space-between;align-items:center;margin-top:24px;flex-wrap:wrap;gap:12px}
-        .order-info{font-size:12px;color:var(--text4)}
-
-        /* FREE CREDIT NOTICE */
-        .free-notice{
-            background:var(--green-glow);border:1px solid rgba(34,197,94,0.15);
-            border-radius:10px;padding:16px;margin-bottom:24px;
-            display:flex;align-items:center;gap:12px;font-size:13px;
+        /* ANTI-ABUSE */
+        .free-box{
+            background:var(--green-bg);border:1px solid rgba(22,163,74,0.12);
+            border-radius:14px;padding:16px;margin-bottom:20px;
+            display:flex;align-items:center;gap:12px;
         }
-        .free-notice .tag{
-            background:var(--green);color:#000;padding:3px 10px;
-            border-radius:4px;font-size:11px;font-weight:700;flex-shrink:0;
-        }
-        .free-notice p{color:var(--text2)}
-        .free-notice.used{background:rgba(239,68,68,0.05);border-color:rgba(239,68,68,0.15)}
-        .free-notice.used .tag{background:var(--red);color:#fff}
-
-        /* EMAIL GATE */
+        .free-box .tag{background:var(--green);color:#fff;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;flex-shrink:0}
+        .free-box p{font-size:13px;color:var(--text2)}
         .email-gate{
-            background:var(--surface);border:1px solid var(--border);
-            border-radius:10px;padding:24px;margin-bottom:24px;text-align:center;
+            background:var(--bg2);border:1px solid var(--border2);
+            border-radius:14px;padding:24px;margin-bottom:20px;text-align:center;box-shadow:var(--shadow-sm);
         }
-        .email-gate h3{font-size:16px;font-weight:700;margin-bottom:8px}
-        .email-gate p{font-size:13px;color:var(--text3);margin-bottom:16px}
+        .email-gate h3{font-size:16px;font-weight:700;margin-bottom:6px}
+        .email-gate p{font-size:13px;color:var(--text3);margin-bottom:14px}
         .email-row{display:flex;gap:8px}
         .email-input{
-            flex:1;padding:10px 14px;background:var(--bg);border:1px solid var(--border);
-            border-radius:8px;color:var(--text);font-family:inherit;font-size:14px;outline:none;
+            flex:1;padding:10px 14px;background:var(--bg);border:1px solid var(--border2);
+            border-radius:10px;color:var(--text);font-family:inherit;font-size:14px;outline:none;
         }
         .email-input:focus{border-color:var(--accent)}
 
-        /* ==================== PAGE 3: GENERATING ==================== */
+        /* ===== PAGE 3: GENERATING ===== */
         .gen-page{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:80px 24px}
-        .gen-center{max-width:480px;width:100%;text-align:center}
-        .gen-spinner{
-            width:64px;height:64px;border-radius:50%;
-            border:3px solid var(--surface2);border-top-color:var(--accent);
-            animation:spin 1s linear infinite;margin:0 auto 32px;
+        .gen-center{max-width:440px;width:100%;text-align:center}
+        .gen-orb{
+            width:80px;height:80px;margin:0 auto 28px;border-radius:50%;
+            background:var(--grad1);
+            animation:orbPulse 2s ease-in-out infinite;
+            box-shadow:0 0 60px rgba(79,110,247,0.25);
         }
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .gen-center h2{font-size:22px;font-weight:700;margin-bottom:8px}
-        .gen-status{
-            font-family:'JetBrains Mono',monospace;font-size:13px;
-            color:var(--accent);margin-bottom:24px;
-        }
-        .gen-progress{height:3px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:12px}
-        .gen-progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 0.5s;width:0}
+        @keyframes orbPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:0.7}}
+        .gen-center h2{font-size:22px;font-weight:700;margin-bottom:6px}
+        .gen-status{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);margin-bottom:20px}
+        .gen-bar{height:4px;background:rgba(0,0,0,0.06);border-radius:4px;overflow:hidden;margin-bottom:8px}
+        .gen-bar-fill{height:100%;background:var(--grad2);border-radius:4px;transition:width 0.5s;width:0}
         .gen-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text4)}
-        .gen-steps{text-align:left;margin-top:32px;padding:20px;background:var(--surface);border-radius:10px;border:1px solid var(--border)}
-        .gen-step{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;color:var(--text4)}
-        .gen-step.done{color:var(--green)}
-        .gen-step.active{color:var(--accent)}
-        .gen-step .check{width:18px;text-align:center;flex-shrink:0}
-
-        /* ==================== PAGE 4: RESULT ==================== */
-        .result-page{padding:80px 24px 40px}
-        .result-top{
-            max-width:1100px;margin:0 auto;
-            display:flex;justify-content:space-between;align-items:center;
-            margin-bottom:20px;flex-wrap:wrap;gap:12px;
+        .gen-steps{
+            text-align:left;margin-top:28px;
+            background:var(--glass);backdrop-filter:blur(16px);
+            border:1px solid var(--glass-border);
+            border-radius:16px;padding:20px;box-shadow:var(--shadow-md);
         }
-        .result-status{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--green)}
-        .result-status .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
-        .rev-count{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text4)}
+        .gs{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;color:var(--text4);transition:color 0.3s}
+        .gs.done{color:var(--green)}.gs.on{color:var(--accent)}
+        .gs .ck{width:20px;text-align:center;flex-shrink:0;font-size:14px}
+
+        /* ===== PAGE 4: RESULT ===== */
+        .result-page{padding:88px 24px 40px}
+        .result-top{
+            max-width:1060px;margin:0 auto 16px;
+            display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;
+        }
+        .result-ok{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--green)}
+        .result-ok .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(22,163,74,0.4)}
+        .rev-ct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text4)}
 
         .result-frame{
-            max-width:1100px;margin:0 auto 24px;
-            border:1px solid var(--border);border-radius:14px;overflow:hidden;
+            max-width:1060px;margin:0 auto 20px;
+            border:1px solid var(--border2);border-radius:20px;overflow:hidden;
             background:#fff;position:relative;
+            box-shadow:var(--shadow-lg);
         }
         .result-frame iframe{width:100%;height:600px;border:none;display:block}
-
-        /* WATERMARK */
         .watermark{
             position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
             pointer-events:none;z-index:10;
         }
         .watermark span{
-            font-size:48px;font-weight:900;color:rgba(0,0,0,0.06);
-            transform:rotate(-30deg);white-space:nowrap;letter-spacing:8px;
-            text-transform:uppercase;
+            font-size:40px;font-weight:900;color:rgba(0,0,0,0.04);
+            transform:rotate(-25deg);letter-spacing:6px;text-transform:uppercase;
         }
 
-        /* ACTION BAR */
+        /* ACTION BAR - 3D cards */
         .action-bar{
-            max-width:1100px;margin:0 auto;
+            max-width:1060px;margin:0 auto;
             display:flex;gap:10px;overflow-x:auto;
-            scrollbar-width:none;padding:4px 0;
+            scrollbar-width:none;padding:4px 0;perspective:800px;
         }
         .action-bar::-webkit-scrollbar{display:none}
-        .act-card{
-            flex:0 0 auto;background:var(--surface);border:1px solid var(--border);
-            border-radius:10px;padding:16px 24px;cursor:pointer;transition:all 0.2s;
+        .act{
+            flex:0 0 auto;
+            background:var(--glass);backdrop-filter:blur(16px);
+            border:1px solid var(--glass-border);
+            border-radius:14px;padding:16px 22px;cursor:pointer;
             display:flex;align-items:center;gap:10px;white-space:nowrap;
+            box-shadow:var(--shadow-sm);
+            transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
+            transform-style:preserve-3d;
         }
-        .act-card:hover{border-color:var(--border-light);transform:translateY(-2px)}
-        .act-card.primary{border-color:rgba(34,197,94,0.3);background:var(--green-glow)}
-        .act-card.primary:hover{border-color:var(--green)}
-        .act-card .ic{font-size:20px}
-        .act-card h4{font-size:13px;font-weight:600}
-        .act-card p{font-size:11px;color:var(--text4)}
-
+        .act:hover{transform:translateY(-4px) rotateX(2deg);box-shadow:var(--shadow-lg)}
+        .act.buy{background:var(--green-bg);border-color:rgba(22,163,74,0.15)}
+        .act.buy:hover{box-shadow:0 8px 32px rgba(22,163,74,0.12)}
+        .act .ic{font-size:20px}
+        .act h4{font-size:13px;font-weight:600}
+        .act p{font-size:11px;color:var(--text4)}
         .swipe-hint{text-align:center;margin-top:8px;font-size:11px;color:var(--text4)}
 
-        /* REVISION PANEL */
+        /* REVISION */
         .rev-panel{
-            max-width:1100px;margin:24px auto 0;
-            background:var(--surface);border:1px solid var(--border);
-            border-radius:var(--radius);padding:24px;display:none;
+            max-width:1060px;margin:20px auto 0;
+            background:var(--glass);backdrop-filter:blur(16px);
+            border:1px solid var(--glass-border);
+            border-radius:16px;padding:24px;display:none;box-shadow:var(--shadow-md);
         }
         .rev-panel.open{display:block;animation:pageIn 0.3s}
         .rev-panel h3{font-size:15px;font-weight:700;margin-bottom:12px}
         .rev-input{
-            width:100%;padding:12px;background:var(--bg);border:1px solid var(--border);
-            border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;
+            width:100%;padding:14px;background:var(--bg);border:1px solid var(--border2);
+            border-radius:12px;color:var(--text);font-family:inherit;font-size:13px;
             outline:none;min-height:80px;resize:vertical;
         }
         .rev-input:focus{border-color:var(--accent)}
-        .rev-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+        .rev-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
         .rev-cancel{
-            padding:8px 20px;border-radius:8px;background:transparent;
-            border:1px solid var(--border);color:var(--text3);cursor:pointer;font-family:inherit;font-size:13px;
+            padding:8px 20px;border-radius:10px;background:var(--bg2);
+            border:1px solid var(--border2);color:var(--text3);cursor:pointer;font-family:inherit;font-size:13px;
         }
 
-        /* PAYMENT MODAL */
-        .modal-bg{display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:24px}
+        /* MODAL */
+        .modal-bg{display:none;position:fixed;inset:0;z-index:10000;background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:24px}
         .modal-bg.on{display:flex;animation:fadeIn 0.2s}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:420px;width:100%;animation:scaleIn 0.2s}
-        @keyframes scaleIn{from{transform:scale(0.96);opacity:0}to{transform:scale(1);opacity:1}}
+        .modal{
+            background:var(--bg2);border:1px solid var(--border2);
+            border-radius:24px;padding:36px;max-width:420px;width:100%;
+            box-shadow:var(--shadow-xl);animation:scaleIn 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes scaleIn{from{transform:scale(0.95) translateY(8px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
         .modal h3{font-size:18px;font-weight:800;margin-bottom:20px}
         .cost-row{display:flex;justify-content:space-between;padding:10px 0;font-size:14px;border-bottom:1px solid var(--border)}
         .cost-row .l{color:var(--text3)}.cost-row .v{font-weight:600}
         .cost-total{display:flex;justify-content:space-between;padding:16px 0;font-size:28px;font-weight:900}
-        .cost-total .amt{color:var(--accent)}
+        .cost-total .amt{background:var(--grad2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
         .modal-actions{margin-top:16px;display:flex;flex-direction:column;gap:8px}
         .modal-pay{
-            width:100%;padding:14px;border:none;border-radius:10px;
-            background:var(--accent);color:#fff;font-size:15px;font-weight:700;
-            cursor:pointer;font-family:inherit;transition:opacity 0.2s;
+            width:100%;padding:14px;border:none;border-radius:14px;
+            background:var(--grad2);color:#fff;font-size:15px;font-weight:700;
+            cursor:pointer;font-family:inherit;transition:all 0.2s;
+            box-shadow:var(--shadow-glow);
         }
-        .modal-pay:hover{opacity:0.9}
+        .modal-pay:hover{transform:translateY(-1px);box-shadow:0 12px 40px rgba(79,110,247,0.25)}
         .modal-back{
-            width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;
+            width:100%;padding:12px;border:1px solid var(--border2);border-radius:14px;
             background:transparent;color:var(--text3);font-size:13px;cursor:pointer;font-family:inherit;
         }
 
-        /* FOOTER */
-        footer{text-align:center;padding:48px;border-top:1px solid var(--border);color:var(--text4);font-size:12px}
+        footer{text-align:center;padding:48px;color:var(--text4);font-size:12px}
 
         @media(max-width:640px){
-            nav{padding:0 16px}
-            .hero{padding:120px 16px 60px}
-            .hero h1{font-size:36px;letter-spacing:-2px}
-            .service-select{grid-template-columns:1fr}
-            .order-page,.features,.landing-services,.compare-sec{padding-left:16px;padding-right:16px}
+            nav{width:calc(100% - 16px);top:8px;padding:10px 16px}
+            .nav-link{display:none}
+            .hero{padding:120px 16px 40px}
+            .hero h1{font-size:34px;letter-spacing:-1.5px}
+            .svc-select{grid-template-columns:1fr}
             .result-frame iframe{height:400px}
+            .cards-3d,.svc-section,.compare-sec{padding-left:16px;padding-right:16px}
         }
     </style>
 </head>
 <body>
 
-<!-- NAV -->
+<div class="ambient"><div class="orb orb-a"></div><div class="orb orb-b"></div><div class="orb orb-c"></div></div>
+
 <nav>
     <div class="logo" onclick="showPage('landing')">dev<span>dash</span></div>
     <div class="nav-r">
+        <a href="#" class="nav-link" onclick="event.preventDefault();showPage('landing')">Home</a>
         <span class="credits-badge" id="creditsBadge">1 × Gratis</span>
         <button class="nav-btn" onclick="showPage('order')">Bestellen →</button>
     </div>
 </nav>
 
-<!-- ==================== PAGE 1: LANDING ==================== -->
+<!-- ===== LANDING ===== -->
 <div class="page active" id="page-landing">
-
     <div class="hero">
-        <div class="hero-chip"><span class="dot"></span> Durchschnittliche Lieferzeit: 12 Minuten</div>
-        <h1>Professionelle Entwicklung. In Minuten.</h1>
-        <p>Websites, Bots, Bugfixes & Automatisierungen — Freelancer-Qualität, sofort geliefert, fair berechnet. Kein Warten. Kein Verhandeln.</p>
+        <div class="hero-chip"><span class="dot"></span> Lieferzeit: durchschnittlich 12 Minuten</div>
+        <h1>Professionelle Entwicklung.<br><span class="grad">In Minuten.</span></h1>
+        <p>Websites, Bots & Automatisierungen — Freelancer-Qualität, sofort geliefert, fair berechnet. Dein erstes Projekt ist kostenlos.</p>
         <div class="hero-btns">
-            <button class="btn-lg btn-primary" onclick="showPage('order')">Jetzt bestellen →</button>
-            <a href="#compare" class="btn-lg btn-secondary" onclick="event.preventDefault();document.getElementById('compare').scrollIntoView({behavior:'smooth'})">Preise vergleichen</a>
+            <button class="btn-lg btn-primary" onclick="showPage('order')">Kostenlos testen →</button>
+            <button class="btn-lg btn-secondary" onclick="document.getElementById('compare').scrollIntoView({behavior:'smooth'})">Preise vergleichen</button>
         </div>
     </div>
 
-    <div class="features">
-        <div class="features-grid">
-            <div class="feat">
-                <div class="feat-icon">⚡</div>
-                <h3>In Minuten, nicht Wochen</h3>
-                <p>Unsere KI generiert professionellen Code in durchschnittlich 12 Minuten.</p>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">💰</div>
-                <h3>70% günstiger</h3>
-                <p>Freelancer-Qualität zum Bruchteil des Preises. Transparent berechnet.</p>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">🔄</div>
-                <h3>3 Revisionen gratis</h3>
-                <p>Nicht zufrieden? Beschreib die Änderung. Bis zu 3× kostenlos.</p>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">🌍</div>
-                <h3>24/7 verfügbar</h3>
-                <p>Keine Geschäftszeiten. Bestelle wann du willst, von wo du willst.</p>
-            </div>
-        </div>
+    <div class="cards-3d">
+        <div class="card-3d"><div class="icon-3d">⚡</div><h3>In Minuten fertig</h3><p>Durchschnittlich 12 Minuten vom Prompt zum fertigen Produkt.</p></div>
+        <div class="card-3d"><div class="icon-3d">💰</div><h3>70% günstiger</h3><p>Gleiche Qualität wie ein Freelancer — zum Bruchteil des Preises.</p></div>
+        <div class="card-3d"><div class="icon-3d">🔄</div><h3>3× Revision gratis</h3><p>Nicht perfekt? Ändere es bis zu 3 Mal kostenlos.</p></div>
+        <div class="card-3d"><div class="icon-3d">🌍</div><h3>24/7 verfügbar</h3><p>Keine Wartezeiten. Bestelle jederzeit, von überall.</p></div>
     </div>
 
-    <div class="landing-services">
-        <div class="ls-head"><h2>Unsere Services</h2><p>Wähle was du brauchst. Wir liefern.</p></div>
-        <div class="ls-grid">
-            <div class="ls-card" onclick="selectAndGo('website')">
-                <div class="icon">🌐</div>
-                <h3>Websites</h3>
-                <p>Landing Pages, Portfolios, Firmenseiten, Shops. Modern & responsive.</p>
-                <div class="meta"><span class="time">⚡ 8–15 Min</span><span class="price">ab €199</span></div>
-            </div>
-            <div class="ls-card" onclick="selectAndGo('bot')">
-                <div class="icon">🤖</div>
-                <h3>Bots</h3>
-                <p>Discord, Telegram, WhatsApp. Custom Commands, API-Anbindung.</p>
-                <div class="meta"><span class="time">⚡ 15–25 Min</span><span class="price">ab €299</span></div>
-            </div>
-            <div class="ls-card" onclick="selectAndGo('bugfix')">
-                <div class="icon">🔧</div>
-                <h3>Bugfixes</h3>
-                <p>Code kaputt? Fehler rein, Fix raus. Jede Sprache & Framework.</p>
-                <div class="meta"><span class="time">⚡ 5–12 Min</span><span class="price">ab €79</span></div>
-            </div>
-            <div class="ls-card" onclick="selectAndGo('automation')">
-                <div class="icon">⚡</div>
-                <h3>Automatisierung</h3>
-                <p>Scripts, Workflows, API-Integrationen, Datenverarbeitung.</p>
-                <div class="meta"><span class="time">⚡ 12–30 Min</span><span class="price">ab €249</span></div>
-            </div>
+    <div class="svc-section">
+        <div class="sec-head"><h2>Unsere Services</h2><p>Wähle was du brauchst — wir liefern in Minuten.</p></div>
+        <div class="svc-grid">
+            <div class="svc-card" onclick="selectAndGo('website')"><div class="svc-ic">🌐</div><h3>Websites</h3><p>Landing Pages, Portfolios, Firmenseiten, Shops. Modern & responsive.</p><div class="meta"><span class="time">⚡ 8–15 Min</span><span class="price">ab €199</span></div></div>
+            <div class="svc-card" onclick="selectAndGo('bot')"><div class="svc-ic">🤖</div><h3>Bots</h3><p>Discord, Telegram, WhatsApp. Commands, Moderation, API-Anbindung.</p><div class="meta"><span class="time">⚡ 15–25 Min</span><span class="price">ab €299</span></div></div>
+            <div class="svc-card" onclick="selectAndGo('bugfix')"><div class="svc-ic">🔧</div><h3>Bugfixes</h3><p>Code kaputt? Fehler rein, Fix raus. Jede Sprache & Framework.</p><div class="meta"><span class="time">⚡ 5–12 Min</span><span class="price">ab €79</span></div></div>
+            <div class="svc-card" onclick="selectAndGo('automation')"><div class="svc-ic">⚡</div><h3>Automatisierung</h3><p>Scripts, Workflows, API-Integrationen, Datenverarbeitung.</p><div class="meta"><span class="time">⚡ 12–30 Min</span><span class="price">ab €249</span></div></div>
         </div>
     </div>
 
     <div class="compare-sec" id="compare">
         <h2>DevDash vs. traditionell</h2>
+        <div class="cmp-wrap">
         <table class="cmp-table">
             <thead><tr><th></th><th>DevDash</th><th>Freelancer</th><th>Agentur</th></tr></thead>
             <tbody>
@@ -418,136 +442,110 @@
                 <tr><td>Website</td><td class="us">ab €199</td><td class="them">€800–€3.000</td><td class="them">€3.000–€10.000</td></tr>
                 <tr><td>Bot</td><td class="us">ab €299</td><td class="them">€1.000–€3.000</td><td class="them">€5.000+</td></tr>
                 <tr><td>Bugfix</td><td class="us">ab €79</td><td class="them">€200–€500</td><td class="them">€500+</td></tr>
-                <tr><td>Revisionen</td><td class="us">3× gratis</td><td class="them">€50–100/Std</td><td class="them">€120+/Std</td></tr>
+                <tr><td>Revisionen</td><td class="us">3× gratis</td><td class="them">€50–100/h</td><td class="them">€120+/h</td></tr>
                 <tr><td>Verfügbarkeit</td><td class="us">24/7</td><td class="them">Mo–Fr</td><td class="them">Mo–Fr</td></tr>
             </tbody>
         </table>
+        </div>
     </div>
 
     <div class="landing-cta">
-        <h2>Bereit loszulegen?</h2>
-        <p>Dein erstes Projekt ist gratis — teste uns ohne Risiko.</p>
-        <button class="btn-lg btn-primary" onclick="showPage('order')">Kostenlos testen →</button>
+        <h2>Bereit?</h2>
+        <p>Dein erstes Projekt ist gratis. Teste uns ohne Risiko.</p>
+        <button class="btn-lg btn-primary" onclick="showPage('order')">Kostenlos starten →</button>
     </div>
-
-    <footer><p>© 2026 DevDash — Development, Redefined</p></footer>
+    <footer><p>© 2026 DevDash</p></footer>
 </div>
 
-<!-- ==================== PAGE 2: ORDER ==================== -->
+<!-- ===== ORDER ===== -->
 <div class="page" id="page-order">
     <div class="order-page">
-        <div class="step-indicator"><div class="step-dot done"></div><div class="step-dot current"></div><div class="step-dot"></div></div>
-
+        <div class="step-bar"><div class="step-pip done"></div><div class="step-pip now"></div><div class="step-pip"></div></div>
         <h1>Neuer Auftrag</h1>
-        <p class="sub">Wähle einen Service und beschreib was du brauchst.</p>
+        <p class="sub">Wähle einen Service und beschreib dein Projekt.</p>
 
-        <div id="freeNotice" class="free-notice">
-            <span class="tag">GRATIS</span>
-            <p>Dein erster Auftrag ist kostenlos — teste uns ohne Risiko.</p>
-        </div>
+        <div id="freeBox" class="free-box"><span class="tag">GRATIS</span><p>Dein erster Auftrag ist kostenlos — teste uns ohne Risiko.</p></div>
+        <div id="emailGate" class="email-gate" style="display:none"><h3>Gratis-Test verbraucht</h3><p>E-Mail eingeben um weiterzumachen. Zahlung erst nach Generierung.</p><div class="email-row"><input type="email" class="email-input" id="emailInput" placeholder="deine@email.de"><button class="nav-btn" onclick="unlockEmail()">Weiter</button></div></div>
 
-        <div id="emailGate" class="email-gate" style="display:none">
-            <h3>Gratis-Test verbraucht</h3>
-            <p>Gib deine E-Mail ein um weiterzumachen. Du zahlst erst nach der Generierung.</p>
-            <div class="email-row">
-                <input type="email" class="email-input" id="emailInput" placeholder="deine@email.de">
-                <button class="nav-btn" onclick="unlockEmail()">Weiter</button>
-            </div>
-        </div>
-
-        <label class="form-label">Service wählen</label>
-        <div class="service-select">
-            <div class="svc-opt selected" onclick="pickSvc(this,'website')"><div class="ic">🌐</div><h4>Website</h4><div class="pr">ab €199</div></div>
+        <label class="form-label">Service</label>
+        <div class="svc-select">
+            <div class="svc-opt sel" onclick="pickSvc(this,'website')"><div class="ic">🌐</div><h4>Website</h4><div class="pr">ab €199</div></div>
             <div class="svc-opt" onclick="pickSvc(this,'bot')"><div class="ic">🤖</div><h4>Bot</h4><div class="pr">ab €299</div></div>
             <div class="svc-opt" onclick="pickSvc(this,'bugfix')"><div class="ic">🔧</div><h4>Bugfix</h4><div class="pr">ab €79</div></div>
             <div class="svc-opt" onclick="pickSvc(this,'automation')"><div class="ic">⚡</div><h4>Automation</h4><div class="pr">ab €249</div></div>
         </div>
 
         <label class="form-label">Dein Prompt</label>
-        <details class="guide-tips" id="guideTips">
-            <summary>Tipps für den perfekten Prompt</summary>
-            <ul id="guideList">
-                <li>Beschreib den <strong>Zweck</strong> (Portfolio, Firma, Shop...)</li>
-                <li>Nenne <strong>Farben</strong> und gewünschten Stil</li>
-                <li>Welche <strong>Sektionen</strong> brauchst du?</li>
-                <li>Welche <strong>Texte</strong> sollen rein?</li>
-                <li>Je detaillierter, desto besser!</li>
-            </ul>
-        </details>
-        <textarea class="prompt-box" id="promptInput" placeholder="Beschreib genau was du brauchst..." oninput="updateCharCount()"></textarea>
-        <div class="char-count" id="charCount">0 Zeichen</div>
-
-        <div class="order-footer">
-            <span class="order-info" id="orderInfo">⚡ Geschätzte Lieferzeit: ~12 Min</span>
-            <button class="btn-lg btn-primary" id="orderBtn" onclick="startGeneration()">Generieren →</button>
+        <details class="tips"><summary>Tipps für den perfekten Prompt</summary><ul id="guideList">
+            <li>Beschreib den <strong>Zweck</strong> (Portfolio, Firma, Shop...)</li><li>Nenne <strong>Farben</strong> und Stil</li><li>Welche <strong>Sektionen</strong>?</li><li>Welche <strong>Texte</strong> sollen rein?</li><li>Je detaillierter, desto besser!</li>
+        </ul></details>
+        <textarea class="prompt-box" id="promptInput" placeholder="Beschreib genau was du brauchst..." oninput="updateCC()"></textarea>
+        <div class="char-count" id="cc">0 Zeichen</div>
+        <div class="order-foot">
+            <span class="order-note" id="orderNote">⚡ Geschätzte Lieferzeit: ~12 Min</span>
+            <button class="btn-lg btn-primary" onclick="startGen()">Generieren →</button>
         </div>
     </div>
 </div>
 
-<!-- ==================== PAGE 3: GENERATING ==================== -->
-<div class="page" id="page-generating">
+<!-- ===== GENERATING ===== -->
+<div class="page" id="page-gen">
     <div class="gen-page">
         <div class="gen-center">
-            <div class="gen-spinner"></div>
-            <h2>Wird generiert...</h2>
-            <div class="gen-status" id="genStatusText">Prompt wird analysiert</div>
-            <div class="gen-progress"><div class="gen-progress-fill" id="genFill"></div></div>
-            <div class="gen-pct" id="genPct">0%</div>
+            <div class="gen-orb"></div>
+            <h2>Wird generiert</h2>
+            <div class="gen-status" id="gStatus">Prompt wird analysiert...</div>
+            <div class="gen-bar"><div class="gen-bar-fill" id="gFill"></div></div>
+            <div class="gen-pct" id="gPct">0%</div>
             <div class="gen-steps">
-                <div class="gen-step active" id="gs1"><span class="check">◉</span> Prompt analysieren</div>
-                <div class="gen-step" id="gs2"><span class="check">○</span> Code generieren</div>
-                <div class="gen-step" id="gs3"><span class="check">○</span> UI aufbauen</div>
-                <div class="gen-step" id="gs4"><span class="check">○</span> Qualitätsprüfung</div>
-                <div class="gen-step" id="gs5"><span class="check">○</span> Optimierung</div>
+                <div class="gs on" id="s1"><span class="ck">◉</span> Prompt analysieren</div>
+                <div class="gs" id="s2"><span class="ck">○</span> Code generieren</div>
+                <div class="gs" id="s3"><span class="ck">○</span> UI aufbauen</div>
+                <div class="gs" id="s4"><span class="ck">○</span> Qualitätsprüfung</div>
+                <div class="gs" id="s5"><span class="ck">○</span> Optimierung</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ==================== PAGE 4: RESULT ==================== -->
+<!-- ===== RESULT ===== -->
 <div class="page" id="page-result">
     <div class="result-page">
         <div class="result-top">
-            <div class="result-status"><span class="dot"></span> Fertig — bereit zur Ansicht</div>
-            <span class="rev-count" id="revCount">Revisionen: 0 / 3</span>
+            <div class="result-ok"><span class="dot"></span> Fertig — bereit zur Ansicht</div>
+            <span class="rev-ct" id="revCt">Revisionen: 0/3</span>
         </div>
-
         <div class="result-frame">
-            <iframe id="resultFrame" sandbox="allow-scripts"></iframe>
-            <div class="watermark" id="watermark"><span>DEVDASH PREVIEW</span></div>
+            <iframe id="resFrame" sandbox="allow-scripts"></iframe>
+            <div class="watermark" id="wm"><span>DEVDASH PREVIEW</span></div>
         </div>
-
-        <div class="action-bar" id="actionBar">
-            <div class="act-card primary" onclick="showPayment()"><span class="ic">💰</span><div><h4>Kaufen & Download</h4><p>Wasserzeichen entfernen</p></div></div>
-            <div class="act-card" onclick="openRevision()"><span class="ic">🔄</span><div><h4>Revision</h4><p id="revLabel">3 verbleibend</p></div></div>
-            <div class="act-card" onclick="openFull()"><span class="ic">🔍</span><div><h4>Vollbild</h4><p>Neuer Tab</p></div></div>
-            <div class="act-card" onclick="newOrder()"><span class="ic">✨</span><div><h4>Neuer Auftrag</h4><p>Von vorne starten</p></div></div>
+        <div class="action-bar">
+            <div class="act buy" onclick="showPay()"><span class="ic">💰</span><div><h4>Kaufen & Download</h4><p>Wasserzeichen entfernen</p></div></div>
+            <div class="act" onclick="openRev()"><span class="ic">🔄</span><div><h4>Revision</h4><p id="revLbl">3 verbleibend</p></div></div>
+            <div class="act" onclick="openFull()"><span class="ic">🔍</span><div><h4>Vollbild</h4><p>Neuer Tab</p></div></div>
+            <div class="act" onclick="newOrder()"><span class="ic">✨</span><div><h4>Neuer Auftrag</h4><p>Von vorne</p></div></div>
         </div>
-        <div class="swipe-hint">← swipen für mehr Optionen →</div>
-
+        <div class="swipe-hint">← swipen →</div>
         <div class="rev-panel" id="revPanel">
-            <h3>🔄 Revision anfordern</h3>
+            <h3>🔄 Revision</h3>
             <textarea class="rev-input" id="revInput" placeholder="Was soll geändert werden?"></textarea>
-            <div class="rev-footer">
-                <button class="rev-cancel" onclick="closeRevision()">Abbrechen</button>
-                <button class="nav-btn" onclick="submitRevision()">Revision senden</button>
-            </div>
+            <div class="rev-foot"><button class="rev-cancel" onclick="closeRev()">Abbrechen</button><button class="nav-btn" onclick="submitRev()">Senden</button></div>
         </div>
     </div>
-    <footer><p>© 2026 DevDash — Development, Redefined</p></footer>
+    <footer><p>© 2026 DevDash</p></footer>
 </div>
 
-<!-- PAYMENT MODAL -->
+<!-- MODAL -->
 <div class="modal-bg" id="payModal">
     <div class="modal">
         <h3>Preisübersicht</h3>
-        <div class="cost-row"><span class="l">Generierung</span><span class="v" id="pGen">€80</span></div>
-        <div class="cost-row"><span class="l">Revisionen</span><span class="v" id="pRev">€0</span></div>
+        <div class="cost-row"><span class="l">Generierung</span><span class="v" id="pG">€80</span></div>
+        <div class="cost-row"><span class="l">Revisionen</span><span class="v" id="pR">€0</span></div>
         <div class="cost-row"><span class="l">QA & Testing</span><span class="v">€25</span></div>
-        <div class="cost-row"><span class="l">Service</span><span class="v" id="pSvc">€94</span></div>
-        <div class="cost-total"><span>Gesamt</span><span class="amt" id="pTotal">€199</span></div>
+        <div class="cost-row"><span class="l">Service</span><span class="v" id="pS">€94</span></div>
+        <div class="cost-total"><span>Gesamt</span><span class="amt" id="pT">€199</span></div>
         <div class="modal-actions">
-            <button class="modal-pay" onclick="alert('🚀 Stripe Integration kommt bald!\n\nNach Zahlung: Wasserzeichen weg + Code-Download.')">Jetzt bezahlen →</button>
+            <button class="modal-pay" onclick="alert('🚀 Stripe Integration kommt bald!')">Jetzt bezahlen →</button>
             <button class="modal-back" onclick="closePay()">Zurück</button>
         </div>
     </div>
@@ -555,167 +553,65 @@
 
 <script src="examples.js"></script>
 <script>
-// STATE
-let cat='website',revs=0,maxRevs=3,html='',freeUsed=false,emailVerified=false;
-
-// Check localStorage
-if(localStorage.getItem('dd_free_used')==='1')freeUsed=true;
-if(localStorage.getItem('dd_email'))emailVerified=true;
-updateCreditsBadge();
+let cat='website',revs=0,mx=3,html='',freeUsed=localStorage.getItem('dd_free')==='1',emailOk=!!localStorage.getItem('dd_email');
+updateBadge();
 
 const times={website:'~12 Min',bot:'~20 Min',bugfix:'~8 Min',automation:'~18 Min'};
-const guideData={
-    website:['Beschreib den <strong>Zweck</strong> (Portfolio, Firma, Shop...)','Nenne <strong>Farben</strong> und gewünschten Stil','Welche <strong>Sektionen</strong>?','Welche <strong>Texte</strong> sollen rein?','Je detaillierter, desto besser!'],
-    bot:['Welche <strong>Plattform</strong>? (Discord, Telegram, WhatsApp)','Was soll der Bot <strong>können</strong>?','Welche <strong>APIs</strong> anbinden?','Welche <strong>Sprache</strong>?','Je detaillierter, desto besser!'],
-    bugfix:['<strong>Sprache</strong> & Framework angeben','<strong>Fehler</strong> genau beschreiben','Relevanten <strong>Code</strong> einfügen','<strong>Erwartetes Verhalten</strong>?','<strong>Fehlermeldung</strong> komplett einfügen!'],
-    automation:['Was soll <strong>automatisiert</strong> werden?','Welche <strong>APIs</strong>?','Wie oft soll es <strong>laufen</strong>?','Welches <strong>Output-Format</strong>?','Welche <strong>Credentials</strong>?']
+const gd={
+    website:['Beschreib den <strong>Zweck</strong>','Nenne <strong>Farben</strong> & Stil','Welche <strong>Sektionen</strong>?','Welche <strong>Texte</strong>?','Je detaillierter → besser'],
+    bot:['Welche <strong>Plattform</strong>?','Was soll er <strong>können</strong>?','Welche <strong>APIs</strong>?','Welche <strong>Sprache</strong>?','Je detaillierter → besser'],
+    bugfix:['<strong>Sprache</strong> & Framework','<strong>Fehler</strong> beschreiben','<strong>Code</strong> einfügen','<strong>Erwartetes Verhalten</strong>','<strong>Fehlermeldung</strong> einfügen'],
+    automation:['Was <strong>automatisieren</strong>?','Welche <strong>APIs</strong>?','Wie oft <strong>laufen</strong>?','<strong>Output-Format</strong>?','<strong>Credentials</strong>?']
 };
-const placeholders={
-    website:'Ich brauche eine Landing Page für mein Fitnessstudio "PowerGym".\n\nFarben: Schwarz und Rot\nSektionen: Hero mit Slogan, Kursplan, Preistabelle (3 Pakete), Trainer-Vorstellung, Kontaktformular\nStil: modern, dunkel, energetisch',
-    bot:'Discord Bot für meinen Gaming-Server.\n\nCommands: !rank, !stats, !poll\nWillkommensnachrichten + Spam-Filter\nSprache: Deutsch',
-    bugfix:'React/Next.js 14 App.\n\nFehler: TypeError: Cannot read property "map" of undefined\nKomponente: ProductList\nAPI-Call gibt manchmal null zurück\n\n[Code hier einfügen]',
-    automation:'Script das täglich Google Maps Bewertungen abruft.\n\nIn Excel speichern\nE-Mail-Zusammenfassung senden\nAlarm bei Bewertungen unter 3 Sternen'
+const ph={
+    website:'Landing Page für mein Fitnessstudio "PowerGym".\n\nFarben: Schwarz und Rot\nSektionen: Hero, Kursplan, Preise (3 Pakete), Trainer, Kontakt\nStil: modern, dunkel, energetisch',
+    bot:'Discord Bot für Gaming-Server.\n\nCommands: !rank, !stats, !poll\nWillkommensnachrichten + Spam-Filter\nSprache: Deutsch',
+    bugfix:'React/Next.js 14.\n\nTypeError: Cannot read "map" of undefined\nAPI gibt manchmal null zurück\n\n[Code hier]',
+    automation:'Täglich Google Maps Bewertungen abrufen.\nIn Excel speichern + E-Mail senden.\nAlarm bei < 3 Sternen.'
 };
 
-// PAGE NAV
-function showPage(id){
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page-'+id).classList.add('active');
-    window.scrollTo(0,0);
-}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');window.scrollTo(0,0)}
+function pickSvc(el,c){document.querySelectorAll('.svc-opt').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');cat=c;document.getElementById('guideList').innerHTML=gd[c].map(i=>`<li>${i}</li>`).join('');document.getElementById('promptInput').placeholder=ph[c];document.getElementById('orderNote').textContent='⚡ Geschätzte Lieferzeit: '+times[c]}
+function selectAndGo(c){showPage('order');setTimeout(()=>{const o=document.querySelectorAll('.svc-opt');['website','bot','bugfix','automation'].forEach((x,i)=>{if(x===c)pickSvc(o[i],c)})},50)}
+function updateCC(){document.getElementById('cc').textContent=document.getElementById('promptInput').value.length+' Zeichen'}
+function updateBadge(){const b=document.getElementById('creditsBadge');if(!freeUsed){b.textContent='1 × Gratis';b.style.color='var(--green)';b.style.background='var(--green-bg)'}else if(emailOk){b.textContent='✓ Verifiziert';b.style.color='var(--accent)';b.style.background='rgba(79,110,247,0.06)'}else{b.textContent='0 Credits';b.style.color='var(--red)';b.style.background='rgba(239,68,68,0.06)'}}
+function updateGate(){const f=document.getElementById('freeBox'),e=document.getElementById('emailGate');if(!freeUsed){f.style.display='flex';e.style.display='none'}else if(!emailOk){f.style.display='none';e.style.display='block'}else{f.style.display='none';e.style.display='none'}}
+function unlockEmail(){const e=document.getElementById('emailInput').value.trim();if(!e||!e.includes('@')){document.getElementById('emailInput').style.borderColor='var(--red)';return}localStorage.setItem('dd_email',e);emailOk=true;updateBadge();updateGate()}
 
-// SERVICE SELECT
-function pickSvc(el,c){
-    document.querySelectorAll('.svc-opt').forEach(e=>e.classList.remove('selected'));
-    el.classList.add('selected');cat=c;
-    document.getElementById('guideList').innerHTML=guideData[c].map(i=>`<li>${i}</li>`).join('');
-    document.getElementById('promptInput').placeholder=placeholders[c];
-    document.getElementById('orderInfo').textContent='⚡ Geschätzte Lieferzeit: '+times[c];
-}
-function selectAndGo(c){
-    showPage('order');
-    setTimeout(()=>{
-        const opts=document.querySelectorAll('.svc-opt');
-        const cats=['website','bot','bugfix','automation'];
-        pickSvc(opts[cats.indexOf(c)],c);
-    },100);
-}
-
-function updateCharCount(){
-    const n=document.getElementById('promptInput').value.length;
-    document.getElementById('charCount').textContent=n+' Zeichen';
-}
-
-// ANTI-ABUSE
-function updateCreditsBadge(){
-    const b=document.getElementById('creditsBadge');
-    if(!freeUsed){b.textContent='1 × Gratis';b.style.color='var(--green)';b.style.background='var(--green-glow)';}
-    else if(emailVerified){b.textContent='✓ Verifiziert';b.style.color='var(--accent)';b.style.background='var(--accent-glow)';}
-    else{b.textContent='0 Credits';b.style.color='var(--red)';b.style.background='rgba(239,68,68,0.1)';}
-}
-function updateOrderGate(){
-    const fn=document.getElementById('freeNotice');
-    const eg=document.getElementById('emailGate');
-    if(!freeUsed){fn.style.display='flex';eg.style.display='none';}
-    else if(!emailVerified){fn.style.display='none';eg.style.display='block';}
-    else{fn.style.display='none';eg.style.display='none';}
-}
-function unlockEmail(){
-    const e=document.getElementById('emailInput').value.trim();
-    if(!e||!e.includes('@')){document.getElementById('emailInput').style.borderColor='var(--red)';return;}
-    localStorage.setItem('dd_email',e);emailVerified=true;
-    updateCreditsBadge();updateOrderGate();
-}
-
-// GENERATION
-function startGeneration(){
+function startGen(){
     const p=document.getElementById('promptInput').value.trim();
-    if(!p){document.getElementById('promptInput').focus();document.getElementById('promptInput').style.borderColor='var(--red)';setTimeout(()=>document.getElementById('promptInput').style.borderColor='',2000);return;}
-    if(freeUsed&&!emailVerified){updateOrderGate();return;}
-
-    showPage('generating');
-    const fill=document.getElementById('genFill');
-    const pct=document.getElementById('genPct');
-    const status=document.getElementById('genStatusText');
-    const steps=[
-        {p:12,t:'Prompt wird analysiert...',s:1},
-        {p:35,t:'Code wird generiert...',s:2},
-        {p:58,t:'UI-Komponenten werden aufgebaut...',s:3},
-        {p:78,t:'Qualitätsprüfung läuft...',s:4},
-        {p:95,t:'Wird optimiert...',s:5},
-        {p:100,t:'Fertig!',s:5}
-    ];
-    // Reset
+    if(!p){document.getElementById('promptInput').focus();return}
+    if(freeUsed&&!emailOk){updateGate();return}
+    showPage('gen');
+    const fill=document.getElementById('gFill'),pct=document.getElementById('gPct'),st=document.getElementById('gStatus');
     fill.style.width='0';pct.textContent='0%';
-    for(let i=1;i<=5;i++){const el=document.getElementById('gs'+i);el.className='gen-step';el.querySelector('.check').textContent='○';}
-    document.getElementById('gs1').classList.add('active');document.getElementById('gs1').querySelector('.check').textContent='◉';
-
-    let idx=0;
-    const iv=setInterval(()=>{
-        if(idx<steps.length){
-            const s=steps[idx];
-            fill.style.width=s.p+'%';pct.textContent=s.p+'%';status.textContent=s.t;
-            for(let i=1;i<=5;i++){
-                const el=document.getElementById('gs'+i);
-                if(i<s.s){el.className='gen-step done';el.querySelector('.check').textContent='✓';}
-                else if(i===s.s){el.className='gen-step active';el.querySelector('.check').textContent='◉';}
-                else{el.className='gen-step';el.querySelector('.check').textContent='○';}
-            }
-            idx++;
-        } else {
-            clearInterval(iv);
-            // Mark free as used
-            if(!freeUsed){freeUsed=true;localStorage.setItem('dd_free_used','1');updateCreditsBadge();}
-            setTimeout(()=>{
-                html=getExampleForPrompt(p);revs=0;
-                document.getElementById('resultFrame').srcdoc=html;
-                updateRevUI();
-                showPage('result');
-            },600);
-        }
+    for(let i=1;i<=5;i++){const e=document.getElementById('s'+i);e.className='gs';e.querySelector('.ck').textContent='○'}
+    document.getElementById('s1').classList.add('on');document.getElementById('s1').querySelector('.ck').textContent='◉';
+    const steps=[{p:12,t:'Prompt wird analysiert...',s:1},{p:35,t:'Code wird generiert...',s:2},{p:58,t:'UI wird aufgebaut...',s:3},{p:78,t:'Qualitätsprüfung...',s:4},{p:95,t:'Optimierung...',s:5},{p:100,t:'Fertig!',s:5}];
+    let i=0;const iv=setInterval(()=>{
+        if(i<steps.length){const s=steps[i];fill.style.width=s.p+'%';pct.textContent=s.p+'%';st.textContent=s.t;
+        for(let j=1;j<=5;j++){const e=document.getElementById('s'+j);if(j<s.s){e.className='gs done';e.querySelector('.ck').textContent='✓'}else if(j===s.s){e.className='gs on';e.querySelector('.ck').textContent='◉'}else{e.className='gs';e.querySelector('.ck').textContent='○'}}i++}
+        else{clearInterval(iv);if(!freeUsed){freeUsed=true;localStorage.setItem('dd_free','1');updateBadge()}setTimeout(()=>{html=getExampleForPrompt(p);revs=0;document.getElementById('resFrame').srcdoc=html;updRev();showPage('result')},600)}
     },800);
 }
 
-// RESULT
-function updateRevUI(){
-    document.getElementById('revCount').textContent=`Revisionen: ${revs} / ${maxRevs}`;
-    document.getElementById('revLabel').textContent=(maxRevs-revs)+' verbleibend';
-}
-function openRevision(){
-    if(revs>=maxRevs){alert('Alle Revisionen verbraucht. Bitte starte einen neuen Auftrag.');return;}
-    document.getElementById('revPanel').classList.add('open');
-}
-function closeRevision(){document.getElementById('revPanel').classList.remove('open');}
-function submitRevision(){
-    const t=document.getElementById('revInput').value.trim();
-    if(!t)return;
-    revs++;updateRevUI();closeRevision();
-    document.getElementById('revInput').value='';
-    // Simulate re-generation
-    showPage('generating');
-    setTimeout(()=>{
-        document.getElementById('resultFrame').srcdoc=html;
-        showPage('result');
-    },3000);
-}
-function openFull(){const w=window.open();w.document.write(html);w.document.close();}
-function newOrder(){showPage('order');updateOrderGate();}
+function updRev(){document.getElementById('revCt').textContent=`Revisionen: ${revs}/${mx}`;document.getElementById('revLbl').textContent=(mx-revs)+' verbleibend'}
+function openRev(){if(revs>=mx){alert('Alle Revisionen verbraucht.');return}document.getElementById('revPanel').classList.add('open')}
+function closeRev(){document.getElementById('revPanel').classList.remove('open')}
+function submitRev(){const t=document.getElementById('revInput').value.trim();if(!t)return;revs++;updRev();closeRev();document.getElementById('revInput').value='';showPage('gen');setTimeout(()=>{document.getElementById('resFrame').srcdoc=html;showPage('result')},3000)}
+function openFull(){const w=window.open();w.document.write(html);w.document.close()}
+function newOrder(){showPage('order');updateGate()}
 
-// PAYMENT
-function showPayment(){
+function showPay(){
     const pr={website:{g:80,s:94,t:199},bot:{g:120,s:154,t:299},bugfix:{g:25,s:29,t:79},automation:{g:95,s:129,t:249}};
     const p=pr[cat]||pr.website;const rc=revs*25;const total=p.g+rc+25+p.s;
-    document.getElementById('pGen').textContent='€'+p.g;
-    document.getElementById('pRev').textContent='€'+rc;
-    document.getElementById('pSvc').textContent='€'+p.s;
-    document.getElementById('pTotal').textContent='€'+total;
+    document.getElementById('pG').textContent='€'+p.g;document.getElementById('pR').textContent='€'+rc;
+    document.getElementById('pS').textContent='€'+p.s;document.getElementById('pT').textContent='€'+total;
     document.getElementById('payModal').classList.add('on');
 }
-function closePay(){document.getElementById('payModal').classList.remove('on');}
-document.getElementById('payModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePay();});
-
-// INIT
-updateOrderGate();
+function closePay(){document.getElementById('payModal').classList.remove('on')}
+document.getElementById('payModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePay()});
+updateGate();
 </script>
 </body>
 </html>
