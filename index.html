@@ -1503,7 +1503,20 @@ function uRev(){document.getElementById('rCt').textContent=`Revisionen: ${revs}/
 function openRev(){if(revs>=mx){alert('Alle Revisionen verbraucht.');return}document.getElementById('rP').classList.add('open')}
 function closeRev(){document.getElementById('rP').classList.remove('open')}
 function submitRev(){const t=document.getElementById('rI').value.trim();if(!t)return;revs++;uRev();closeRev();document.getElementById('rI').value='';showPage('gen');setTimeout(()=>{showPage('result')},3000)}
-function openFull(){const w=window.open();w.document.write(html);w.document.close()}
+function openFull(){
+    const ov=document.getElementById('fullOv');
+    const fr=document.getElementById('fullFrame');
+    fr.srcdoc=html;
+    ov.style.display='flex';
+    document.body.style.overflow='hidden';
+}
+function closeFull(){
+    const ov=document.getElementById('fullOv');
+    const fr=document.getElementById('fullFrame');
+    fr.srcdoc='';
+    ov.style.display='none';
+    document.body.style.overflow='';
+}
 
 function confirmDiscard(){document.getElementById('cM').classList.add('on')}
 function closeCM(){document.getElementById('cM').classList.remove('on')}
@@ -1550,5 +1563,14 @@ function renderFiles(){
 }
 function removeFile(i){uploadedFiles.splice(i,1);renderFiles();}
 </script>
+
+<div id="fullOv" style="display:none;position:fixed;inset:0;z-index:99999;background:#000;flex-direction:column">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(0,0,0,0.9);border-bottom:1px solid #333;flex-shrink:0">
+        <span style="color:#fff;font-size:14px;font-weight:600">Vorschau</span>
+        <button onclick="closeFull()" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">✕ Zurück</button>
+    </div>
+    <iframe id="fullFrame" style="flex:1;border:none;width:100%;background:#fff" sandbox="allow-same-origin"></iframe>
+</div>
+
 </body>
 </html>
