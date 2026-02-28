@@ -29,8 +29,16 @@ const layouts = {
 
 // ===== SECTION BUILDERS =====
 function buildGrid(items, accent, style) {
+    // Vary card style each time
+    const v = Date.now() % 4;
+    const cardStyles = [
+        `background:${style.card};border:1px solid ${style.border};border-radius:16px;padding:28px`,
+        `background:${style.card};border-left:3px solid ${accent};border-radius:4px;padding:24px 28px`,
+        `background:linear-gradient(135deg,${style.card},${accent}05);border:1px solid ${style.border};border-radius:20px;padding:32px`,
+        `background:${style.card};border:1px solid ${style.border};border-radius:8px;padding:24px;border-top:3px solid ${accent}`,
+    ];
     return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(${items.length>3?'220px':'260px'},1fr));gap:16px">${items.map(it => 
-        `<div style="background:${style.card};border:1px solid ${style.border};border-radius:16px;padding:28px;transition:all 0.3s">
+        `<div style="${cardStyles[v]};transition:all 0.3s">
         <div style="font-size:32px;margin-bottom:12px">${it.icon}</div>
         <h3 style="font-size:17px;font-weight:700;margin-bottom:6px">${it.title}</h3>
         <p style="font-size:13px;color:${style.muted};line-height:1.5">${it.desc}</p>
@@ -110,7 +118,12 @@ function extractSections(prompt) {
     return sections.length ? sections : ['hero','pricing','contact'];
 }
 
-function promptHash(s) { return s.split('').reduce((a,c,i) => a + c.charCodeAt(0) * (i+1), 0); }
+// Better hash: combines prompt content + timestamp so even identical prompts differ each time
+function promptHash(s) {
+    const time = Date.now();
+    const base = s.split('').reduce((a,c,i) => ((a << 5) - a + c.charCodeAt(0) * (i+1)) | 0, 0);
+    return Math.abs(base ^ time) >>> 0; // unsigned 32-bit, unique every ms
+}
 
 // ===== MAIN GENERATOR =====
 function getExampleForPrompt(prompt) {
@@ -149,10 +162,11 @@ function getExampleForPrompt(prompt) {
     else if (isLight && !isDark) style = [styles.light1, styles.light2, styles.light3, styles.light4][hash % 4];
     else style = [styles.dark1, styles.light1, styles.dark2, styles.light2][hash % 4];
 
-    const accent = colors?.primary || ['#e63946','#2b7de9','#7c3aed','#16a34a','#f97316','#ec4899','#06b6d4','#d4a017','#6366f1'][hash % 9];
+    const accentPool = ['#e63946','#2b7de9','#7c3aed','#16a34a','#f97316','#ec4899','#06b6d4','#d4a017','#6366f1','#0891b2','#be185d','#4f46e5','#b45309','#059669','#9333ea','#dc2626','#0284c7','#c026d3'];
+    const accent = colors?.primary || accentPool[hash % accentPool.length];
     const font = fonts[hash % fonts.length];
     const siteName = name || getDefaultName(cat, hash);
-    const heroLayout = hash % 3; // 0=center, 1=left, 2=split
+    const heroLayout = hash % 3;
 
     return generateSite(cat, siteName, accent, style, font, sections, heroLayout, hash, prompt);
 }
@@ -191,7 +205,9 @@ function generateSite(cat, name, accent, style, font, sections, heroLayout, hash
     const borderCol = style.border;
 
     // Build CTA button
-    const ctaStyle = `display:inline-block;background:${accent};color:#fff;padding:14px 32px;border-radius:${hash%2?'99px':'10px'};text-decoration:none;font-weight:700;font-size:15px;transition:all 0.3s`;
+    const radii = ['99px','10px','6px','14px','0'];
+    const ctaPads = ['14px 32px','16px 40px','12px 28px','14px 36px'];
+    const ctaStyle = `display:inline-block;background:${accent};color:#fff;padding:${ctaPads[hash%ctaPads.length]};border-radius:${radii[hash%radii.length]};text-decoration:none;font-weight:700;font-size:15px;transition:all 0.3s;letter-spacing:${hash%3===0?'1px':'0'}`;
     const cta = `<a href="#" style="${ctaStyle}">${getCTA(cat, hash)}</a>`;
     
     // Hero background variation
@@ -209,28 +225,39 @@ function generateSite(cat, name, accent, style, font, sections, heroLayout, hash
     let body = hero;
     const sectionWrap = (content, title) => `<div style="padding:80px 24px;max-width:1000px;margin:0 auto"><h2 style="font-size:28px;font-weight:800;text-align:center;margin-bottom:32px;letter-spacing:-0.5px">${title}</h2>${content}</div>`;
 
-    // Always add features/services
-    body += sectionWrap(buildGrid(getServices(cat, hash), accent, style), getServiceTitle(cat, hash));
+    // Build section pool and shuffle based on hash
+    const sectionPool = [];
+    
+    // Services always included
+    sectionPool.push(() => sectionWrap(buildGrid(getServices(cat, hash), accent, style), getServiceTitle(cat, hash)));
 
-    // Pricing if relevant
-    if (sections.includes('pricing') || hash % 3 === 0) {
-        body += sectionWrap(buildPricing(getPricing(cat, hash), accent, style), getPricingTitle(hash));
+    // Pricing - vary inclusion
+    if (sections.includes('pricing') || hash % 5 < 3) {
+        sectionPool.push(() => sectionWrap(buildPricing(getPricing(cat, hash), accent, style), getPricingTitle(hash)));
     }
 
     // Stats
-    if (sections.includes('stats') || hash % 4 === 0) {
-        body += `<div style="padding:60px 24px">${buildStats(getStats(cat, hash), accent)}</div>`;
+    if (sections.includes('stats') || hash % 7 < 3) {
+        sectionPool.push(() => `<div style="padding:60px 24px">${buildStats(getStats(cat, hash), accent)}</div>`);
     }
 
     // Testimonials
-    if (sections.includes('testimonials') || hash % 5 === 0) {
-        body += sectionWrap(buildTestimonials(getTestimonials(cat, hash), style), getTestTitle(hash));
+    if (sections.includes('testimonials') || hash % 6 < 2) {
+        sectionPool.push(() => sectionWrap(buildTestimonials(getTestimonials(cat, hash), style), getTestTitle(hash)));
     }
 
     // Contact
-    if (sections.includes('contact') || hash % 3 !== 2) {
-        body += sectionWrap(buildContact(accent, style), getContactTitle(hash));
+    if (sections.includes('contact') || hash % 4 < 3) {
+        sectionPool.push(() => sectionWrap(buildContact(accent, style), getContactTitle(hash)));
     }
+
+    // Shuffle sections (except first = services) based on hash
+    const rest = sectionPool.slice(1);
+    for (let i = rest.length - 1; i > 0; i--) {
+        const j = (hash + i * 7) % (i + 1);
+        [rest[i], rest[j]] = [rest[j], rest[i]];
+    }
+    [sectionPool[0], ...rest].forEach(fn => body += fn());
 
     // Footer
     body += `<footer style="text-align:center;padding:40px;border-top:1px solid ${borderCol};color:${mutedCol};font-size:12px">© 2026 ${name}</footer>`;
@@ -261,6 +288,10 @@ function getHeroBg(cat, accent, style, h) {
         `background:radial-gradient(ellipse at 50% 30%,${accent}12,transparent 70%);`,
         `background:linear-gradient(135deg,${accent}10,${style.bg});`,
         `background:linear-gradient(160deg,${style.bg},${accent}06);`,
+        `background:linear-gradient(to right,${accent}10,transparent 60%);`,
+        `background:radial-gradient(circle at 80% 50%,${accent}15,transparent 50%);`,
+        `background:linear-gradient(45deg,${accent}08,transparent,${accent}05);`,
+        `background:conic-gradient(from 180deg at 50% 50%,${accent}06,transparent,${accent}04);`,
     ];
     return bgs[h % bgs.length];
 }
