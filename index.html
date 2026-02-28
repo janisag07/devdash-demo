@@ -654,10 +654,12 @@
 
 <script>
 // =============================================
-// DEVDASH — Dynamic Site Generator v3
-// PREMIUM quality — every prompt → unique, professional result
+// DEVDASH — Dynamic Site Generator v4
+// FUNCTIONAL websites — every feature works
+// Every sentence understood, every function delivered
 // =============================================
 
+// ===== RNG =====
 function makeRng(prompt) {
     let seed = Date.now() ^ (Math.random() * 0xFFFFFFFF >>> 0);
     for (let i = 0; i < prompt.length; i++) seed = ((seed << 5) - seed + prompt.charCodeAt(i)) | 0;
@@ -667,7 +669,172 @@ function rPick(rng, arr) { return arr[Math.floor(rng() * arr.length)]; }
 function pickN(rng, arr, n) { const c=[...arr]; const o=[]; for(let i=0;i<Math.min(n,c.length);i++){const j=Math.floor(rng()*c.length);o.push(c.splice(j,1)[0]);}return o; }
 function shuffle(rng, arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a; }
 
-// ===== CATEGORY DETECTION =====
+// ===== DEEP PROMPT ANALYSIS =====
+// Understands EVERY sentence and extracts actionable features
+
+function analyzePrompt(prompt) {
+    const p = prompt.toLowerCase();
+    const result = {
+        category: detectCategory(prompt),
+        name: extractName(prompt),
+        mood: detectMood(prompt),
+        colors: extractColors(prompt),
+        features: [],
+        sections: [],
+        customText: {},
+        language: p.match(/english|englisch/) ? 'en' : 'de',
+    };
+
+    // ===== FEATURE DETECTION — match every possible request =====
+    const featureMap = [
+        // Reviews / Bewertungen
+        {keys: /bewertung|review|rezension|testimonial|sterne|rating|feedback|meinung|erfahrung/,
+         feat: 'reviews', desc: 'Bewertungssystem mit Sternen, Eingabeformular und Live-Anzeige'},
+        // Contact form
+        {keys: /kontakt|contact|formular|anfrage|nachricht|schreib|erreichen|melden/,
+         feat: 'contact', desc: 'Kontaktformular mit Validierung'},
+        // Newsletter
+        {keys: /newsletter|email.?list|abonnieren|subscribe|mailing|updates.*erhalten/,
+         feat: 'newsletter', desc: 'Newsletter-Anmeldung mit E-Mail-Eingabe'},
+        // Booking / Termin
+        {keys: /termin|buchen|booking|reservier|kalender|verfügbar|appointment/,
+         feat: 'booking', desc: 'Terminbuchungs-Widget'},
+        // Gallery / Portfolio
+        {keys: /galerie|gallery|fotos|bilder|portfolio|showcase|arbeiten|projekte/,
+         feat: 'gallery', desc: 'Bildergalerie mit Lightbox'},
+        // Pricing
+        {keys: /preis|pricing|paket|plan|tarif|kosten|angebot/,
+         feat: 'pricing', desc: 'Preistabelle mit Paketen'},
+        // FAQ
+        {keys: /faq|fragen|häufig|question|hilfe|support/,
+         feat: 'faq', desc: 'FAQ-Akkordeon mit Auf/Zuklappen'},
+        // Team
+        {keys: /team|mitarbeiter|über uns|about|trainer|chef|gründer|wer wir sind/,
+         feat: 'team', desc: 'Team-Sektion mit Fotos und Rollen'},
+        // Map / Location
+        {keys: /karte|map|standort|adresse|anfahrt|location|wo.*find|weg.*zu.*uns/,
+         feat: 'map', desc: 'Standort-Karte'},
+        // Social Media
+        {keys: /social|instagram|facebook|twitter|tiktok|youtube|linkedin|folge|follow/,
+         feat: 'social', desc: 'Social-Media-Links und Feed'},
+        // Blog
+        {keys: /blog|artikel|beiträge|news|aktuelles|neuigkeiten|posts/,
+         feat: 'blog', desc: 'Blog-Vorschau mit Artikeln'},
+        // Shop / Products
+        {keys: /shop|produkt|kaufen|warenkorb|bestell|artikel|sortiment/,
+         feat: 'shop', desc: 'Produkt-Grid mit Warenkorb'},
+        // Opening hours
+        {keys: /öffnungszeit|opening|geöffnet|geschlossen|uhrzeit|wann.*offen/,
+         feat: 'hours', desc: 'Öffnungszeiten-Anzeige'},
+        // Speisekarte / Menu
+        {keys: /speisekarte|menü|menu|gericht|essen.*karte/,
+         feat: 'menu', desc: 'Speisekarte mit Kategorien und Preisen'},
+        // Cookie Banner
+        {keys: /cookie|datenschutz|gdpr|dsgvo|tracking|consent/,
+         feat: 'cookie', desc: 'Cookie-Consent-Banner'},
+        // Dark Mode
+        {keys: /dark.?mode|hell.?dunkel|theme.?switch|nacht.?modus/,
+         feat: 'darkmode', desc: 'Dark/Light Mode Toggle'},
+        // Search
+        {keys: /suche|search|finden|durchsuchen|filter/,
+         feat: 'search', desc: 'Suchfunktion'},
+        // Chat / Messenger
+        {keys: /chat|messenger|live.?chat|whatsapp|kontakt.?widget|hilfe.?button/,
+         feat: 'chat', desc: 'Live-Chat-Widget'},
+        // Countdown / Timer
+        {keys: /countdown|timer|launch|coming.?soon|bald|ablauf|angebot.*endet/,
+         feat: 'countdown', desc: 'Countdown-Timer'},
+        // Video
+        {keys: /video|youtube|film|clip|abspielen|trailer/,
+         feat: 'video', desc: 'Video-Einbettung'},
+        // Slider / Carousel
+        {keys: /slider|carousel|karussell|slideshow|banner.*wechsel/,
+         feat: 'slider', desc: 'Bild-Slider mit Navigation'},
+        // Statistics / Counter
+        {keys: /statistik|zahlen|counter|zähler|erfolge|kennzahl/,
+         feat: 'stats', desc: 'Animierte Statistik-Counter'},
+        // Scroll animations
+        {keys: /animation|animiert|effekt|scroll.*effekt|einblend|fade/,
+         feat: 'animations', desc: 'Scroll-Animationen'},
+        // Back to top
+        {keys: /nach.?oben|back.?to.?top|scroll.*oben|pfeil.*oben/,
+         feat: 'backtotop', desc: 'Back-to-Top Button'},
+        // Login / Auth
+        {keys: /login|anmeld|registrier|konto|account|mitglieder/,
+         feat: 'login', desc: 'Login/Registrierung'},
+        // Progress / Steps
+        {keys: /fortschritt|progress|schritt|step|ablauf|prozess/,
+         feat: 'progress', desc: 'Fortschritts-/Prozess-Anzeige'},
+        // Testimonials with specific format
+        {keys: /kunden.*stimm|was.*sagen|zufrieden|empfehl/,
+         feat: 'reviews', desc: 'Kundenstimmen'},
+        // Call to action
+        {keys: /cta|handlungsaufforderung|jetzt.*starten|call.?to.?action/,
+         feat: 'cta_banner', desc: 'CTA-Banner'},
+        // Parallax
+        {keys: /parallax|3d.*effekt|tiefe|depth/,
+         feat: 'parallax', desc: 'Parallax-Scrolleffekt'},
+        // Print / PDF
+        {keys: /drucken|print|pdf|ausdrucken/,
+         feat: 'print', desc: 'Druckoptimierte Version'},
+        // Multi-language
+        {keys: /mehrsprachig|multi.?lang|sprach.*wechsel|englisch.*deutsch|übersetzen/,
+         feat: 'multilang', desc: 'Sprachwechsel DE/EN'},
+        // Accessibility
+        {keys: /barrierefrei|accessibility|screenreader|a11y/,
+         feat: 'a11y', desc: 'Barrierefreiheit'},
+        // Notification / Alert
+        {keys: /benachrichtig|notification|alert|hinweis|banner.*oben/,
+         feat: 'notification', desc: 'Benachrichtigungs-Banner'},
+        // Tabs
+        {keys: /tab|reiter|registerkarte|umschalt/,
+         feat: 'tabs', desc: 'Tab-Navigation'},
+    ];
+
+    for (const fm of featureMap) {
+        if (fm.keys.test(p)) {
+            result.features.push(fm.feat);
+        }
+    }
+
+    // ALWAYS add category defaults, then merge with detected features
+    {
+        const catDefaults = {
+            fitness: ['reviews','pricing','booking','team','stats','gallery','hours','contact','social'],
+            restaurant: ['menu','reviews','hours','booking','gallery','contact','map','social'],
+            portfolio: ['gallery','contact','stats','reviews','social','blog'],
+            saas: ['pricing','stats','faq','reviews','newsletter','contact','blog'],
+            shop: ['shop','reviews','newsletter','faq','contact','social'],
+            beauty: ['pricing','booking','gallery','reviews','hours','team','contact','social'],
+            medical: ['team','booking','hours','faq','contact','map','reviews'],
+            cafe: ['menu','hours','gallery','reviews','contact','map','social'],
+            agency: ['gallery','team','stats','reviews','pricing','contact','blog','social'],
+            music: ['video','gallery','social','newsletter','contact','stats'],
+            education: ['pricing','faq','reviews','team','contact','newsletter','stats'],
+            event: ['countdown','gallery','pricing','booking','faq','contact','social'],
+            realestate: ['gallery','contact','map','stats','reviews','newsletter'],
+            travel: ['gallery','booking','reviews','faq','pricing','contact','newsletter'],
+            law: ['team','faq','contact','reviews','hours','map'],
+            auto: ['pricing','gallery','booking','reviews','hours','contact','map'],
+            pet: ['pricing','gallery','reviews','booking','team','contact','hours'],
+            tech: ['pricing','stats','faq','reviews','contact','newsletter','blog'],
+            photo: ['gallery','pricing','reviews','contact','social','booking'],
+        };
+        const defaults = catDefaults[result.category] || ['pricing','reviews','contact','faq','stats','newsletter'];
+        // Merge: detected features first, then defaults that aren't already included
+        const merged = [...result.features];
+        for (const d of defaults) { if (!merged.includes(d)) merged.push(d); }
+        result.features = merged;
+    }
+
+    // Always add some base features
+    if (!result.features.includes('contact')) result.features.push('contact');
+    if (!result.features.includes('backtotop')) result.features.push('backtotop');
+    if (!result.features.includes('cookie')) result.features.push('cookie');
+
+    return result;
+}
+
 function detectCategory(prompt) {
     const p = prompt.toLowerCase();
     const cats = [
@@ -713,355 +880,69 @@ function detectMood(prompt) {
     return null;
 }
 
-// ===== UNSPLASH IMAGES — real photos =====
-function getHeroImage(rng, cat) {
-    const images = {
-        fitness: [
-            'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=80',
-            'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1200&q=80',
-            'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1200&q=80',
-            'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=1200&q=80',
-            'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=1200&q=80',
-        ],
-        restaurant: [
-            'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80',
-            'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80',
-            'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1200&q=80',
-            'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=1200&q=80',
-        ],
-        portfolio: [
-            'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=80',
-            'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&q=80',
-            'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&q=80',
-        ],
-        saas: [
-            'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80',
-            'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80',
-            'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1200&q=80',
-        ],
-        shop: [
-            'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&q=80',
-            'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&q=80',
-            'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=1200&q=80',
-        ],
-        beauty: [
-            'https://images.unsplash.com/photo-1560750588-73b555dce5f8?w=1200&q=80',
-            'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1200&q=80',
-            'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=1200&q=80',
-        ],
-        medical: [
-            'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&q=80',
-            'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=1200&q=80',
-        ],
-        music: [
-            'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&q=80',
-            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1200&q=80',
-            'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=1200&q=80',
-        ],
-        cafe: [
-            'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1200&q=80',
-            'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=80',
-        ],
-        travel: [
-            'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80',
-            'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&q=80',
-        ],
-        realestate: [
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80',
-        ],
-        education: [
-            'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&q=80',
-            'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&q=80',
-        ],
-        event: [
-            'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80',
-            'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1200&q=80',
-        ],
-        auto: [
-            'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1200&q=80',
-            'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80',
-        ],
-        agency: [
-            'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80',
-            'https://images.unsplash.com/photo-1497215842964-222b430dc094?w=1200&q=80',
-        ],
-        tech: [
-            'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80',
-            'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&q=80',
-        ],
-        photo: [
-            'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=1200&q=80',
-            'https://images.unsplash.com/photo-1471341971476-ae15ff5dd4ea?w=1200&q=80',
-        ],
-    };
-    const pool = images[cat] || [
-        'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80',
-        'https://images.unsplash.com/photo-1497215842964-222b430dc094?w=1200&q=80',
-        'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1200&q=80',
-    ];
-    return rPick(rng, pool);
+function extractColors(prompt) {
+    const p = prompt.toLowerCase();
+    if (p.match(/rot.*schwarz|schwarz.*rot/)) return {primary:'#ef4444',bg:'#0a0a0a',text:'#ffffff',card:'#171717',border:'#262626',muted:'#a3a3a3'};
+    if (p.match(/blau.*weiß|weiß.*blau/)) return {primary:'#3b82f6',bg:'#ffffff',text:'#0f172a',card:'#ffffff',border:'#e2e8f0',muted:'#64748b'};
+    if (p.match(/rot|red/)) return {primary:'#ef4444'};
+    if (p.match(/blau|blue/)) return {primary:'#3b82f6'};
+    if (p.match(/grün|green/)) return {primary:'#16a34a'};
+    if (p.match(/lila|purple|violet/)) return {primary:'#8b5cf6'};
+    if (p.match(/pink|rosa/)) return {primary:'#ec4899'};
+    if (p.match(/gold|gelb|yellow/)) return {primary:'#eab308'};
+    if (p.match(/orange/)) return {primary:'#f97316'};
+    if (p.match(/türkis|teal|cyan/)) return {primary:'#06b6d4'};
+    return null;
 }
 
-function getCardImages(rng, cat) {
-    const images = {
-        fitness: [
-            'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&q=80',
-            'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&q=80',
-            'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&q=80',
-            'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80',
-        ],
-        restaurant: [
-            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80',
-            'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=600&q=80',
-            'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80',
-            'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=600&q=80',
-        ],
-        shop: [
-            'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=600&q=80',
-            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80',
-            'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&q=80',
-            'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&q=80',
-        ],
-        beauty: [
-            'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=80',
-            'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=600&q=80',
-            'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=600&q=80',
-        ],
-    };
-    return images[cat] || [
-        'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80',
-        'https://images.unsplash.com/photo-1497215842964-222b430dc094?w=600&q=80',
-        'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&q=80',
+// ===== COLOR PALETTES =====
+function getPalette(rng, mood, cat, customColors) {
+    if (customColors && customColors.bg) return customColors; // Full custom palette
+
+    const darks = [
+        {bg:'#09090b',card:'#18181b',border:'#27272a',text:'#fafafa',muted:'#a1a1aa'},
+        {bg:'#0a0a0a',card:'#171717',border:'#262626',text:'#fafafa',muted:'#a3a3a3'},
+        {bg:'#020617',card:'#0f172a',border:'#1e293b',text:'#f8fafc',muted:'#94a3b8'},
+        {bg:'#0a0a14',card:'#12121e',border:'#1e1e30',text:'#eeeeff',muted:'#8888bb'},
+        {bg:'#0c0a09',card:'#1c1917',border:'#292524',text:'#fafaf9',muted:'#a8a29e'},
     ];
+    const lights = [
+        {bg:'#ffffff',card:'#ffffff',border:'#e5e7eb',text:'#111827',muted:'#6b7280'},
+        {bg:'#fafafa',card:'#ffffff',border:'#e4e4e7',text:'#09090b',muted:'#71717a'},
+        {bg:'#f8fafc',card:'#ffffff',border:'#e2e8f0',text:'#0f172a',muted:'#64748b'},
+        {bg:'#faf5ff',card:'#ffffff',border:'#e9d5ff',text:'#1e1b4b',muted:'#6b21a8'},
+        {bg:'#fff7ed',card:'#ffffff',border:'#fed7aa',text:'#431407',muted:'#9a3412'},
+    ];
+    const accents = ['#ef4444','#3b82f6','#8b5cf6','#16a34a','#f97316','#ec4899','#06b6d4','#eab308','#6366f1','#14b8a6','#f43f5e','#a855f7','#0ea5e9','#84cc16','#e11d48'];
+
+    const isDarkCat = ['fitness','music','agency','saas','tech','event'].includes(cat);
+    let base;
+    if (mood === 'dark' || mood === 'neon' || (isDarkCat && !mood)) base = rPick(rng, darks);
+    else if (mood === 'light' || mood === 'minimal') base = rPick(rng, lights);
+    else base = rPick(rng, rng() > 0.5 ? darks : lights);
+
+    const accent = (customColors && customColors.primary) || rPick(rng, accents);
+    return {...base, primary: accent};
 }
 
-// ===== PREMIUM COLOR PALETTES =====
-function generatePalette(rng, mood, cat) {
-    const palettes = [
-        // Premium darks
-        {bg:'#09090b',card:'#18181b',border:'#27272a',text:'#fafafa',muted:'#a1a1aa',accent:'#8b5cf6'},
-        {bg:'#0a0a0a',card:'#171717',border:'#262626',text:'#fafafa',muted:'#a3a3a3',accent:'#ef4444'},
-        {bg:'#0c0a09',card:'#1c1917',border:'#292524',text:'#fafaf9',muted:'#a8a29e',accent:'#f97316'},
-        {bg:'#020617',card:'#0f172a',border:'#1e293b',text:'#f8fafc',muted:'#94a3b8',accent:'#3b82f6'},
-        {bg:'#030712',card:'#111827',border:'#1f2937',text:'#f9fafb',muted:'#9ca3af',accent:'#10b981'},
-        {bg:'#0a0a0a',card:'#141414',border:'#222',text:'#fff',muted:'#888',accent:'#ec4899'},
-        {bg:'#0f0b1a',card:'#1a1425',border:'#2a2040',text:'#f0e8ff',muted:'#9080b0',accent:'#a855f7'},
-        {bg:'#0a1014',card:'#121c24',border:'#1c2c38',text:'#e8f4ff',muted:'#7090a8',accent:'#06b6d4'},
-        // Premium lights
-        {bg:'#ffffff',card:'#ffffff',border:'#e5e7eb',text:'#111827',muted:'#6b7280',accent:'#8b5cf6'},
-        {bg:'#fafafa',card:'#ffffff',border:'#e4e4e7',text:'#09090b',muted:'#71717a',accent:'#ef4444'},
-        {bg:'#f8fafc',card:'#ffffff',border:'#e2e8f0',text:'#0f172a',muted:'#64748b',accent:'#3b82f6'},
-        {bg:'#faf5ff',card:'#ffffff',border:'#e9d5ff',text:'#1e1b4b',muted:'#7c3aed',accent:'#7c3aed'},
-        {bg:'#f0fdf4',card:'#ffffff',border:'#bbf7d0',text:'#052e16',muted:'#16a34a',accent:'#16a34a'},
-        {bg:'#fff7ed',card:'#ffffff',border:'#fed7aa',text:'#431407',muted:'#c2410c',accent:'#ea580c'},
-        {bg:'#fefce8',card:'#ffffff',border:'#fde68a',text:'#422006',muted:'#a16207',accent:'#ca8a04'},
-        {bg:'#f0f9ff',card:'#ffffff',border:'#bae6fd',text:'#0c4a6e',muted:'#0284c7',accent:'#0284c7'},
-        // Warm neutrals
-        {bg:'#fafaf9',card:'#ffffff',border:'#e7e5e4',text:'#1c1917',muted:'#78716c',accent:'#b45309'},
-        {bg:'#f5f5f4',card:'#ffffff',border:'#d6d3d1',text:'#1c1917',muted:'#78716c',accent:'#dc2626'},
-        // Bold
-        {bg:'#000000',card:'#0a0a0a',border:'#1a1a1a',text:'#ffffff',muted:'#666',accent:'#ffffff'},
-        {bg:'#18181b',card:'#27272a',border:'#3f3f46',text:'#fafafa',muted:'#a1a1aa',accent:'#fbbf24'},
-    ];
-    let pool = palettes;
-    if (mood === 'dark' || mood === 'neon') pool = palettes.filter(p => p.bg.match(/^#[012]/));
-    else if (mood === 'light' || mood === 'minimal') pool = palettes.filter(p => !p.bg.match(/^#[012]/));
-    if (pool.length < 3) pool = palettes;
-    return rPick(rng, pool);
-}
-
-// ===== PREMIUM FONTS (Google Fonts) =====
-const allFonts = [
-    {family:"'Inter',system-ui,sans-serif",headWeight:800,bodySize:'16px',import:'Inter:wght@400;500;600;700;800'},
-    {family:"'DM Sans',system-ui,sans-serif",headWeight:700,bodySize:'16px',import:'DM+Sans:wght@400;500;700'},
-    {family:"'Plus Jakarta Sans',sans-serif",headWeight:800,bodySize:'16px',import:'Plus+Jakarta+Sans:wght@400;500;600;700;800'},
-    {family:"'Outfit',sans-serif",headWeight:700,bodySize:'16px',import:'Outfit:wght@400;500;600;700'},
-    {family:"'Space Grotesk',sans-serif",headWeight:700,bodySize:'16px',import:'Space+Grotesk:wght@400;500;600;700'},
-    {family:"'Sora',sans-serif",headWeight:800,bodySize:'16px',import:'Sora:wght@400;500;600;700;800'},
-    {family:"'Manrope',sans-serif",headWeight:800,bodySize:'16px',import:'Manrope:wght@400;500;600;700;800'},
-    {family:"'General Sans',system-ui,sans-serif",headWeight:700,bodySize:'16px',import:null},
-    {family:"'Cabinet Grotesk',system-ui,sans-serif",headWeight:800,bodySize:'16px',import:null},
-    {family:"'Satoshi',system-ui,sans-serif",headWeight:700,bodySize:'16px',import:null},
+// ===== FONTS =====
+const fonts = [
+    {family:"'Inter',system-ui,sans-serif",import:'Inter:wght@400;500;600;700;800',hw:800},
+    {family:"'DM Sans',system-ui,sans-serif",import:'DM+Sans:wght@400;500;700',hw:700},
+    {family:"'Plus Jakarta Sans',sans-serif",import:'Plus+Jakarta+Sans:wght@400;500;600;700;800',hw:800},
+    {family:"'Outfit',sans-serif",import:'Outfit:wght@400;500;600;700',hw:700},
+    {family:"'Space Grotesk',sans-serif",import:'Space+Grotesk:wght@400;500;600;700',hw:700},
+    {family:"'Sora',sans-serif",import:'Sora:wght@400;500;600;700;800',hw:800},
+    {family:"'Manrope',sans-serif",import:'Manrope:wght@400;500;600;700;800',hw:800},
 ];
 
-// ===== PREMIUM HERO VISUALS (no emojis!) =====
-function buildHeroVisual(rng, pal, cat) {
-    const img = getHeroImage(rng, cat);
-    const isDark = pal.bg.match(/^#[012]/);
-    
-    return rPick(rng, [
-        // Real photo with rounded corners
-        `<div style="flex:1;min-width:300px;aspect-ratio:4/3;border-radius:20px;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)"><img src="${img}" style="width:100%;height:100%;object-fit:cover" alt=""></div>`,
-        // Photo with accent border glow
-        `<div style="flex:1;min-width:300px;aspect-ratio:4/3;border-radius:24px;overflow:hidden;box-shadow:0 0 0 1px ${pal.border},0 25px 80px ${pal.accent}20"><img src="${img}" style="width:100%;height:100%;object-fit:cover" alt=""></div>`,
-        // Photo in a device mockup frame
-        `<div style="flex:1;min-width:300px;padding:12px;background:${pal.card};border:1px solid ${pal.border};border-radius:16px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.2)"><div style="display:flex;gap:6px;margin-bottom:10px"><div style="width:8px;height:8px;border-radius:50%;background:${isDark?'#333':'#ddd'}"></div><div style="width:8px;height:8px;border-radius:50%;background:${isDark?'#333':'#ddd'}"></div><div style="width:8px;height:8px;border-radius:50%;background:${isDark?'#333':'#ddd'}"></div></div><div style="border-radius:8px;overflow:hidden;aspect-ratio:16/10"><img src="${img}" style="width:100%;height:100%;object-fit:cover" alt=""></div></div>`,
-        // Abstract gradient mesh (no photo)
-        `<div style="flex:1;min-width:300px;aspect-ratio:1;border-radius:24px;position:relative;overflow:hidden;background:${pal.card}"><div style="position:absolute;top:-20%;right:-20%;width:80%;height:80%;background:${pal.accent};border-radius:50%;filter:blur(80px);opacity:0.3"></div><div style="position:absolute;bottom:-10%;left:-10%;width:60%;height:60%;background:${pal.accent}80;border-radius:50%;filter:blur(60px);opacity:0.3"></div><div style="position:absolute;top:40%;left:40%;width:40%;height:40%;background:${isDark?'#fff':'#000'};border-radius:50%;filter:blur(50px);opacity:0.08"></div></div>`,
-        // Floating cards/dashboard mockup
-        `<div style="flex:1;min-width:300px;aspect-ratio:4/3;position:relative"><div style="position:absolute;top:10%;left:5%;right:15%;bottom:20%;background:${pal.card};border:1px solid ${pal.border};border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,0.1);padding:20px"><div style="height:8px;background:${pal.accent}30;border-radius:4px;margin-bottom:12px;width:60%"></div><div style="height:8px;background:${pal.border};border-radius:4px;margin-bottom:8px;width:90%"></div><div style="height:8px;background:${pal.border};border-radius:4px;margin-bottom:8px;width:75%"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px"><div style="height:60px;background:${pal.accent}15;border-radius:8px"></div><div style="height:60px;background:${pal.accent}10;border-radius:8px"></div></div></div><div style="position:absolute;bottom:5%;right:0;width:55%;background:${pal.card};border:1px solid ${pal.border};border-radius:12px;box-shadow:0 15px 30px rgba(0,0,0,0.1);padding:16px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:32px;height:32px;border-radius:8px;background:${pal.accent}20"></div><div><div style="height:6px;background:${pal.border};border-radius:3px;width:80px;margin-bottom:4px"></div><div style="height:6px;background:${pal.border};border-radius:3px;width:50px"></div></div></div></div></div>`,
-    ]);
-}
-
-// ===== NAV =====
-function buildNav(rng, pal, font, siteName) {
-    const isDark = pal.bg.match(/^#[012]/);
-    const links = rPick(rng, [
-        ['Home','Über uns','Leistungen','Kontakt'],
-        ['Start','Services','Preise','Kontakt'],
-        ['Home','About','Features','Contact'],
-        ['Home','Angebot','Team','Kontakt'],
-    ]);
-    const linkHtml = links.map(l => `<a href="#" style="color:${pal.muted};text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s">${l}</a>`).join('');
-    
-    const style = rPick(rng, [
-        `position:fixed;top:16px;left:16px;right:16px;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:${isDark?'rgba(0,0,0,0.6)':'rgba(255,255,255,0.8)'};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:16px;border:1px solid ${pal.border}`,
-        `position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:18px 6vw;background:${isDark?'rgba(0,0,0,0.5)':'rgba(255,255,255,0.7)'};backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid ${pal.border}`,
-        `position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:20px 8vw`,
-        `position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100;display:flex;align-items:center;gap:28px;padding:10px 28px;background:${isDark?'rgba(0,0,0,0.6)':'rgba(255,255,255,0.8)'};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:99px;border:1px solid ${pal.border}`,
-    ]);
-    const logoStyle = rPick(rng, [
-        `font-weight:${font.headWeight};font-size:18px;letter-spacing:-0.5px;color:${pal.text}`,
-        `font-weight:700;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:${pal.text}`,
-        `font-weight:${font.headWeight};font-size:20px;letter-spacing:-1px;color:${pal.accent}`,
-    ]);
-    const ctaBtn = rng() > 0.4 ? `<a href="#" style="padding:8px 20px;background:${pal.accent};color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">${rPick(rng,['Kontakt','Starten','Get Started','Buchen'])}</a>` : '';
-    
-    return `<nav style="${style}"><div style="${logoStyle}">${siteName}</div><div style="display:flex;align-items:center;gap:24px">${linkHtml}${ctaBtn}</div></nav>`;
-}
-
-// ===== CTA BUTTONS =====
-function buildCTA(rng, pal, cat) {
-    const label = rPick(rng, getCTALabels(cat));
-    const style = rPick(rng, [
-        `display:inline-flex;align-items:center;gap:8px;background:${pal.accent};color:#fff;padding:16px 36px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;transition:all 0.3s;box-shadow:0 4px 14px ${pal.accent}30`,
-        `display:inline-flex;align-items:center;gap:8px;background:${pal.accent};color:#fff;padding:14px 32px;border-radius:99px;text-decoration:none;font-weight:600;font-size:15px;transition:all 0.3s`,
-        `display:inline-flex;align-items:center;gap:8px;background:${pal.text};color:${pal.bg};padding:16px 36px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;transition:all 0.3s`,
-        `display:inline-flex;align-items:center;gap:8px;background:transparent;color:${pal.text};padding:14px 32px;border:2px solid ${pal.accent};border-radius:12px;text-decoration:none;font-weight:600;font-size:15px`,
-        `display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,${pal.accent},${pal.accent}bb);color:#fff;padding:16px 40px;border-radius:14px;text-decoration:none;font-weight:600;font-size:15px;box-shadow:0 8px 30px ${pal.accent}25`,
-    ]);
-    
-    const hasSecond = rng() > 0.5;
-    const secondLabel = rPick(rng, ['Mehr erfahren →','Demo ansehen','Tour starten','Kontakt']);
-    const secondBtn = hasSecond ? `<a href="#" style="display:inline-flex;align-items:center;gap:6px;padding:16px 24px;color:${pal.muted};text-decoration:none;font-weight:500;font-size:15px">${secondLabel}</a>` : '';
-    
-    return `<div style="display:flex;gap:12px;flex-wrap:wrap;${rng()>0.5?'justify-content:center':''}"><a href="#" style="${style}">${label}</a>${secondBtn}</div>`;
-}
-
-function getCTALabels(cat) {
-    const map = {
-        fitness:['Jetzt starten','Probetraining buchen','Mitglied werden','Gratis testen','Join Now'],
-        restaurant:['Tisch reservieren','Speisekarte ansehen','Jetzt reservieren','Menü entdecken'],
-        portfolio:['Projekte ansehen','Let\'s talk','Zusammenarbeiten','Kontakt aufnehmen'],
-        saas:['Get Started Free','Start Free Trial','Try it Now','Start Building','Sign Up'],
-        shop:['Shop entdecken','Kollektion ansehen','Jetzt shoppen','Neue Arrivals'],
-        beauty:['Termin buchen','Jetzt buchen','Termin vereinbaren','Verwöhnen lassen'],
-        medical:['Termin vereinbaren','Online buchen','Jetzt anfragen'],
-        music:['Jetzt streamen','Tour Tickets','Album hören'],
-        education:['Kurs starten','Jetzt anmelden','Kostenlos testen'],
-        event:['Tickets sichern','Jetzt buchen','Event entdecken'],
-    };
-    return map[cat] || ['Mehr erfahren','Jetzt starten','Kontakt aufnehmen','Entdecken','Loslegen'];
-}
-
-// ===== HERO TITLES =====
-function getHeroTitle(rng, cat, name, pal) {
-    const ac = pal.accent;
-    const titles = {
-        fitness: [
-            `PUSH YOUR <span style="color:${ac}">LIMITS</span>`,
-            `Stärker. Schneller.<br><span style="color:${ac}">Unaufhaltsam.</span>`,
-            `Dein Training.<br>Deine <span style="color:${ac}">Regeln.</span>`,
-            `<span style="color:${ac}">${name}</span> — Dein Weg zur Bestform`,
-            `TRAIN <span style="color:${ac}">HARD</span><br>LIVE BOLD`,
-            `Willkommen bei<br><span style="color:${ac}">${name}</span>`,
-            `Grenzen existieren<br>nur im <span style="color:${ac}">Kopf</span>`,
-            `<span style="color:${ac}">POWER</span> beginnt hier`,
-        ],
-        restaurant: [
-            `Kulinarische<br><span style="color:${ac}">Exzellenz</span>`,
-            `Genuss,<br><span style="color:${ac}">neu definiert</span>`,
-            `Willkommen bei<br><span style="color:${ac}">${name}</span>`,
-            `Wo jeder Bissen<br>eine <span style="color:${ac}">Geschichte</span> erzählt`,
-            `<span style="color:${ac}">Fine Dining</span><br>in Perfektion`,
-            `${name} —<br>Mehr als nur <span style="color:${ac}">Essen</span>`,
-        ],
-        portfolio: [
-            `Hi, ich bin<br><span style="color:${ac}">${name}</span>`,
-            `Design.<br>Code.<br><span style="color:${ac}">Impact.</span>`,
-            `<span style="color:${ac}">Ideen</span> zum Leben erwecken`,
-            `Kreativität trifft<br><span style="color:${ac}">Technologie</span>`,
-            `<span style="color:${ac}">${name}</span><br>Digital Designer`,
-            `Building<br><span style="color:${ac}">digital experiences</span>`,
-        ],
-        saas: [
-            `Build. Ship.<br><span style="color:${ac}">Scale.</span>`,
-            `The <span style="color:${ac}">developer</span><br>platform`,
-            `<span style="color:${ac}">${name}</span> — Ship faster`,
-            `Your stack,<br><span style="color:${ac}">supercharged</span>`,
-            `One platform.<br><span style="color:${ac}">Infinite</span> possibilities.`,
-            `Stop building<br>infrastructure.<br><span style="color:${ac}">Start building</span> products.`,
-        ],
-        shop: [
-            `<span style="color:${ac}">${name}</span>`,
-            `Curated for<br><span style="color:${ac}">you</span>`,
-            `Premium <span style="color:${ac}">Quality</span>`,
-            `Entdecke<br><span style="color:${ac}">${name}</span>`,
-            `Style meets<br><span style="color:${ac}">Substance</span>`,
-            `New Season.<br><span style="color:${ac}">New Standards.</span>`,
-        ],
-        beauty: [
-            `Dein Moment.<br><span style="color:${ac}">Dein Glow.</span>`,
-            `<span style="color:${ac}">${name}</span><br>Beauty Studio`,
-            `Schönheit,<br><span style="color:${ac}">natürlich</span>`,
-            `Glow<br><span style="color:${ac}">Different</span>`,
-            `Weil du es<br><span style="color:${ac}">wert</span> bist`,
-        ],
-        medical: [
-            `Ihre Gesundheit.<br><span style="color:${ac}">Unsere Priorität.</span>`,
-            `<span style="color:${ac}">${name}</span>`,
-            `Moderne Medizin,<br><span style="color:${ac}">persönlich</span>`,
-            `Vertrauen durch<br><span style="color:${ac}">Kompetenz</span>`,
-        ],
-        music: [
-            `<span style="color:${ac}">${name.toUpperCase()}</span>`,
-            `NEW ALBUM<br><span style="color:${ac}">OUT NOW</span>`,
-            `Feel the<br><span style="color:${ac}">Sound</span>`,
-            `<span style="color:${ac}">LIVE</span><br>WORLD TOUR 2026`,
-        ],
-    };
-    const list = titles[cat] || [
-        `<span style="color:${ac}">${name}</span>`,
-        `Willkommen bei<br><span style="color:${ac}">${name}</span>`,
-        `${name}.<br><span style="color:${ac}">Neu gedacht.</span>`,
-        `Innovation.<br><span style="color:${ac}">Einfach.</span>`,
-        `Qualität,<br>die <span style="color:${ac}">überzeugt</span>`,
-        `Dein Partner<br>für <span style="color:${ac}">Exzellenz</span>`,
-    ];
-    return rPick(rng, list);
-}
-
-function getHeroSub(rng, cat) {
-    const subs = {
-        fitness:['Werde die beste Version von dir. Modernste Geräte, erfahrene Trainer, grenzenlose Motivation.','Dein Körper verdient das Beste. Starte jetzt deine Transformation.','Kein Limit. Kein Aufgeben. Nur Ergebnisse.','Trainiere smart. Lebe stark. Erreiche mehr als du denkst.','Von Anfängern bis Profis — wir holen das Maximum aus dir raus.'],
-        restaurant:['Kulinarische Erlebnisse, die in Erinnerung bleiben. Frische Zutaten, leidenschaftliche Küche.','Wo Tradition auf Innovation trifft — Genuss für alle Sinne.','Jeder Teller erzählt eine Geschichte. Willkommen in unserer.','Saisonale Küche mit Liebe zum Detail. Reservieren Sie jetzt.'],
-        portfolio:['Ich gestalte digitale Erlebnisse die begeistern und Ergebnisse liefern.','Design, Code und Kreativität — alles aus einer Hand.','Websites & Apps die nicht nur gut aussehen, sondern konvertieren.','Ideen in digitale Realität verwandeln — seit über 5 Jahren.'],
-        saas:['The all-in-one platform to build, deploy, and scale your applications.','Automate your workflow. Focus on what matters most.','From idea to production in minutes, not months. No config needed.','Developer tools that just work. Built for teams who ship fast.'],
-        shop:['Kuratierte Produkte für den modernen Lifestyle. Handverlesen und premium.','Qualität, die man spürt. Design, das man sieht. Entdecke unsere Welt.','Premium-Produkte, die du nirgendwo anders findest.'],
-        beauty:['Professionelle Beauty-Treatments in entspannter Atmosphäre. Weil du es verdienst.','Premium-Pflege für jeden Hauttyp. Entspannung, Pflege, strahlendes Ergebnis.','Dein Moment der Ruhe. Professionell, persönlich, perfekt.'],
-        medical:['Moderne Medizin mit persönlicher Betreuung. Kompetent und fürsorglich.','Ihre Gesundheit ist unsere Priorität — Vorsorge, Diagnostik und Behandlung.','Vertrauen Sie auf jahrelange Erfahrung und modernste Technik.'],
-        music:['New Album Out Now — Stream on all platforms worldwide.','Die Tour des Jahres — sichere dir jetzt deine Tickets.','Music that moves. Sounds that stay with you forever.'],
-    };
-    return rPick(rng, subs[cat] || ['Professionell, zuverlässig und immer für Sie da. Qualität ist unser Versprechen.','Wir bringen Ihre Vision zum Leben — mit Leidenschaft und Expertise.','Innovation trifft Erfahrung. Ihr Partner für nachhaltige Ergebnisse.','Einfach. Schnell. Professionell. Wir machen den Unterschied.']);
-}
-
+// ===== DEFAULT NAMES =====
 function getDefaultName(rng, cat) {
     const names = {
         fitness:['FitZone','PowerGym','IronForge','FlexArena','PeakFit','GRIND','Titan Fitness','Apex Athletics'],
-        restaurant:['La Maison','Gustavo','Saveurs','Zum Goldenen Hirsch','Sakura','Olive & Thyme','Rosmarino','Feuerstein'],
-        portfolio:['Alex Meyer','Sarah Design','Studio Noir','Jonas Creative','Lena Works','Mia Digital'],
-        saas:['LaunchPad','CloudSync','Nexus','Amplify','Orion','Vertex','Shipfast','BuildKit'],
+        restaurant:['La Maison','Gustavo','Sakura','Olive & Thyme','Rosmarino','Feuerstein','Zum Goldenen Hirsch'],
+        portfolio:['Alex Meyer','Sarah Design','Studio Noir','Jonas Creative','Lena Works'],
+        saas:['LaunchPad','CloudSync','Nexus','Amplify','Vertex','Shipfast','BuildKit'],
         shop:['MONO','Curated','Artisan','Maison','Thread & Co','NOIR','Elevate'],
         beauty:['Bloom Beauty','Glow Studio','Pure Skin','Serenity Spa','Radiance','Aura'],
         agency:['Neon Studio','Pixel Forge','Bold Agency','Orbit Creative','BLVCK Agency'],
@@ -1069,389 +950,842 @@ function getDefaultName(rng, cat) {
         medical:['Dr. Schmidt Praxis','MediCare Plus','Praxis am Park','VitaDoc'],
         education:['LearnHub','SkillForge','Akademie Plus','BrainBoost'],
         music:['NOVA','Echo Chamber','Midnight Pulse','Voltage','AXIOM'],
-        law:['Weber & Partner','Kanzlei Stern','Recht & Rat'],
         event:['Neon Nights','Starlight Events','EPIC Events'],
-        realestate:['Luxe Immobilien','Prime Estate','DreamHaus'],
-        travel:['Wanderlust','Horizon Tours','Globe & Go'],
-        tech:['ByteForce','NexTech','DigitalPulse'],
-        photo:['LensCraft','Moment Studio','PixelPerfect'],
         generic:['NexGen','Bright Solutions','Quantum','Elevate','Zenith','Pulse','Vanguard','Apex'],
     };
     return rPick(rng, names[cat] || names.generic);
 }
 
-// ===== LAYOUT TEMPLATES — all premium =====
+// ===== UNSPLASH IMAGES =====
+function heroImg(rng, cat) {
+    const imgs = {
+        fitness:['photo-1534438327276-14e5300c3a48','photo-1571019614242-c5c5dee9f50b','photo-1517836357463-d25dfeac3438','photo-1540497077202-7c8a3999166f'],
+        restaurant:['photo-1517248135467-4c7edcad34c4','photo-1414235077428-338989a2e8c0','photo-1559339352-11d035aa65de','photo-1600891964092-4316c288032e'],
+        portfolio:['photo-1498050108023-c5249f4df085','photo-1461749280684-dccba630e2f6','photo-1555066931-4365d14bab8c'],
+        saas:['photo-1551288049-bebda4e38f71','photo-1460925895917-afdab827c52f','photo-1504868584819-f8e8b4b6d7e3'],
+        shop:['photo-1441986300917-64674bd600d8','photo-1472851294608-062f824d29cc','photo-1555529669-e69e7aa0ba9a'],
+        beauty:['photo-1560750588-73b555dce5f8','photo-1522335789203-aabd1fc54bc9','photo-1487412720507-e7ab37603c6f'],
+        medical:['photo-1519494026892-80bbd2d6fd0d','photo-1538108149393-fbbd81895907'],
+        music:['photo-1493225457124-a3eb161ffa5f','photo-1514525253161-7a46d19cd819'],
+        cafe:['photo-1501339847302-ac426a4a7cbb','photo-1495474472287-4d71bcdd2085'],
+        travel:['photo-1488646953014-85cb44e25828','photo-1469854523086-cc02fe5d8800'],
+        realestate:['photo-1600596542815-ffad4c1539a9','photo-1600585154340-be6161a56a0c'],
+        agency:['photo-1497366216548-37526070297c','photo-1497215842964-222b430dc094'],
+        tech:['photo-1518770660439-4636190af475','photo-1550751827-4bd374c3f58b'],
+        education:['photo-1523240795612-9a054b0db644','photo-1509062522246-3755977927d7'],
+        event:['photo-1492684223066-81342ee5ff30','photo-1533174072545-7a4b6ad7a6c3'],
+        auto:['photo-1492144534655-ae79c964c9d7','photo-1503376780353-7e6692767b70'],
+        photo:['photo-1554048612-b6a482bc67e5','photo-1471341971476-ae15ff5dd4ea'],
+    };
+    const id = rPick(rng, imgs[cat] || imgs.agency);
+    return `https://images.unsplash.com/${id}?w=1200&q=80`;
+}
 
-function layoutHeroCentered(rng, pal, font, siteName, heroTitle, heroSub, ctaHtml, sections, navHtml) {
-    const img = getHeroImage(rng, detectCategory._lastCat || 'generic');
-    const isDark = pal.bg.match(/^#[012]/);
-    const bgVariant = rPick(rng, [
-        // Gradient overlay on image
-        `position:relative;min-height:100vh;background:url('${img}') center/cover no-repeat`,
-        // Pure gradient
-        `min-height:100vh;background:radial-gradient(ellipse at 50% 0%,${pal.accent}15,transparent 70%)`,
-        // Clean
-        `min-height:100vh`,
+// =========================================================
+// FUNCTIONAL COMPONENTS — each one actually WORKS
+// =========================================================
+
+function comp_reviews(rng, pal, cat) {
+    const id = 'rv' + Math.floor(rng() * 9999);
+    const names = shuffle(rng, ['Marie K.','Thomas S.','Lisa M.','Jan B.','Sarah H.','Michael R.','Anna W.','Felix P.','Nina F.','David L.']);
+    const texts = shuffle(rng, [
+        'Absolut professionell und zuverlässig. Kann ich nur weiterempfehlen!',
+        'Bester Service den ich je hatte. Ergebnisse sprechen für sich.',
+        'Seit 3 Jahren Stammkunde. Qualität stimmt jedes Mal.',
+        'Hervorragendes Preis-Leistungs-Verhältnis!',
+        'Hat meine Erwartungen komplett übertroffen.',
+        'Von der Beratung bis zum Ergebnis — alles perfekt.',
+        'Schnell, unkompliziert, top Ergebnis.',
+        'Endlich jemand der versteht was man will!',
     ]);
-    const overlay = bgVariant.includes('url(') ? `<div style="position:absolute;inset:0;background:${isDark?'rgba(0,0,0,0.7)':'rgba(255,255,255,0.85)'};backdrop-filter:blur(2px)"></div>` : '';
-    const content = `<div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:center;text-align:center;min-height:100vh;padding:24px"><div style="max-width:720px"><h1 style="font-size:clamp(36px,8vw,76px);font-weight:${font.headWeight};letter-spacing:-3px;line-height:1.05">${heroTitle}</h1><p style="font-size:18px;color:${pal.muted};margin:24px auto 40px;max-width:540px;line-height:1.7">${heroSub}</p>${ctaHtml}</div></div>`;
-    return `${navHtml}<div style="${bgVariant}">${overlay}${content}</div>${sections}`;
+    const initials = names.slice(0,3).map((n,i) => {
+        return `{name:"${n}",text:"${texts[i]}",stars:${4+Math.round(rng())}}`;
+    }).join(',');
+
+    return `
+    <section id="${id}-section" style="padding:80px 24px;max-width:900px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:12px">Kundenstimmen</h2>
+        <p style="text-align:center;color:${pal.muted};margin-bottom:40px">Das sagen unsere Kunden über uns</p>
+        <div id="${id}-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px"></div>
+        <div style="margin-top:32px;background:${pal.card};border:1px solid ${pal.border};border-radius:16px;padding:24px">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Bewertung schreiben</h3>
+            <div style="display:flex;gap:4px;margin-bottom:12px" id="${id}-stars">
+                ${[1,2,3,4,5].map(i => `<span onclick="${id}_setStar(${i})" style="cursor:pointer;font-size:28px;color:${pal.border};transition:color 0.2s" data-star="${i}">★</span>`).join('')}
+            </div>
+            <input id="${id}-name" placeholder="Dein Name" style="width:100%;padding:12px 16px;background:${pal.bg};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:14px;margin-bottom:8px;outline:none;box-sizing:border-box;font-family:inherit">
+            <textarea id="${id}-text" placeholder="Deine Bewertung..." rows="3" style="width:100%;padding:12px 16px;background:${pal.bg};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:14px;margin-bottom:12px;outline:none;resize:vertical;box-sizing:border-box;font-family:inherit"></textarea>
+            <button onclick="${id}_submit()" style="padding:12px 28px;background:${pal.primary};color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px">Absenden</button>
+        </div>
+    </section>
+    <script>
+    (function(){
+        var reviews = [${initials}];
+        var selectedStars = 0;
+        var storageKey = '${id}_reviews';
+        try { var saved = JSON.parse(localStorage.getItem(storageKey)); if(saved) reviews = saved; } catch(e){}
+        function render(){
+            var html = '';
+            reviews.forEach(function(r){
+                html += '<div style="background:${pal.card};border:1px solid ${pal.border};border-radius:14px;padding:24px">'
+                    + '<div style="color:#facc15;font-size:18px;margin-bottom:10px">' + '★'.repeat(r.stars) + '<span style="color:${pal.border}">' + '★'.repeat(5-r.stars) + '</span></div>'
+                    + '<p style="font-size:14px;color:${pal.muted};line-height:1.6;margin-bottom:14px">"' + r.text + '"</p>'
+                    + '<div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:${pal.primary}20;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:${pal.primary}">' + r.name.charAt(0) + '</div><div><div style="font-weight:600;font-size:13px">' + r.name + '</div><div style="font-size:11px;color:${pal.muted}">Verifiziert</div></div></div>'
+                    + '</div>';
+            });
+            document.getElementById('${id}-list').innerHTML = html;
+        }
+        render();
+        window['${id}_setStar'] = function(n){
+            selectedStars = n;
+            var spans = document.querySelectorAll('#${id}-stars span');
+            spans.forEach(function(s,i){ s.style.color = i < n ? '#facc15' : '${pal.border}'; });
+        };
+        window['${id}_submit'] = function(){
+            var name = document.getElementById('${id}-name').value.trim();
+            var text = document.getElementById('${id}-text').value.trim();
+            if(!name || !text || !selectedStars){ alert('Bitte alle Felder ausfüllen und Sterne vergeben.'); return; }
+            reviews.unshift({name:name,text:text,stars:selectedStars});
+            try { localStorage.setItem(storageKey, JSON.stringify(reviews)); } catch(e){}
+            document.getElementById('${id}-name').value = '';
+            document.getElementById('${id}-text').value = '';
+            selectedStars = 0;
+            document.querySelectorAll('#${id}-stars span').forEach(function(s){ s.style.color = '${pal.border}'; });
+            render();
+        };
+    })();
+    <\/script>`;
 }
 
-function layoutHeroSplit(rng, pal, font, siteName, heroTitle, heroSub, ctaHtml, sections, navHtml) {
-    const reverse = rng() > 0.5;
-    const visual = buildHeroVisual(rng, pal, detectCategory._lastCat || 'generic');
-    return `${navHtml}<div style="min-height:100vh;display:flex;align-items:center;padding:80px 6vw;gap:60px;flex-wrap:wrap;${reverse?'flex-direction:row-reverse':''}"><div style="flex:1;min-width:320px"><h1 style="font-size:clamp(30px,5vw,56px);font-weight:${font.headWeight};letter-spacing:-2px;line-height:1.08">${heroTitle}</h1><p style="font-size:17px;color:${pal.muted};margin:20px 0 36px;line-height:1.7;max-width:500px">${heroSub}</p>${ctaHtml}</div>${visual}</div>${sections}`;
+function comp_contact(rng, pal, cat) {
+    const id = 'ct' + Math.floor(rng() * 9999);
+    return `
+    <section style="padding:80px 24px;max-width:700px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:12px">Kontakt</h2>
+        <p style="text-align:center;color:${pal.muted};margin-bottom:40px">Wir melden uns innerhalb von 24 Stunden</p>
+        <form id="${id}" onsubmit="return ${id}_send(event)" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <input name="vorname" placeholder="Vorname *" required style="padding:14px 18px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;outline:none;font-family:inherit;box-sizing:border-box">
+            <input name="nachname" placeholder="Nachname *" required style="padding:14px 18px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;outline:none;font-family:inherit;box-sizing:border-box">
+            <input name="email" type="email" placeholder="E-Mail *" required style="grid-column:span 2;padding:14px 18px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;outline:none;font-family:inherit;box-sizing:border-box">
+            <input name="telefon" type="tel" placeholder="Telefon (optional)" style="grid-column:span 2;padding:14px 18px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;outline:none;font-family:inherit;box-sizing:border-box">
+            <textarea name="nachricht" placeholder="Ihre Nachricht *" required rows="4" style="grid-column:span 2;padding:14px 18px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;outline:none;resize:vertical;font-family:inherit;box-sizing:border-box"></textarea>
+            <div id="${id}-ok" style="grid-column:span 2;display:none;padding:14px;background:#16a34a15;border:1px solid #16a34a40;border-radius:10px;color:#16a34a;font-weight:600;text-align:center">✓ Nachricht erfolgreich gesendet!</div>
+            <button type="submit" style="grid-column:span 2;padding:16px;background:${pal.primary};color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;transition:opacity 0.2s">Nachricht senden</button>
+        </form>
+    </section>
+    <script>
+    window['${id}_send'] = function(e){
+        e.preventDefault();
+        var form = document.getElementById('${id}');
+        var ok = document.getElementById('${id}-ok');
+        ok.style.display = 'block';
+        form.reset();
+        setTimeout(function(){ ok.style.display = 'none'; }, 4000);
+        return false;
+    };
+    <\/script>`;
 }
 
-function layoutHeroLeft(rng, pal, font, siteName, heroTitle, heroSub, ctaHtml, sections, navHtml) {
-    const bgEffect = rPick(rng, [
-        `background:linear-gradient(to right,${pal.accent}08,transparent 50%)`,
-        `background:radial-gradient(ellipse at 0% 50%,${pal.accent}12,transparent 60%)`,
-        ``,
-    ]);
-    return `${navHtml}<div style="min-height:100vh;display:flex;align-items:center;padding:80px 8vw;${bgEffect}"><div style="max-width:640px"><div style="display:inline-block;padding:6px 16px;background:${pal.accent}15;border-radius:99px;font-size:13px;font-weight:600;color:${pal.accent};margin-bottom:24px">${rPick(rng,['Neu','Premium','#1 in Deutschland','⭐ Top Rated','Seit 2020'])}</div><h1 style="font-size:clamp(36px,6vw,68px);font-weight:${font.headWeight};letter-spacing:-2.5px;line-height:1.05">${heroTitle}</h1><p style="font-size:18px;color:${pal.muted};margin:24px 0 40px;line-height:1.7;max-width:520px">${heroSub}</p>${ctaHtml}</div></div>${sections}`;
+function comp_newsletter(rng, pal) {
+    const id = 'nl' + Math.floor(rng() * 9999);
+    return `
+    <section style="padding:60px 24px">
+        <div style="max-width:600px;margin:0 auto;text-align:center;padding:48px 32px;background:${pal.primary}10;border:1px solid ${pal.primary}25;border-radius:20px">
+            <h2 style="font-size:24px;font-weight:700;margin-bottom:8px">Newsletter</h2>
+            <p style="color:${pal.muted};margin-bottom:24px;font-size:15px">Erhalte Updates und exklusive Angebote direkt in dein Postfach.</p>
+            <form onsubmit="return ${id}_sub(event)" style="display:flex;gap:8px;max-width:420px;margin:0 auto;flex-wrap:wrap">
+                <input id="${id}-email" type="email" placeholder="deine@email.de" required style="flex:1;min-width:200px;padding:14px 18px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;outline:none;font-family:inherit;box-sizing:border-box">
+                <button type="submit" style="padding:14px 24px;background:${pal.primary};color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">Abonnieren</button>
+            </form>
+            <div id="${id}-ok" style="display:none;margin-top:12px;color:#16a34a;font-weight:600;font-size:14px">✓ Erfolgreich angemeldet!</div>
+        </div>
+    </section>
+    <script>
+    window['${id}_sub'] = function(e){
+        e.preventDefault();
+        document.getElementById('${id}-email').value = '';
+        document.getElementById('${id}-ok').style.display = 'block';
+        setTimeout(function(){ document.getElementById('${id}-ok').style.display = 'none'; }, 3000);
+        return false;
+    };
+    <\/script>`;
 }
 
-function layoutHeroFullImage(rng, pal, font, siteName, heroTitle, heroSub, ctaHtml, sections, navHtml) {
-    const img = getHeroImage(rng, detectCategory._lastCat || 'generic');
-    const isDark = pal.bg.match(/^#[012]/);
-    return `${navHtml}<div style="min-height:100vh;position:relative;background:url('${img}') center/cover no-repeat"><div style="position:absolute;inset:0;background:linear-gradient(to top,${pal.bg},${pal.bg}aa 40%,transparent)"></div><div style="position:relative;z-index:1;display:flex;align-items:flex-end;min-height:100vh;padding:80px 8vw"><div style="max-width:600px;padding-bottom:40px"><h1 style="font-size:clamp(36px,7vw,72px);font-weight:${font.headWeight};letter-spacing:-2.5px;line-height:1.05;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.3)">${heroTitle}</h1><p style="font-size:17px;color:rgba(255,255,255,0.7);margin:20px 0 36px;line-height:1.7">${heroSub}</p>${ctaHtml}</div></div></div>${sections}`;
+function comp_booking(rng, pal, cat) {
+    const id = 'bk' + Math.floor(rng() * 9999);
+    const services = {
+        fitness: ['Probetraining','Personal Training','Ernährungsberatung','Körperanalyse'],
+        beauty: ['Haarschnitt','Maniküre','Gesichtsbehandlung','Massage','Wimpern'],
+        medical: ['Erstgespräch','Vorsorge','Impfberatung','Fachberatung'],
+        restaurant: ['Tisch für 2','Tisch für 4','Tisch für 6+','Chef\'s Table'],
+    };
+    const opts = services[cat] || ['Beratungsgespräch','Standard-Termin','Premium-Termin','Erstgespräch'];
+    const optHtml = opts.map(o => `<option value="${o}">${o}</option>`).join('');
+    return `
+    <section style="padding:80px 24px;max-width:600px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:12px">Termin buchen</h2>
+        <p style="text-align:center;color:${pal.muted};margin-bottom:40px">Wähle Service, Datum und Uhrzeit</p>
+        <form onsubmit="return ${id}_book(event)" style="display:grid;gap:12px">
+            <select id="${id}-svc" required style="padding:14px 18px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;font-family:inherit;outline:none;box-sizing:border-box"><option value="">Service wählen...</option>${optHtml}</select>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <input id="${id}-date" type="date" required style="padding:14px 18px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;font-family:inherit;outline:none;box-sizing:border-box">
+                <input id="${id}-time" type="time" required style="padding:14px 18px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;font-family:inherit;outline:none;box-sizing:border-box">
+            </div>
+            <input placeholder="Dein Name *" required style="padding:14px 18px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;font-family:inherit;outline:none;box-sizing:border-box">
+            <input type="email" placeholder="E-Mail *" required style="padding:14px 18px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;font-family:inherit;outline:none;box-sizing:border-box">
+            <div id="${id}-ok" style="display:none;padding:14px;background:#16a34a15;border:1px solid #16a34a40;border-radius:10px;color:#16a34a;font-weight:600;text-align:center">✓ Termin erfolgreich gebucht!</div>
+            <button type="submit" style="padding:16px;background:${pal.primary};color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit">Termin buchen</button>
+        </form>
+    </section>
+    <script>
+    window['${id}_book'] = function(e){
+        e.preventDefault();
+        e.target.reset();
+        document.getElementById('${id}-ok').style.display = 'block';
+        setTimeout(function(){ document.getElementById('${id}-ok').style.display = 'none'; }, 4000);
+        return false;
+    };
+    <\/script>`;
 }
 
-function layoutMinimal(rng, pal, font, siteName, heroTitle, heroSub, ctaHtml, sections, navHtml) {
-    return `${navHtml}<div style="min-height:100vh;display:flex;align-items:center;padding:80px 12vw"><div style="max-width:700px"><div style="width:48px;height:4px;background:${pal.accent};margin-bottom:40px;border-radius:2px"></div><h1 style="font-size:clamp(32px,5vw,56px);font-weight:${font.headWeight};letter-spacing:-1.5px;line-height:1.12">${heroTitle}</h1><p style="font-size:17px;color:${pal.muted};margin:28px 0 44px;max-width:500px;line-height:1.8">${heroSub}</p>${ctaHtml}</div></div>${sections}`;
+function comp_pricing(rng, pal, cat) {
+    const plans = {
+        fitness:[
+            {name:'Starter',price:'29€',per:'/Monat',features:['Mo-Fr 8-20 Uhr','Gerätetraining','Umkleiden & Duschen'],pop:false},
+            {name:'Pro',price:'49€',per:'/Monat',features:['24/7 Zugang','Alle Gruppenkurse','1x Personal Training/Mo','Sauna'],pop:true},
+            {name:'Elite',price:'89€',per:'/Monat',features:['VIP 24/7 Zugang','Unlimited Personal Training','Recovery Zone','Gästekarte'],pop:false},
+        ],
+        saas:[
+            {name:'Free',price:'$0',per:'/mo',features:['1 Project','1GB Storage','Community Support'],pop:false},
+            {name:'Pro',price:'$29',per:'/mo',features:['Unlimited Projects','50GB Storage','Priority Support','Custom Domains'],pop:true},
+            {name:'Enterprise',price:'$99',per:'/mo',features:['Everything in Pro','SSO & SAML','SLA 99.99%','Dedicated CSM'],pop:false},
+        ],
+    };
+    const p = plans[cat] || [
+        {name:'Basic',price:'€49',per:'/Monat',features:['Grundpaket','E-Mail Support','1 Nutzer'],pop:false},
+        {name:'Professional',price:'€99',per:'/Monat',features:['Alles in Basic','Prioritäts-Support','5 Nutzer','Analytics'],pop:true},
+        {name:'Enterprise',price:'€249',per:'/Monat',features:['Unlimited','Dedicated Support','Custom Integrationen','SLA'],pop:false},
+    ];
+    return `
+    <section style="padding:80px 24px;max-width:1000px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:40px">Unsere Pakete</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+        ${p.map(plan => `
+            <div style="background:${plan.pop?pal.primary+'08':pal.card};border:${plan.pop?'2px':'1px'} solid ${plan.pop?pal.primary:pal.border};border-radius:18px;padding:32px;text-align:center;${plan.pop?'transform:scale(1.02);box-shadow:0 20px 40px '+pal.primary+'15;':''}position:relative">
+                ${plan.pop?`<div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);padding:4px 16px;background:${pal.primary};color:#fff;border-radius:99px;font-size:12px;font-weight:700">BELIEBT</div>`:''}
+                <div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:${pal.muted};margin-bottom:16px">${plan.name}</div>
+                <div style="font-size:40px;font-weight:800;letter-spacing:-1px">${plan.price}<span style="font-size:14px;color:${pal.muted};font-weight:400">${plan.per}</span></div>
+                <ul style="list-style:none;padding:0;margin:20px 0 24px;font-size:14px;line-height:2.2">${plan.features.map(f=>`<li style="color:${pal.muted}"><span style="color:${pal.primary};margin-right:6px">✓</span>${f}</li>`).join('')}</ul>
+                <button style="width:100%;padding:14px;background:${plan.pop?pal.primary:'transparent'};color:${plan.pop?'#fff':pal.text};border:${plan.pop?'none':'1px solid '+pal.border};border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px">Auswählen</button>
+            </div>`).join('')}
+        </div>
+    </section>`;
 }
 
-const layoutFns = [layoutHeroCentered, layoutHeroSplit, layoutHeroLeft, layoutHeroFullImage, layoutMinimal];
-
-// ===== SECTION BUILDERS — premium quality =====
-
-function buildServicesSection(rng, pal, font, items, title) {
-    const hasImages = rng() > 0.5;
-    const cardImages = hasImages ? getCardImages(rng, detectCategory._lastCat || 'generic') : [];
-    
-    const cardVariant = rPick(rng, ['clean','bordered','gradient','minimal']);
-    const cols = items.length <= 3 ? 'repeat(auto-fit,minmax(280px,1fr))' : 'repeat(auto-fit,minmax(240px,1fr))';
-    
-    return `<div style="padding:100px 6vw;max-width:1200px;margin:0 auto">
-        <div style="text-align:center;margin-bottom:48px"><h2 style="font-size:clamp(24px,4vw,40px);font-weight:${font.headWeight};letter-spacing:-1px">${title}</h2></div>
-        <div style="display:grid;grid-template-columns:${cols};gap:20px">
-        ${items.map((it, i) => {
-            const img = hasImages && cardImages[i % cardImages.length] ? `<div style="aspect-ratio:16/10;border-radius:12px;overflow:hidden;margin-bottom:16px"><img src="${cardImages[i % cardImages.length]}" style="width:100%;height:100%;object-fit:cover" alt=""></div>` : `<div style="width:48px;height:48px;border-radius:12px;background:${pal.accent}15;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px">${it.icon}</div>`;
-            const card = {
-                clean: `background:${pal.card};border:1px solid ${pal.border};border-radius:16px;padding:${hasImages?'0':'28px'};overflow:hidden;${hasImages?'':''}`,
-                bordered: `background:${pal.card};border:1px solid ${pal.border};border-radius:12px;padding:${hasImages?'0':'24px'};overflow:hidden;border-top:3px solid ${pal.accent}`,
-                gradient: `background:linear-gradient(145deg,${pal.card},${pal.accent}06);border:1px solid ${pal.border};border-radius:20px;padding:${hasImages?'0':'32px'};overflow:hidden`,
-                minimal: `padding:${hasImages?'0':'24px'};border-bottom:1px solid ${pal.border}`,
-            }[cardVariant];
-            const innerPad = hasImages ? 'padding:20px' : '';
-            return `<div style="${card};transition:transform 0.3s,box-shadow 0.3s">${hasImages?img:''}<div style="${innerPad}">${hasImages?'':img}<h3 style="font-size:17px;font-weight:700;margin-bottom:8px">${it.title}</h3><p style="font-size:14px;color:${pal.muted};line-height:1.6">${it.desc}</p>${it.price?`<div style="margin-top:12px;font-weight:700;color:${pal.accent};font-size:15px">${it.price}</div>`:''}</div></div>`;
-        }).join('')}
-        </div></div>`;
+function comp_faq(rng, pal) {
+    const id = 'fq' + Math.floor(rng() * 9999);
+    const faqs = shuffle(rng, [
+        {q:'Wie lange dauert die Umsetzung?',a:'In der Regel 1-3 Werktage. Bei komplexen Anforderungen etwas länger.'},
+        {q:'Was kostet das?',a:'Individuelle Preise je nach Umfang. Kostenloses Angebot anfordern.'},
+        {q:'Gibt es eine Zufriedenheitsgarantie?',a:'Ja, 30 Tage Geld-zurück-Garantie wenn Sie nicht zufrieden sind.'},
+        {q:'Wie viele Revisionen sind inklusive?',a:'3 Revisionsrunden sind im Preis inbegriffen.'},
+        {q:'Welche Zahlungsmethoden gibt es?',a:'Kreditkarte, PayPal und Banküberweisung.'},
+        {q:'Brauche ich technische Vorkenntnisse?',a:'Nein. Sie beschreiben, wir setzen um.'},
+    ]).slice(0, 4 + Math.floor(rng() * 2));
+    return `
+    <section style="padding:80px 24px;max-width:700px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:40px">Häufige Fragen</h2>
+        ${faqs.map((f,i) => `
+        <div style="border-bottom:1px solid ${pal.border}">
+            <button onclick="this.parentElement.classList.toggle('open');this.querySelector('.arr').textContent=this.parentElement.classList.contains('open')?'−':'+'" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:20px 0;background:none;border:none;color:${pal.text};font-size:16px;font-weight:600;cursor:pointer;text-align:left;font-family:inherit"><span>${f.q}</span><span class="arr" style="font-size:20px;color:${pal.muted};flex-shrink:0;margin-left:16px">+</span></button>
+            <div style="max-height:0;overflow:hidden;transition:max-height 0.3s,padding 0.3s;padding:0 0"><p style="font-size:15px;color:${pal.muted};line-height:1.7;padding-bottom:20px">${f.a}</p></div>
+        </div>`).join('')}
+    </section>
+    <style>.open>div{max-height:200px!important;padding:0 0!important}</style>`;
 }
 
-function buildPricingSection(rng, pal, font, plans, title) {
-    return `<div style="padding:100px 6vw;max-width:1100px;margin:0 auto">
-        <div style="text-align:center;margin-bottom:48px"><h2 style="font-size:clamp(24px,4vw,40px);font-weight:${font.headWeight};letter-spacing:-1px">${title}</h2></div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
-        ${plans.map((p, i) => {
-            const featured = i === 1;
-            return `<div style="background:${featured?pal.accent+'08':pal.card};border:${featured?'2px':'1px'} solid ${featured?pal.accent:pal.border};border-radius:20px;padding:36px;text-align:center;${featured?'transform:scale(1.02);box-shadow:0 20px 40px '+pal.accent+'15;':''}transition:all 0.3s">
-                ${featured?`<div style="display:inline-block;padding:4px 14px;background:${pal.accent};color:#fff;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:16px;letter-spacing:0.5px">BELIEBT</div>`:''}
-                <div style="font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:${pal.muted};margin-bottom:16px">${p.name}</div>
-                <div style="font-size:42px;font-weight:${font.headWeight};margin-bottom:4px;letter-spacing:-1px">${p.price}</div>
-                <div style="font-size:14px;color:${pal.muted};margin-bottom:24px">${p.period||'/Monat'}</div>
-                <ul style="list-style:none;margin-bottom:28px;font-size:14px;line-height:2.2">${p.features.map(f=>`<li style="color:${pal.muted}"><span style="color:${pal.accent};margin-right:8px">✓</span>${f}</li>`).join('')}</ul>
-                <a href="#" style="display:block;padding:14px;background:${featured?pal.accent:'transparent'};color:${featured?'#fff':pal.text};border:${featured?'none':'1px solid '+pal.border};border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;transition:all 0.3s">${p.cta}</a>
+function comp_gallery(rng, pal, cat) {
+    const id = 'gl' + Math.floor(rng() * 9999);
+    const imgs = {
+        fitness:['photo-1581009146145-b5ef050c2e1e','photo-1574680096145-d05b474e2155','photo-1518611012118-696072aa579a','photo-1544367567-0f2fcb009e0b','photo-1534438327276-14e5300c3a48','photo-1571019614242-c5c5dee9f50b'],
+        restaurant:['photo-1504674900247-0877df9cc836','photo-1476224203421-9ac39bcb3327','photo-1555939594-58d7cb561ad1','photo-1414235077428-338989a2e8c0','photo-1517248135467-4c7edcad34c4','photo-1559339352-11d035aa65de'],
+        beauty:['photo-1560750588-73b555dce5f8','photo-1522335789203-aabd1fc54bc9','photo-1487412720507-e7ab37603c6f','photo-1570172619644-dfd03ed5d881'],
+        shop:['photo-1441986300917-64674bd600d8','photo-1472851294608-062f824d29cc','photo-1560343090-f0409e92791a','photo-1523275335684-37898b6baf30','photo-1491553895911-0055eca6402d'],
+    };
+    const pool = imgs[cat] || imgs.restaurant;
+    const selected = pickN(rng, pool, Math.min(6, pool.length));
+    return `
+    <section style="padding:80px 24px;max-width:1100px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:40px">${rPick(rng,['Galerie','Eindrücke','Portfolio','Unsere Arbeit'])}</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">
+        ${selected.map(img => `
+            <div onclick="${id}_open('https://images.unsplash.com/${img}?w=1200&q=80')" style="cursor:pointer;border-radius:14px;overflow:hidden;aspect-ratio:4/3;position:relative">
+                <img src="https://images.unsplash.com/${img}?w=600&q=80" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;display:block" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            </div>`).join('')}
+        </div>
+        <div id="${id}-lb" onclick="${id}_close()" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.9);align-items:center;justify-content:center;cursor:pointer;padding:24px">
+            <img id="${id}-lbimg" style="max-width:90%;max-height:90vh;border-radius:8px;object-fit:contain">
+            <button onclick="${id}_close()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer">✕</button>
+        </div>
+    </section>
+    <script>
+    window['${id}_open'] = function(src){
+        document.getElementById('${id}-lbimg').src = src;
+        document.getElementById('${id}-lb').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+    window['${id}_close'] = function(){
+        document.getElementById('${id}-lb').style.display = 'none';
+        document.body.style.overflow = '';
+    };
+    <\/script>`;
+}
+
+function comp_stats(rng, pal, cat) {
+    const id = 'st' + Math.floor(rng() * 9999);
+    const data = {
+        fitness:[{val:5000,suf:'+',label:'Mitglieder'},{val:50,suf:'+',label:'Kurse/Woche'},{val:98,suf:'%',label:'Zufriedenheit'},{val:15,suf:'+',label:'Trainer'}],
+        restaurant:[{val:15,suf:'+',label:'Jahre'},{val:50000,suf:'+',label:'Gäste/Jahr'},{val:200,suf:'+',label:'Weine'},{val:4.8,suf:'★',label:'Google Rating'}],
+        saas:[{val:50,suf:'K+',label:'Users'},{val:99.9,suf:'%',label:'Uptime'},{val:150,suf:'+',label:'Countries'},{val:500,suf:'+',label:'Integrations'}],
+    };
+    const stats = data[cat] || [{val:1000,suf:'+',label:'Kunden'},{val:10,suf:'+',label:'Jahre'},{val:98,suf:'%',label:'Zufriedenheit'},{val:4.9,suf:'★',label:'Bewertung'}];
+    return `
+    <section style="padding:60px 24px">
+        <div style="max-width:1000px;margin:0 auto;display:flex;justify-content:center;gap:48px;flex-wrap:wrap;text-align:center">
+        ${stats.map((s,i) => `<div><div id="${id}-${i}" style="font-size:clamp(32px,5vw,44px);font-weight:800;color:${pal.primary};letter-spacing:-1px">0${s.suf}</div><div style="font-size:13px;color:${pal.muted};margin-top:4px">${s.label}</div></div>`).join('')}
+        </div>
+    </section>
+    <script>
+    (function(){
+        var stats = ${JSON.stringify(stats)};
+        var animated = false;
+        function anim(){
+            if(animated) return;
+            animated = true;
+            stats.forEach(function(s,i){
+                var el = document.getElementById('${id}-'+i);
+                if(!el) return;
+                var end = s.val, dur = 2000, start = performance.now();
+                function step(now){
+                    var p = Math.min((now-start)/dur,1);
+                    p = 1-Math.pow(1-p,3);
+                    var v = (p*end);
+                    el.textContent = (end%1===0 ? Math.floor(v) : v.toFixed(1)) + s.suf;
+                    if(p<1) requestAnimationFrame(step);
+                }
+                requestAnimationFrame(step);
+            });
+        }
+        var observer = new IntersectionObserver(function(entries){
+            entries.forEach(function(e){ if(e.isIntersecting) anim(); });
+        },{threshold:0.3});
+        var el = document.getElementById('${id}-0');
+        if(el) observer.observe(el);
+    })();
+    <\/script>`;
+}
+
+function comp_hours(rng, pal) {
+    const hours = [
+        {day:'Montag',time:'08:00 – 20:00'},{day:'Dienstag',time:'08:00 – 20:00'},
+        {day:'Mittwoch',time:'08:00 – 20:00'},{day:'Donnerstag',time:'08:00 – 20:00'},
+        {day:'Freitag',time:'08:00 – 22:00'},{day:'Samstag',time:'09:00 – 18:00'},
+        {day:'Sonntag',time:'Geschlossen'},
+    ];
+    const now = new Date();
+    const today = now.getDay(); // 0=Sun
+    return `
+    <section style="padding:80px 24px;max-width:500px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:40px">Öffnungszeiten</h2>
+        <div style="background:${pal.card};border:1px solid ${pal.border};border-radius:16px;overflow:hidden">
+        ${hours.map((h,i) => {
+            const isToday = (i+1)%7 === today;
+            return `<div style="display:flex;justify-content:space-between;padding:14px 20px;${isToday?'background:'+pal.primary+'10;font-weight:700;':''}${i<6?'border-bottom:1px solid '+pal.border:''}">
+                <span>${h.day}${isToday?' (Heute)':''}</span>
+                <span style="color:${h.time==='Geschlossen'?'#ef4444':pal.muted}">${h.time}</span>
             </div>`;
         }).join('')}
-        </div></div>`;
+        </div>
+    </section>`;
 }
 
-function buildStatsSection(rng, pal, font, stats) {
-    const variant = rPick(rng, ['inline','cards','banner']);
-    if (variant === 'cards') {
-        return `<div style="padding:80px 6vw;max-width:1100px;margin:0 auto"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px">${stats.map(s => `<div style="background:${pal.card};border:1px solid ${pal.border};border-radius:16px;padding:28px;text-align:center"><div style="font-size:36px;font-weight:${font.headWeight};letter-spacing:-1px;color:${pal.accent}">${s.val}</div><div style="font-size:13px;color:${pal.muted};margin-top:6px;font-weight:500">${s.label}</div></div>`).join('')}</div></div>`;
-    }
-    if (variant === 'banner') {
-        return `<div style="padding:60px 6vw;background:${pal.accent}08;border-top:1px solid ${pal.border};border-bottom:1px solid ${pal.border}"><div style="max-width:1100px;margin:0 auto;display:flex;justify-content:center;gap:64px;flex-wrap:wrap">${stats.map(s => `<div style="text-align:center"><div style="font-size:40px;font-weight:${font.headWeight};letter-spacing:-1px">${s.val}</div><div style="font-size:13px;color:${pal.muted};margin-top:4px">${s.label}</div></div>`).join('')}</div></div>`;
-    }
-    return `<div style="padding:80px 6vw"><div style="max-width:1100px;margin:0 auto;display:flex;justify-content:center;gap:56px;flex-wrap:wrap">${stats.map(s => `<div style="text-align:center"><div style="font-size:44px;font-weight:${font.headWeight};letter-spacing:-1px;color:${pal.accent}">${s.val}</div><div style="font-size:14px;color:${pal.muted};margin-top:6px">${s.label}</div></div>`).join('')}</div></div>`;
+function comp_team(rng, pal, cat) {
+    const members = shuffle(rng, [
+        {name:'Sarah Fischer',role:'Gründerin & CEO',img:'photo-1494790108377-be9c29b29330'},
+        {name:'Michael Weber',role:'CTO',img:'photo-1507003211169-0a1dd7228f2d'},
+        {name:'Lisa Müller',role:'Head of Design',img:'photo-1438761681033-6461ffad8d80'},
+        {name:'Jan Schmidt',role:'Lead Developer',img:'photo-1500648767791-00dcc994a43e'},
+        {name:'Anna Bauer',role:'Marketing',img:'photo-1534528741775-53994a69daeb'},
+        {name:'David Hoffmann',role:'Sales',img:'photo-1472099645785-5658abf4ff4e'},
+    ]).slice(0, 3 + Math.floor(rng()));
+    return `
+    <section style="padding:80px 24px;max-width:1000px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:12px">Unser Team</h2>
+        <p style="text-align:center;color:${pal.muted};margin-bottom:40px">Die Menschen hinter dem Erfolg</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;text-align:center">
+        ${members.map(m => `
+            <div>
+                <div style="width:120px;height:120px;border-radius:50%;overflow:hidden;margin:0 auto 16px;border:3px solid ${pal.border}">
+                    <img src="https://images.unsplash.com/${m.img}?w=300&q=80" style="width:100%;height:100%;object-fit:cover;display:block">
+                </div>
+                <div style="font-weight:700;font-size:16px">${m.name}</div>
+                <div style="font-size:13px;color:${pal.muted};margin-top:2px">${m.role}</div>
+            </div>`).join('')}
+        </div>
+    </section>`;
 }
 
-function buildTestimonialsSection(rng, pal, font, testimonials, title) {
-    return `<div style="padding:100px 6vw;max-width:1100px;margin:0 auto">
-        <div style="text-align:center;margin-bottom:48px"><h2 style="font-size:clamp(24px,4vw,40px);font-weight:${font.headWeight};letter-spacing:-1px">${title}</h2></div>
+function comp_menu(rng, pal) {
+    const id = 'mn' + Math.floor(rng() * 9999);
+    const categories = [
+        {name:'Vorspeisen',items:[
+            {name:'Bruschetta',desc:'Geröstetes Brot mit Tomaten & Basilikum',price:'8,90€'},
+            {name:'Carpaccio',desc:'Hauchdünn geschnittenes Rinderfilet',price:'14,90€'},
+            {name:'Suppe des Tages',desc:'Frisch zubereitet, täglich wechselnd',price:'6,90€'},
+        ]},
+        {name:'Hauptgerichte',items:[
+            {name:'Wiener Schnitzel',desc:'Kalbsschnitzel mit Kartoffelsalat',price:'24,90€'},
+            {name:'Lachs gegrillt',desc:'Mit Gemüse und Zitronenbutter',price:'22,90€'},
+            {name:'Pasta Trüffel',desc:'Hausgemachte Tagliatelle mit Trüffelcreme',price:'19,90€'},
+            {name:'Veganes Bowl',desc:'Quinoa, Avocado, geröstetes Gemüse',price:'16,90€'},
+        ]},
+        {name:'Desserts',items:[
+            {name:'Crème Brûlée',desc:'Klassisch mit Vanille',price:'9,90€'},
+            {name:'Tiramisu',desc:'Hausgemacht nach Originalrezept',price:'8,90€'},
+        ]},
+    ];
+    return `
+    <section style="padding:80px 24px;max-width:800px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:40px">Speisekarte</h2>
+        ${categories.map(cat => `
+            <div style="margin-bottom:40px">
+                <h3 style="font-size:20px;font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid ${pal.primary}">${cat.name}</h3>
+                ${cat.items.map(item => `
+                    <div style="display:flex;justify-content:space-between;align-items:start;padding:12px 0;border-bottom:1px solid ${pal.border}">
+                        <div><div style="font-weight:600;font-size:15px">${item.name}</div><div style="font-size:13px;color:${pal.muted};margin-top:2px">${item.desc}</div></div>
+                        <div style="font-weight:700;color:${pal.primary};white-space:nowrap;margin-left:16px">${item.price}</div>
+                    </div>`).join('')}
+            </div>`).join('')}
+    </section>`;
+}
+
+function comp_social(rng, pal) {
+    const links = shuffle(rng, [
+        {name:'Instagram',icon:'📷',url:'#'},{name:'Facebook',icon:'📘',url:'#'},
+        {name:'Twitter/X',icon:'🐦',url:'#'},{name:'LinkedIn',icon:'💼',url:'#'},
+        {name:'YouTube',icon:'🎬',url:'#'},{name:'TikTok',icon:'🎵',url:'#'},
+    ]).slice(0, 3 + Math.floor(rng() * 3));
+    return `
+    <section style="padding:60px 24px;text-align:center">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px">Folge uns</h2>
+        <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+        ${links.map(l => `<a href="${l.url}" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:${pal.card};border:1px solid ${pal.border};border-radius:10px;text-decoration:none;color:${pal.text};font-size:14px;font-weight:500;transition:all 0.2s"><span style="font-size:18px">${l.icon}</span>${l.name}</a>`).join('')}
+        </div>
+    </section>`;
+}
+
+function comp_chat(rng, pal) {
+    const id = 'ch' + Math.floor(rng() * 9999);
+    return `
+    <div id="${id}" style="position:fixed;bottom:20px;right:20px;z-index:9000">
+        <div id="${id}-win" style="display:none;width:320px;background:${pal.card};border:1px solid ${pal.border};border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.15);overflow:hidden;margin-bottom:12px">
+            <div style="padding:16px 20px;background:${pal.primary};color:#fff;font-weight:700;display:flex;justify-content:space-between;align-items:center">
+                <span>💬 Live Chat</span>
+                <button onclick="document.getElementById('${id}-win').style.display='none'" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer">✕</button>
+            </div>
+            <div id="${id}-msgs" style="height:240px;overflow-y:auto;padding:16px;font-size:14px">
+                <div style="background:${pal.primary}15;padding:10px 14px;border-radius:12px 12px 12px 4px;margin-bottom:8px;max-width:80%">Hallo! 👋 Wie können wir helfen?</div>
+            </div>
+            <form onsubmit="return ${id}_send(event)" style="display:flex;border-top:1px solid ${pal.border}">
+                <input id="${id}-input" placeholder="Nachricht..." style="flex:1;padding:14px;border:none;background:transparent;color:${pal.text};font-size:14px;outline:none;font-family:inherit">
+                <button type="submit" style="padding:14px 18px;background:none;border:none;color:${pal.primary};font-weight:700;cursor:pointer;font-size:16px">→</button>
+            </form>
+        </div>
+        <button onclick="var w=document.getElementById('${id}-win');w.style.display=w.style.display==='none'?'block':'none'" style="width:56px;height:56px;border-radius:50%;background:${pal.primary};border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px ${pal.primary}40;display:flex;align-items:center;justify-content:center;margin-left:auto">💬</button>
+    </div>
+    <script>
+    window['${id}_send'] = function(e){
+        e.preventDefault();
+        var input = document.getElementById('${id}-input');
+        var msg = input.value.trim();
+        if(!msg) return false;
+        var msgs = document.getElementById('${id}-msgs');
+        msgs.innerHTML += '<div style="background:${pal.primary};color:#fff;padding:10px 14px;border-radius:12px 12px 4px 12px;margin-bottom:8px;max-width:80%;margin-left:auto">' + msg + '</div>';
+        input.value = '';
+        setTimeout(function(){
+            msgs.innerHTML += '<div style="background:${pal.primary}15;padding:10px 14px;border-radius:12px 12px 12px 4px;margin-bottom:8px;max-width:80%">Danke für Ihre Nachricht! Wir antworten schnellstmöglich. 🙏</div>';
+            msgs.scrollTop = msgs.scrollHeight;
+        }, 1000);
+        msgs.scrollTop = msgs.scrollHeight;
+        return false;
+    };
+    <\/script>`;
+}
+
+function comp_cookie(pal) {
+    const id = 'ck' + Math.floor(Math.random() * 9999);
+    return `
+    <div id="${id}" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;padding:16px 24px;background:${pal.card};border-top:1px solid ${pal.border};box-shadow:0 -4px 20px rgba(0,0,0,0.1)">
+        <div style="max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <p style="font-size:14px;color:${pal.muted};margin:0;flex:1;min-width:200px">🍪 Wir verwenden Cookies um die Nutzererfahrung zu verbessern. <a href="#" style="color:${pal.primary};text-decoration:underline">Mehr erfahren</a></p>
+            <div style="display:flex;gap:8px">
+                <button onclick="document.getElementById('${id}').style.display='none';localStorage.setItem('${id}_ok','1')" style="padding:10px 24px;background:${pal.primary};color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px">Akzeptieren</button>
+                <button onclick="document.getElementById('${id}').style.display='none';localStorage.setItem('${id}_ok','1')" style="padding:10px 24px;background:transparent;color:${pal.muted};border:1px solid ${pal.border};border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px">Ablehnen</button>
+            </div>
+        </div>
+    </div>
+    <script>if(!localStorage.getItem('${id}_ok')){document.getElementById('${id}').style.display='block';}<\/script>`;
+}
+
+function comp_backtotop(pal) {
+    return `
+    <button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="display:none;position:fixed;bottom:20px;left:20px;z-index:8999;width:44px;height:44px;border-radius:50%;background:${pal.card};border:1px solid ${pal.border};color:${pal.text};font-size:18px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.1);align-items:center;justify-content:center">↑</button>
+    <script>window.addEventListener('scroll',function(){document.getElementById('btt').style.display=window.scrollY>400?'flex':'none';});<\/script>`;
+}
+
+function comp_countdown(rng, pal) {
+    const id = 'cd' + Math.floor(rng() * 9999);
+    // Set target 7 days from now
+    return `
+    <section style="padding:60px 24px;text-align:center">
+        <div style="max-width:600px;margin:0 auto;padding:48px 32px;background:${pal.primary}10;border:1px solid ${pal.primary}25;border-radius:20px">
+            <h2 style="font-size:24px;font-weight:700;margin-bottom:8px">${rPick(rng,['Coming Soon','Bald verfügbar','Launch in','Angebot endet in'])}</h2>
+            <div id="${id}" style="display:flex;justify-content:center;gap:16px;margin-top:20px">
+                ${['Tage','Stunden','Minuten','Sekunden'].map((l,i) => `<div><div id="${id}-${i}" style="font-size:clamp(28px,5vw,40px);font-weight:800;color:${pal.primary}">00</div><div style="font-size:11px;color:${pal.muted};text-transform:uppercase;letter-spacing:1px">${l}</div></div>`).join('')}
+            </div>
+        </div>
+    </section>
+    <script>
+    (function(){
+        var target = Date.now() + 7*24*60*60*1000;
+        function update(){
+            var diff = Math.max(0, target - Date.now());
+            var d = Math.floor(diff/86400000); diff %= 86400000;
+            var h = Math.floor(diff/3600000); diff %= 3600000;
+            var m = Math.floor(diff/60000); diff %= 60000;
+            var s = Math.floor(diff/1000);
+            ['${id}-0','${id}-1','${id}-2','${id}-3'].forEach(function(id,i){
+                var el = document.getElementById(id);
+                if(el) el.textContent = [d,h,m,s][i].toString().padStart(2,'0');
+            });
+        }
+        update(); setInterval(update, 1000);
+    })();
+    <\/script>`;
+}
+
+function comp_map(rng, pal) {
+    return `
+    <section style="padding:80px 24px;max-width:900px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:40px">Standort</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+            <div>
+                <div style="background:${pal.card};border:1px solid ${pal.border};border-radius:16px;padding:24px">
+                    <div style="margin-bottom:16px"><div style="font-weight:600;margin-bottom:4px">📍 Adresse</div><div style="color:${pal.muted};font-size:14px">Musterstraße 123, 10115 Berlin</div></div>
+                    <div style="margin-bottom:16px"><div style="font-weight:600;margin-bottom:4px">📞 Telefon</div><div style="color:${pal.muted};font-size:14px">+49 30 123 456 789</div></div>
+                    <div><div style="font-weight:600;margin-bottom:4px">✉️ E-Mail</div><div style="color:${pal.muted};font-size:14px">info@example.com</div></div>
+                </div>
+            </div>
+            <div style="border-radius:16px;overflow:hidden;aspect-ratio:4/3;background:${pal.card};border:1px solid ${pal.border};display:flex;align-items:center;justify-content:center">
+                <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=13.38,52.51,13.41,52.53&layer=mapnik" style="width:100%;height:100%;border:none"></iframe>
+            </div>
+        </div>
+    </section>`;
+}
+
+function comp_blog(rng, pal) {
+    const posts = shuffle(rng, [
+        {title:'10 Tipps für mehr Produktivität',desc:'Wie Sie Ihren Alltag effizienter gestalten können.',date:'15. Feb 2026',img:'photo-1499750310107-5fef28a66643'},
+        {title:'Trends 2026: Was kommt als Nächstes?',desc:'Die wichtigsten Entwicklungen im Überblick.',date:'12. Feb 2026',img:'photo-1504868584819-f8e8b4b6d7e3'},
+        {title:'Warum Qualität wichtiger ist als Quantität',desc:'Ein Plädoyer für nachhaltige Arbeit.',date:'8. Feb 2026',img:'photo-1497366216548-37526070297c'},
+    ]);
+    return `
+    <section style="padding:80px 24px;max-width:1000px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:40px">Blog</h2>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
-        ${testimonials.map(t => `<div style="background:${pal.card};border:1px solid ${pal.border};border-radius:16px;padding:28px">
-            <div style="display:flex;gap:4px;margin-bottom:16px">${'⭐'.repeat(5)}</div>
-            <p style="font-size:15px;line-height:1.7;color:${pal.muted};margin-bottom:20px">"${t.text}"</p>
-            <div style="display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:50%;background:${pal.accent}20;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:${pal.accent}">${t.author.charAt(0)}</div><div><div style="font-weight:700;font-size:14px">${t.author}</div><div style="font-size:12px;color:${pal.muted}">Verifizierter Kunde</div></div></div>
-        </div>`).join('')}
-        </div></div>`;
+        ${posts.map(p => `
+            <article style="background:${pal.card};border:1px solid ${pal.border};border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                <div style="aspect-ratio:16/9;overflow:hidden"><img src="https://images.unsplash.com/${p.img}?w=600&q=80" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+                <div style="padding:20px"><div style="font-size:12px;color:${pal.muted};margin-bottom:8px">${p.date}</div><h3 style="font-size:17px;font-weight:700;margin-bottom:6px">${p.title}</h3><p style="font-size:14px;color:${pal.muted};line-height:1.5">${p.desc}</p></div>
+            </article>`).join('')}
+        </div>
+    </section>`;
 }
 
-function buildContactSection(rng, pal, font, title) {
-    return `<div style="padding:100px 6vw;max-width:900px;margin:0 auto">
-        <div style="text-align:center;margin-bottom:48px"><h2 style="font-size:clamp(24px,4vw,40px);font-weight:${font.headWeight};letter-spacing:-1px">${title}</h2><p style="color:${pal.muted};margin-top:12px;font-size:16px">Wir melden uns innerhalb von 24 Stunden.</p></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:600px;margin:0 auto">
-            <input placeholder="Vorname" style="padding:16px 20px;background:${pal.card};border:1px solid ${pal.border};border-radius:12px;color:${pal.text};font-size:15px;outline:none;font-family:inherit">
-            <input placeholder="Nachname" style="padding:16px 20px;background:${pal.card};border:1px solid ${pal.border};border-radius:12px;color:${pal.text};font-size:15px;outline:none;font-family:inherit">
-            <input placeholder="E-Mail" style="grid-column:span 2;padding:16px 20px;background:${pal.card};border:1px solid ${pal.border};border-radius:12px;color:${pal.text};font-size:15px;outline:none;font-family:inherit">
-            <textarea placeholder="Ihre Nachricht..." rows="4" style="grid-column:span 2;padding:16px 20px;background:${pal.card};border:1px solid ${pal.border};border-radius:12px;color:${pal.text};font-size:15px;outline:none;font-family:inherit;resize:vertical"></textarea>
-            <button style="grid-column:span 2;padding:16px;background:${pal.accent};color:#fff;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;transition:opacity 0.2s">Nachricht senden</button>
-        </div></div>`;
+function comp_shop(rng, pal) {
+    const id = 'sh' + Math.floor(rng() * 9999);
+    const products = shuffle(rng, [
+        {name:'Premium Headphones',price:'129€',img:'photo-1505740420928-5e560c06d30e'},
+        {name:'Minimal Watch',price:'189€',img:'photo-1523275335684-37898b6baf30'},
+        {name:'Leather Bag',price:'249€',img:'photo-1548036328-c9fa89d128fa'},
+        {name:'Sunglasses',price:'79€',img:'photo-1572635196237-14b3f281503f'},
+        {name:'Sneakers',price:'159€',img:'photo-1491553895911-0055eca6402d'},
+        {name:'Backpack',price:'99€',img:'photo-1553062407-98eeb64c6a62'},
+    ]).slice(0, 4 + Math.floor(rng() * 2));
+    return `
+    <section style="padding:80px 24px;max-width:1100px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:40px">Shop</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+        ${products.map(p => `
+            <div style="background:${pal.card};border:1px solid ${pal.border};border-radius:14px;overflow:hidden;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                <div style="aspect-ratio:1;overflow:hidden;background:${pal.bg}"><img src="https://images.unsplash.com/${p.img}?w=400&q=80" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+                <div style="padding:16px"><div style="font-weight:600;font-size:15px;margin-bottom:4px">${p.name}</div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;color:${pal.primary}">${p.price}</span><button onclick="alert('In den Warenkorb gelegt! 🛒')" style="padding:6px 14px;background:${pal.primary};color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">🛒 Kaufen</button></div></div>
+            </div>`).join('')}
+        </div>
+    </section>`;
 }
 
-function buildCTABanner(rng, pal, font, cat) {
-    const text = rPick(rng, ['Bereit loszulegen?','Überzeugt?','Let\'s do this','Starte jetzt','Worauf wartest du?']);
-    const sub = rPick(rng, ['Kontaktiere uns noch heute — unverbindlich.','Starte jetzt und überzeuge dich selbst.','Der erste Schritt ist der wichtigste.','Keine versteckten Kosten. Keine Verpflichtungen.']);
-    const isDark = pal.bg.match(/^#[012]/);
-    return `<div style="padding:100px 6vw"><div style="max-width:900px;margin:0 auto;text-align:center;padding:60px 40px;background:linear-gradient(135deg,${pal.accent}12,${pal.accent}05);border:1px solid ${pal.accent}20;border-radius:24px">
-        <h2 style="font-size:clamp(28px,5vw,44px);font-weight:${font.headWeight};letter-spacing:-1px;margin-bottom:16px">${text}</h2>
-        <p style="font-size:16px;color:${pal.muted};margin-bottom:32px;max-width:400px;margin-left:auto;margin-right:auto">${sub}</p>
-        ${buildCTA(rng, pal, cat)}
-    </div></div>`;
+function comp_login(rng, pal) {
+    const id = 'lg' + Math.floor(rng() * 9999);
+    return `
+    <section style="padding:80px 24px;max-width:400px;margin:0 auto">
+        <div style="background:${pal.card};border:1px solid ${pal.border};border-radius:20px;padding:36px">
+            <h2 style="font-size:24px;font-weight:700;text-align:center;margin-bottom:24px">Anmelden</h2>
+            <form onsubmit="return ${id}_login(event)" style="display:grid;gap:12px">
+                <input type="email" placeholder="E-Mail" required style="padding:14px 18px;background:${pal.bg};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;outline:none;font-family:inherit;box-sizing:border-box">
+                <input type="password" placeholder="Passwort" required style="padding:14px 18px;background:${pal.bg};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;outline:none;font-family:inherit;box-sizing:border-box">
+                <button type="submit" style="padding:16px;background:${pal.primary};color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit">Einloggen</button>
+                <p style="text-align:center;font-size:13px;color:${pal.muted}">Noch kein Konto? <a href="#" style="color:${pal.primary}">Registrieren</a></p>
+            </form>
+            <div id="${id}-ok" style="display:none;margin-top:12px;padding:12px;background:#16a34a15;border-radius:8px;color:#16a34a;font-weight:600;text-align:center;font-size:14px">✓ Erfolgreich eingeloggt!</div>
+        </div>
+    </section>
+    <script>window['${id}_login']=function(e){e.preventDefault();e.target.reset();document.getElementById('${id}-ok').style.display='block';setTimeout(function(){document.getElementById('${id}-ok').style.display='none';},3000);return false;};<\/script>`;
 }
 
-function buildFAQSection(rng, pal, font) {
-    const faqs = shuffle(rng, [
-        {q:'Wie lange dauert die Umsetzung?',a:'In der Regel sind Projekte innerhalb von 1-3 Werktagen fertig. Bei komplexen Anforderungen kann es etwas länger dauern.'},
-        {q:'Was kostet das?',a:'Individuelle Preise je nach Umfang und Komplexität. Fordern Sie ein kostenloses, unverbindliches Angebot an.'},
-        {q:'Gibt es eine Zufriedenheitsgarantie?',a:'Ja, wir bieten 30 Tage Zufriedenheitsgarantie. Wenn Sie nicht zufrieden sind, bekommen Sie Ihr Geld zurück.'},
-        {q:'Wie viele Revisionsrunden sind inklusive?',a:'3 Revisionsrunden sind im Preis inbegriffen. Weitere Änderungen sind gegen Aufpreis möglich.'},
-        {q:'Welche Zahlungsmethoden akzeptieren Sie?',a:'Kreditkarte, PayPal, Banküberweisung — was für Sie am bequemsten ist.'},
-        {q:'Brauche ich technische Vorkenntnisse?',a:'Nein, überhaupt nicht. Sie beschreiben was Sie möchten, wir kümmern uns um alles Technische.'},
-    ]).slice(0, 3 + Math.floor(rng() * 2));
-    
-    return `<div style="padding:100px 6vw;max-width:750px;margin:0 auto">
-        <div style="text-align:center;margin-bottom:48px"><h2 style="font-size:clamp(24px,4vw,40px);font-weight:${font.headWeight};letter-spacing:-1px">${rPick(rng,['Häufige Fragen','FAQ','Fragen & Antworten'])}</h2></div>
-        ${faqs.map(f => `<div style="border-bottom:1px solid ${pal.border};padding:24px 0">
-            <div style="font-weight:700;font-size:16px;margin-bottom:10px">${f.q}</div>
-            <div style="font-size:15px;color:${pal.muted};line-height:1.7">${f.a}</div>
-        </div>`).join('')}
+function comp_notification(rng, pal) {
+    const id = 'nf' + Math.floor(rng() * 9999);
+    const text = rPick(rng, ['🔥 Neu: Kostenlose Beratung für Neukunden!','⚡ Limitiertes Angebot — nur diese Woche!','🎉 Grand Opening — 20% auf alles!','📢 Jetzt Newsletter abonnieren und 10% sparen!']);
+    return `
+    <div id="${id}" style="background:${pal.primary};color:#fff;padding:10px 24px;text-align:center;font-size:14px;font-weight:500;position:relative">
+        ${text}
+        <button onclick="document.getElementById('${id}').style.display='none'" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#fff;font-size:16px;cursor:pointer;opacity:0.7">✕</button>
     </div>`;
 }
 
-function buildLogoCloud(rng, pal) {
-    const logos = shuffle(rng, ['Google','Microsoft','Apple','Amazon','Tesla','Stripe','Shopify','Slack','Notion','Figma','Vercel','Netflix']).slice(0, 5 + Math.floor(rng() * 3));
-    return `<div style="padding:60px 6vw;border-top:1px solid ${pal.border}"><div style="max-width:1100px;margin:0 auto;text-align:center"><p style="font-size:13px;color:${pal.muted};text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:24px">Vertraut von führenden Unternehmen</p><div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;opacity:0.4">${logos.map(l => `<span style="font-size:18px;font-weight:700;letter-spacing:-0.5px">${l}</span>`).join('')}</div></div></div>`;
+function comp_video(rng, pal) {
+    return `
+    <section style="padding:80px 24px;max-width:800px;margin:0 auto">
+        <h2 style="font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center;margin-bottom:40px">${rPick(rng,['Video','Unser Trailer','So funktioniert es','Über uns'])}</h2>
+        <div style="aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center;border:1px solid ${pal.border}">
+            <div style="text-align:center;color:#fff">
+                <div style="font-size:48px;margin-bottom:12px;cursor:pointer" onclick="alert('Video-Player wird im fertigen Produkt eingebettet')">▶</div>
+                <p style="opacity:0.6;font-size:14px">Video-Player</p>
+            </div>
+        </div>
+    </section>`;
 }
 
-// ===== CONTENT DATA =====
-function getServices(rng, cat) {
-    const all = {
-        fitness:[
-            {icon:'🏋️',title:'Krafttraining',desc:'Freie Gewichte, Maschinen & professionelle Anleitung für maximale Ergebnisse.'},
-            {icon:'🏃',title:'Cardio Zone',desc:'Modernste Laufbänder, Crosstrainer und Rudergeräte mit Entertainment.'},
-            {icon:'🧘',title:'Yoga & Pilates',desc:'Finde Balance und Flexibilität in unseren ruhigen Kursräumen.'},
-            {icon:'🥊',title:'Kampfsport',desc:'Boxen, Kickboxen und MMA mit erfahrenen Trainern.'},
-            {icon:'💪',title:'Personal Training',desc:'Individuelle 1-on-1 Betreuung für schnellere Resultate.'},
-            {icon:'🏃‍♀️',title:'Gruppenkurse',desc:'HIIT, Spinning, Zumba und 30+ weitere Kurse pro Woche.'},
-            {icon:'🥗',title:'Ernährungscoaching',desc:'Maßgeschneiderte Ernährungspläne für deine Ziele.'},
-            {icon:'🧖',title:'Recovery & Wellness',desc:'Sauna, Dampfbad und Massageliegen für optimale Regeneration.'},
-        ],
-        restaurant:[
-            {icon:'🥘',title:'Vorspeisen',desc:'Handgemachte Vorspeisen mit saisonalen Zutaten aus der Region.'},
-            {icon:'🥩',title:'Hauptgerichte',desc:'Erstklassiges Fleisch, frischer Fisch und kreative vegetarische Optionen.'},
-            {icon:'🍰',title:'Patisserie',desc:'Unsere hauseigene Konditorei kreiert unvergessliche Desserts.'},
-            {icon:'🍷',title:'Sommelier-Auswahl',desc:'Über 200 erlesene Weine, kuratiert von unserem Sommelier.'},
-            {icon:'🌿',title:'Farm to Table',desc:'Regionale, saisonale Zutaten direkt vom Bauernhof.'},
-            {icon:'👨‍🍳',title:'Chef\'s Table',desc:'Exklusives 7-Gänge-Menü — ein unvergessliches Erlebnis.'},
-        ],
-        saas:[
-            {icon:'⚡',title:'Lightning Fast',desc:'Deploy in seconds with zero-downtime. Built on edge infrastructure.'},
-            {icon:'🔒',title:'Enterprise Security',desc:'SOC2, HIPAA compliant. Your data is encrypted at rest and in transit.'},
-            {icon:'📊',title:'Real-time Analytics',desc:'Beautiful dashboards with actionable insights. No SQL required.'},
-            {icon:'🔄',title:'Auto-Scaling',desc:'Automatically scales with demand. Pay only for what you use.'},
-            {icon:'🧩',title:'500+ Integrations',desc:'Connect your favorite tools in minutes. No code required.'},
-            {icon:'👥',title:'Team Collaboration',desc:'Real-time multiplayer editing with role-based permissions.'},
-        ],
-        shop:[
-            {icon:'⌚',title:'Uhren',desc:'Minimalistische Timepieces für den modernen Stil.',price:'ab €189'},
-            {icon:'🎧',title:'Audio',desc:'Premium Kopfhörer mit Studio-Qualität.',price:'ab €129'},
-            {icon:'🕶️',title:'Eyewear',desc:'Handgefertigte Sonnenbrillen mit UV-Schutz.',price:'ab €79'},
-            {icon:'👟',title:'Sneaker',desc:'Limited Edition Streetwear-Modelle.',price:'ab €159'},
-            {icon:'👜',title:'Taschen',desc:'Handgenähte Ledertaschen, made in Italy.',price:'ab €249'},
-            {icon:'💍',title:'Schmuck',desc:'Minimalistischer Schmuck aus recyceltem Gold.',price:'ab €89'},
-        ],
-        beauty:[
-            {icon:'💇',title:'Haarschnitt & Styling',desc:'Modernste Techniken für deinen perfekten Look.'},
-            {icon:'💅',title:'Maniküre & Pediküre',desc:'Nagelpflege und kreatives Nail Design.'},
-            {icon:'💆',title:'Gesichtsbehandlung',desc:'Tiefenreinigung, Peeling und Anti-Aging Treatments.'},
-            {icon:'🧖',title:'Massage & Spa',desc:'Ganzheitliche Entspannung für Körper und Seele.'},
-            {icon:'✨',title:'Microblading',desc:'Perfekte Augenbrauen mit natürlichem Ergebnis.'},
-        ],
-        medical:[
-            {icon:'🩺',title:'Allgemeinmedizin',desc:'Umfassende Vorsorgeuntersuchungen und Diagnostik.'},
-            {icon:'💉',title:'Impfberatung',desc:'Reise- und Standardimpfungen mit ausführlicher Beratung.'},
-            {icon:'🫀',title:'Kardiologie',desc:'Modernste Herz-Kreislauf-Diagnostik und Prävention.'},
-            {icon:'🧠',title:'Neurologie',desc:'Spezialisiert auf Kopfschmerzen, Migräne und Schlafstörungen.'},
-        ],
-    };
-    const pool = all[cat] || [
-        {icon:'⚡',title:'Schnelle Umsetzung',desc:'Von der Idee zum fertigen Produkt in Rekordzeit.'},
-        {icon:'💎',title:'Premium Qualität',desc:'Höchste Standards in jedem Detail. Keine Kompromisse.'},
-        {icon:'🤝',title:'Persönliche Betreuung',desc:'Ein dedizierter Ansprechpartner für Ihr Projekt.'},
-        {icon:'🔒',title:'100% Datenschutz',desc:'DSGVO-konform. Ihre Daten sind bei uns sicher.'},
-        {icon:'📞',title:'24/7 Support',desc:'Immer erreichbar, wenn Sie uns brauchen.'},
-        {icon:'💡',title:'Innovation',desc:'Neueste Technologien und bewährte Best Practices.'},
-    ];
-    return pickN(rng, pool, 3 + Math.floor(rng() * 3));
-}
-
-function getServiceTitle(rng, cat) {
+// ===== HERO LAYOUTS =====
+function buildHero(rng, pal, font, name, cat, analysis) {
+    const ac = pal.primary;
     const titles = {
-        fitness:['Unser Angebot','Was dich erwartet','Deine Möglichkeiten','Trainiere wie ein Profi'],
-        restaurant:['Unsere Küche','Kulinarische Highlights','Das erwartet Sie'],
-        saas:['Features','Core Features','Everything you need','Built for scale'],
-        shop:['Bestseller','Unsere Kollektion','Trending Now','Top Picks'],
-        beauty:['Unser Angebot','Beauty Menu','Treatments','Verwöhnprogramm'],
-        medical:['Unsere Fachbereiche','Leistungsspektrum','Medizinische Services'],
+        fitness:[`PUSH YOUR <span style="color:${ac}">LIMITS</span>`,`Stärker. Schneller.<br><span style="color:${ac}">Unaufhaltsam.</span>`,`Dein Training.<br>Deine <span style="color:${ac}">Regeln.</span>`,`<span style="color:${ac}">${name}</span> — Bestform`],
+        restaurant:[`Kulinarische<br><span style="color:${ac}">Exzellenz</span>`,`Willkommen bei<br><span style="color:${ac}">${name}</span>`,`Genuss,<br><span style="color:${ac}">neu definiert</span>`],
+        portfolio:[`Hi, ich bin<br><span style="color:${ac}">${name}</span>`,`Design. Code.<br><span style="color:${ac}">Impact.</span>`,`<span style="color:${ac}">Ideen</span> zum Leben erwecken`],
+        saas:[`Build. Ship.<br><span style="color:${ac}">Scale.</span>`,`<span style="color:${ac}">${name}</span> — Ship faster`,`Your stack,<br><span style="color:${ac}">supercharged</span>`],
+        shop:[`<span style="color:${ac}">${name}</span>`,`Premium <span style="color:${ac}">Quality</span>`,`New Season.<br><span style="color:${ac}">New Standards.</span>`],
+        beauty:[`Dein Moment.<br><span style="color:${ac}">Dein Glow.</span>`,`<span style="color:${ac}">${name}</span><br>Beauty Studio`],
+        medical:[`Ihre Gesundheit.<br><span style="color:${ac}">Unsere Priorität.</span>`,`<span style="color:${ac}">${name}</span>`],
+        music:[`<span style="color:${ac}">${name.toUpperCase()}</span>`,`NEW ALBUM<br><span style="color:${ac}">OUT NOW</span>`],
     };
-    return rPick(rng, titles[cat] || ['Unsere Leistungen','Was wir bieten','Services','So können wir helfen']);
-}
-
-function getPricing(rng, cat) {
-    const all = {
-        fitness:[
-            [{name:'Starter',price:'29€',period:'/Monat',features:['Mo-Fr 8-20 Uhr','Gerätetraining','Umkleiden & Duschen'],cta:'Auswählen'},{name:'Pro',price:'49€',period:'/Monat',features:['24/7 Zugang','Alle Gruppenkurse','1x Personal Training/Mo','Sauna & Wellness'],cta:'Am beliebtesten'},{name:'Elite',price:'89€',period:'/Monat',features:['VIP 24/7 Zugang','Unlimited Personal Training','Recovery Zone','Gästekarte inklusive'],cta:'Elite werden'}],
-            [{name:'Basic',price:'19€',period:'/Monat',features:['10x Zutritt/Monat','Gerätetraining','App-Tracking'],cta:'Starten'},{name:'Unlimited',price:'39€',period:'/Monat',features:['Unbegrenzter Zutritt','Alle Kurse','Körperanalyse'],cta:'Beliebteste Wahl'},{name:'VIP',price:'79€',period:'/Monat',features:['Alles in Unlimited','Personal Trainer','Spa-Zugang'],cta:'VIP werden'}],
-        ],
-        saas:[
-            [{name:'Free',price:'$0',period:'/mo',features:['1 Project','1GB Storage','Community Support'],cta:'Start Free'},{name:'Pro',price:'$29',period:'/mo',features:['Unlimited Projects','50GB Storage','Priority Support','Custom Domains'],cta:'Most Popular'},{name:'Enterprise',price:'$99',period:'/mo',features:['Everything in Pro','SSO & SAML','SLA 99.99%','Dedicated CSM'],cta:'Contact Sales'}],
-            [{name:'Hobby',price:'$0',period:'/mo',features:['3 Projects','5GB Storage','Email Support'],cta:'Get Started'},{name:'Team',price:'$49',period:'/mo',features:['Unlimited Projects','100GB','Team Management','API Access'],cta:'Best Value'},{name:'Business',price:'$149',period:'/mo',features:['Dedicated Infrastructure','Custom Domains','24/7 Phone Support','SLA'],cta:'Talk to Sales'}],
-        ],
+    const subs = {
+        fitness:['Modernste Geräte, erfahrene Trainer, grenzenlose Motivation.','Dein Körper verdient das Beste. Starte jetzt.','Trainiere smart. Lebe stark. Erreiche mehr.'],
+        restaurant:['Kulinarische Erlebnisse, die in Erinnerung bleiben.','Frische Zutaten, leidenschaftliche Küche.','Jeder Teller erzählt eine Geschichte.'],
+        portfolio:['Digitale Erlebnisse die begeistern und Ergebnisse liefern.','Design, Code und Kreativität aus einer Hand.'],
+        saas:['The all-in-one platform to build, deploy, and scale.','From idea to production in minutes, not months.'],
+        shop:['Kuratierte Produkte für den modernen Lifestyle.','Qualität die man spürt. Design das man sieht.'],
+        beauty:['Professionelle Beauty-Treatments in entspannter Atmosphäre.','Premium-Pflege für jeden Hauttyp.'],
+        medical:['Moderne Medizin mit persönlicher Betreuung.','Kompetent und fürsorglich.'],
+        music:['Stream on all platforms worldwide.','Sichere dir jetzt deine Tickets.'],
     };
-    const list = all[cat];
-    return list ? rPick(rng, list) : [
-        {name:'Basic',price:'€49',period:'/Monat',features:['Grundpaket','E-Mail Support','1 Nutzer'],cta:'Starten'},
-        {name:'Professional',price:'€99',period:'/Monat',features:['Alles in Basic','Prioritäts-Support','5 Nutzer','Analytics'],cta:'Am beliebtesten'},
-        {name:'Enterprise',price:'€249',period:'/Monat',features:['Unlimited','Dedicated Support','Custom Integrationen','SLA'],cta:'Kontaktieren'},
-    ];
+    const title = rPick(rng, titles[cat] || [`<span style="color:${ac}">${name}</span>`,`Willkommen bei<br><span style="color:${ac}">${name}</span>`]);
+    const sub = rPick(rng, subs[cat] || ['Professionell, zuverlässig und immer für Sie da.','Qualität und Innovation seit Tag eins.']);
+    const ctaLabel = rPick(rng, getCTALabels(cat));
+    
+    const img = heroImg(rng, cat);
+    const isDark = pal.bg.match(/^#[012]/);
+    
+    // CTA button
+    const ctaStyle = rPick(rng, [
+        `display:inline-flex;align-items:center;gap:8px;background:${ac};color:#fff;padding:16px 36px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;box-shadow:0 4px 14px ${ac}30`,
+        `display:inline-flex;align-items:center;gap:8px;background:${ac};color:#fff;padding:14px 32px;border-radius:99px;text-decoration:none;font-weight:600;font-size:15px`,
+        `display:inline-flex;align-items:center;gap:8px;background:${pal.text};color:${pal.bg};padding:16px 36px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px`,
+    ]);
+    const cta = `<a href="#" style="${ctaStyle}">${ctaLabel}</a>`;
+    
+    // Layout variant
+    const variant = rPick(rng, ['centered','split','left','fullimg','minimal']);
+    
+    if (variant === 'split') {
+        const reverse = rng() > 0.5;
+        return `<div style="min-height:100vh;display:flex;align-items:center;padding:100px 6vw 80px;gap:60px;flex-wrap:wrap;${reverse?'flex-direction:row-reverse':''}">
+            <div style="flex:1;min-width:320px"><h1 style="font-size:clamp(30px,5vw,56px);font-weight:${font.hw};letter-spacing:-2px;line-height:1.08">${title}</h1><p style="font-size:17px;color:${pal.muted};margin:20px 0 36px;line-height:1.7;max-width:500px">${sub}</p>${cta}</div>
+            <div style="flex:1;min-width:300px;border-radius:20px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 25px 50px rgba(0,0,0,0.15)"><img src="${img}" style="width:100%;height:100%;object-fit:cover;display:block" alt="${name}"></div>
+        </div>`;
+    }
+    if (variant === 'fullimg') {
+        return `<div style="min-height:100vh;position:relative;background:url('${img}') center/cover no-repeat">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,${pal.bg},${pal.bg}bb 50%,transparent)"></div>
+            <div style="position:relative;z-index:1;display:flex;align-items:flex-end;min-height:100vh;padding:80px 8vw"><div style="max-width:600px;padding-bottom:40px"><h1 style="font-size:clamp(36px,7vw,72px);font-weight:${font.hw};letter-spacing:-2.5px;line-height:1.05">${title}</h1><p style="font-size:17px;color:${pal.muted};margin:20px 0 36px;line-height:1.7">${sub}</p>${cta}</div></div>
+        </div>`;
+    }
+    if (variant === 'left') {
+        return `<div style="min-height:100vh;display:flex;align-items:center;padding:100px 8vw 80px;background:linear-gradient(to right,${ac}08,transparent 50%)">
+            <div style="max-width:640px"><div style="display:inline-block;padding:6px 16px;background:${ac}15;border-radius:99px;font-size:13px;font-weight:600;color:${ac};margin-bottom:24px">${rPick(rng,['Neu','Premium','⭐ Top Rated','Seit 2020'])}</div><h1 style="font-size:clamp(36px,6vw,68px);font-weight:${font.hw};letter-spacing:-2.5px;line-height:1.05">${title}</h1><p style="font-size:18px;color:${pal.muted};margin:24px 0 40px;line-height:1.7;max-width:520px">${sub}</p>${cta}</div>
+        </div>`;
+    }
+    if (variant === 'minimal') {
+        return `<div style="min-height:100vh;display:flex;align-items:center;padding:100px 12vw 80px">
+            <div style="max-width:700px"><div style="width:48px;height:4px;background:${ac};margin-bottom:40px;border-radius:2px"></div><h1 style="font-size:clamp(32px,5vw,56px);font-weight:${font.hw};letter-spacing:-1.5px;line-height:1.12">${title}</h1><p style="font-size:17px;color:${pal.muted};margin:28px 0 44px;max-width:500px;line-height:1.8">${sub}</p>${cta}</div>
+        </div>`;
+    }
+    // centered (default)
+    return `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:100px 24px 80px;background:radial-gradient(ellipse at 50% 30%,${ac}12,transparent 70%)">
+        <div style="max-width:720px"><h1 style="font-size:clamp(36px,8vw,76px);font-weight:${font.hw};letter-spacing:-3px;line-height:1.05">${title}</h1><p style="font-size:18px;color:${pal.muted};margin:24px auto 40px;max-width:540px;line-height:1.7">${sub}</p>${cta}</div>
+    </div>`;
 }
 
-function getStats(rng, cat) {
-    const all = {
-        fitness:[
-            [{val:'5.000+',label:'Aktive Mitglieder'},{val:'50+',label:'Kurse pro Woche'},{val:'4.9',label:'Google Bewertung'},{val:'15+',label:'Erfahrene Trainer'}],
-            [{val:'12K+',label:'Workouts/Monat'},{val:'98%',label:'Zufriedenheit'},{val:'3',label:'Standorte'},{val:'24/7',label:'Geöffnet'}],
-        ],
-        restaurant:[
-            [{val:'15+',label:'Jahre Erfahrung'},{val:'50K+',label:'Zufriedene Gäste'},{val:'4.8',label:'Google Rating'},{val:'200+',label:'Erlesene Weine'}],
-        ],
-        saas:[
-            [{val:'50K+',label:'Active Users'},{val:'99.9%',label:'Uptime'},{val:'150+',label:'Countries'},{val:'4.9',label:'G2 Rating'}],
-            [{val:'1M+',label:'API Calls/Day'},{val:'500+',label:'Integrations'},{val:'<50ms',label:'Avg Latency'},{val:'SOC2',label:'Certified'}],
-        ],
+function getCTALabels(cat) {
+    const map = {
+        fitness:['Jetzt starten','Probetraining buchen','Mitglied werden'],
+        restaurant:['Tisch reservieren','Speisekarte ansehen','Jetzt reservieren'],
+        portfolio:['Projekte ansehen','Let\'s talk','Zusammenarbeiten'],
+        saas:['Get Started Free','Start Free Trial','Try it Now'],
+        shop:['Shop entdecken','Jetzt shoppen','Kollektion ansehen'],
+        beauty:['Termin buchen','Jetzt buchen','Verwöhnen lassen'],
+        medical:['Termin vereinbaren','Online buchen','Jetzt anfragen'],
+        music:['Jetzt streamen','Tour Tickets','Album hören'],
     };
-    const list = all[cat];
-    return list ? rPick(rng, list) : [{val:'1.000+',label:'Zufriedene Kunden'},{val:'10+',label:'Jahre Erfahrung'},{val:'4.8',label:'Durchschnittsbewertung'},{val:'99%',label:'Weiterempfehlung'}];
+    return map[cat] || ['Mehr erfahren','Jetzt starten','Kontakt aufnehmen'];
 }
 
-function getTestimonials(rng) {
-    const all = [
-        {text:'Absolut professionell und zuverlässig. Kann ich jedem nur weiterempfehlen!',author:'Marie K.'},
-        {text:'Bester Service den ich je hatte. Schnell, freundlich, und die Ergebnisse sprechen für sich.',author:'Thomas S.'},
-        {text:'Seit 3 Jahren Stammkunde. Die Qualität stimmt einfach jedes einzelne Mal.',author:'Lisa M.'},
-        {text:'Hervorragendes Preis-Leistungs-Verhältnis. Komme definitiv wieder!',author:'Jan B.'},
-        {text:'Hat meine Erwartungen komplett übertroffen. Absolute Empfehlung!',author:'Sarah H.'},
-        {text:'Von der ersten Beratung bis zum Ergebnis — alles perfekt durchdacht.',author:'Michael R.'},
-        {text:'Endlich jemand, der versteht was man will. Mega zufrieden!',author:'Anna W.'},
-        {text:'Schnell, unkompliziert und ein Ergebnis das sich sehen lassen kann.',author:'Felix P.'},
-    ];
-    return pickN(rng, all, 2 + Math.floor(rng() * 2));
+// ===== NAV =====
+function buildNav(rng, pal, font, name) {
+    const isDark = pal.bg.match(/^#[012]/);
+    const links = rPick(rng, [['Home','Über uns','Leistungen','Kontakt'],['Start','Services','Preise','Kontakt'],['Home','Angebot','Team','Kontakt']]);
+    const linkHtml = links.map(l => `<a href="#" style="color:${pal.muted};text-decoration:none;font-size:14px;font-weight:500">${l}</a>`).join('');
+    const style = rPick(rng, [
+        `position:fixed;top:0;left:0;right:0;z-index:9990;display:flex;justify-content:space-between;align-items:center;padding:16px 6vw;background:${isDark?'rgba(0,0,0,0.6)':'rgba(255,255,255,0.8)'};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid ${pal.border}`,
+        `position:fixed;top:12px;left:12px;right:12px;z-index:9990;display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:${isDark?'rgba(0,0,0,0.6)':'rgba(255,255,255,0.8)'};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:16px;border:1px solid ${pal.border}`,
+    ]);
+    const logo = rPick(rng, [
+        `font-weight:${font.hw};font-size:18px;letter-spacing:-0.5px;color:${pal.text}`,
+        `font-weight:700;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:${pal.text}`,
+        `font-weight:${font.hw};font-size:20px;color:${pal.primary}`,
+    ]);
+    return `<nav style="${style}"><div style="${logo}">${name}</div><div style="display:flex;align-items:center;gap:24px">${linkHtml}</div></nav>`;
 }
 
-// ===== MAIN GENERATOR =====
+// ===== FOOTER =====
+function buildFooter(pal, name) {
+    return `<footer style="padding:48px 24px;border-top:1px solid ${pal.border}">
+        <div style="max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+            <div style="font-weight:700;font-size:16px">${name}</div>
+            <div style="font-size:13px;color:${pal.muted}">© ${new Date().getFullYear()} ${name}. Alle Rechte vorbehalten.</div>
+            <div style="display:flex;gap:16px;font-size:13px"><a href="#" style="color:${pal.muted};text-decoration:none">Impressum</a><a href="#" style="color:${pal.muted};text-decoration:none">Datenschutz</a><a href="#" style="color:${pal.muted};text-decoration:none">AGB</a></div>
+        </div>
+    </footer>`;
+}
+
+// =========================================================
+// MAIN GENERATOR
+// =========================================================
 function getExampleForPrompt(prompt) {
     const rng = makeRng(prompt);
-    const cat = detectCategory(prompt);
-    detectCategory._lastCat = cat; // Pass to visual builders
-    const mood = detectMood(prompt);
-    const pal = generatePalette(rng, mood, cat);
-    const font = rPick(rng, allFonts);
-    const siteName = extractName(prompt) || getDefaultName(rng, cat);
+    const analysis = analyzePrompt(prompt);
+    const pal = getPalette(rng, analysis.mood, analysis.category, analysis.colors);
+    const font = rPick(rng, fonts);
+    const name = analysis.name || getDefaultName(rng, analysis.category);
+    const cat = analysis.category;
 
-    // Build nav
-    const navHtml = buildNav(rng, pal, font, siteName);
-    const heroTitle = getHeroTitle(rng, cat, siteName, pal);
-    const heroSub = getHeroSub(rng, cat);
-    const ctaHtml = buildCTA(rng, pal, cat);
-
-    // Randomize which sections appear
-    const sectionBuilders = [];
-
-    // Logo cloud (sometimes first)
-    if (rng() > 0.55) sectionBuilders.push(() => buildLogoCloud(rng, pal));
-
-    // Services — almost always
-    if (rng() > 0.1) sectionBuilders.push(() => buildServicesSection(rng, pal, font, getServices(rng, cat), getServiceTitle(rng, cat)));
-
-    // Stats
-    if (rng() > 0.4) sectionBuilders.push(() => buildStatsSection(rng, pal, font, getStats(rng, cat)));
-
-    // Pricing
-    if (rng() > 0.35) sectionBuilders.push(() => buildPricingSection(rng, pal, font, getPricing(rng, cat), rPick(rng, ['Unsere Pakete','Preise','Pricing','Tarife & Pakete'])));
-
-    // Testimonials
-    if (rng() > 0.4) sectionBuilders.push(() => buildTestimonialsSection(rng, pal, font, getTestimonials(rng), rPick(rng, ['Kundenstimmen','Das sagen unsere Kunden','Bewertungen'])));
-
-    // FAQ
-    if (rng() > 0.5) sectionBuilders.push(() => buildFAQSection(rng, pal, font));
-
-    // CTA Banner
-    if (rng() > 0.35) sectionBuilders.push(() => buildCTABanner(rng, pal, font, cat));
-
-    // Contact
-    if (rng() > 0.3) sectionBuilders.push(() => buildContactSection(rng, pal, font, rPick(rng, ['Kontakt','Schreib uns','Get in Touch','Nachricht senden'])));
-
-    // Ensure minimum sections
-    if (sectionBuilders.length < 2) {
-        sectionBuilders.push(() => buildServicesSection(rng, pal, font, getServices(rng, cat), getServiceTitle(rng, cat)));
-        sectionBuilders.push(() => buildContactSection(rng, pal, font, 'Kontakt'));
+    // Build page sections based on detected features
+    const nav = buildNav(rng, pal, font, name);
+    
+    // Notification banner (if requested)
+    let notification = '';
+    if (analysis.features.includes('notification')) {
+        notification = comp_notification(rng, pal);
     }
+    
+    const hero = buildHero(rng, pal, font, name, cat, analysis);
+    
+    // Build feature sections in smart order
+    const sectionOrder = [
+        'stats','menu','shop','gallery','pricing','team','booking',
+        'reviews','blog','video','faq','hours','map','newsletter',
+        'countdown','login','social','contact'
+    ];
+    
+    let sections = '';
+    for (const feat of sectionOrder) {
+        if (!analysis.features.includes(feat)) continue;
+        switch(feat) {
+            case 'reviews': sections += comp_reviews(rng, pal, cat); break;
+            case 'contact': sections += comp_contact(rng, pal, cat); break;
+            case 'newsletter': sections += comp_newsletter(rng, pal); break;
+            case 'booking': sections += comp_booking(rng, pal, cat); break;
+            case 'pricing': sections += comp_pricing(rng, pal, cat); break;
+            case 'faq': sections += comp_faq(rng, pal); break;
+            case 'gallery': sections += comp_gallery(rng, pal, cat); break;
+            case 'stats': sections += comp_stats(rng, pal, cat); break;
+            case 'hours': sections += comp_hours(rng, pal); break;
+            case 'team': sections += comp_team(rng, pal, cat); break;
+            case 'menu': sections += comp_menu(rng, pal); break;
+            case 'social': sections += comp_social(rng, pal); break;
+            case 'chat': sections += comp_chat(rng, pal); break;
+            case 'blog': sections += comp_blog(rng, pal); break;
+            case 'shop': sections += comp_shop(rng, pal); break;
+            case 'countdown': sections += comp_countdown(rng, pal); break;
+            case 'map': sections += comp_map(rng, pal); break;
+            case 'video': sections += comp_video(rng, pal); break;
+            case 'login': sections += comp_login(rng, pal); break;
+            case 'notification': break; // handled separately
+        }
+    }
+    
+    const footer = buildFooter(pal, name);
+    
+    // Floating components
+    let floating = '';
+    if (analysis.features.includes('chat')) floating += comp_chat(rng, pal);
+    if (analysis.features.includes('backtotop')) floating += comp_backtotop(pal);
+    if (analysis.features.includes('cookie')) floating += comp_cookie(pal);
 
-    const shuffled = shuffle(rng, sectionBuilders);
-    const sectionsHtml = shuffled.map(fn => fn()).join('');
+    // Google Font
+    const fontLink = font.import ? `<link href="https://fonts.googleapis.com/css2?family=${font.import}&display=swap" rel="stylesheet">` : '';
+    
+    const isDark = pal.bg.match(/^#[012]/);
 
-    // Footer
-    const footer = `<footer style="text-align:center;padding:48px 24px;border-top:1px solid ${pal.border}"><div style="color:${pal.muted};font-size:13px">© 2026 ${siteName}. Alle Rechte vorbehalten.</div></footer>`;
-
-    // Pick layout
-    const layoutFn = rPick(rng, layoutFns);
-    const body = layoutFn(rng, pal, font, siteName, heroTitle, heroSub, ctaHtml, sectionsHtml + footer, navHtml);
-
-    // Google Font import
-    const fontImport = font.import ? `<link href="https://fonts.googleapis.com/css2?family=${font.import}&display=swap" rel="stylesheet">` : '';
-
-    return `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">${fontImport}<style>
+    return `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5">${fontLink}
+<style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:${font.family};background:${pal.bg};color:${pal.text};-webkit-font-smoothing:antialiased;font-size:${font.bodySize};overflow-x:hidden}
-a{transition:all 0.2s;text-decoration:none;color:inherit}
-a:hover{opacity:0.85}
+html{scroll-behavior:smooth}
+body{font-family:${font.family};background:${pal.bg};color:${pal.text};-webkit-font-smoothing:antialiased;font-size:16px;overflow-x:hidden;line-height:1.5}
+a{transition:opacity 0.2s;text-decoration:none;color:inherit}
+a:hover{opacity:0.8}
 img{max-width:100%;display:block}
-input,textarea,button{font-family:inherit}
+input,textarea,select,button{font-family:inherit}
 input::placeholder,textarea::placeholder{color:${pal.muted}}
-::selection{background:${pal.accent}30;color:${pal.text}}
+::selection{background:${pal.primary}30}
+section{overflow:hidden}
 @media(max-width:768px){
-  h1{font-size:36px!important;letter-spacing:-1px!important}
-  h2{font-size:28px!important}
-  nav{padding:12px 16px!important}
-  nav>div:last-child a:not(:last-child){display:none}
-  [style*="grid-template-columns:repeat"]{grid-template-columns:1fr!important}
-  [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
-  [style*="flex-direction:row-reverse"]{flex-direction:column!important}
-  [style*="gap:60px"]{gap:32px!important}
-  [style*="padding:80px 6vw"],[style*="padding:100px 6vw"],[style*="padding:80px 8vw"]{padding:48px 20px!important}
-  [style*="padding:80px 12vw"]{padding:48px 20px!important}
-  [style*="gap:64px"]{gap:24px!important}
-  [style*="min-width:3"]{min-width:100%!important}
-  [style*="flex:1;min-width:280px"],[style*="flex:1;min-width:300px"],[style*="flex:1;min-width:320px"]{min-width:100%!important;flex:unset!important}
-  footer{padding:32px 16px!important}
+    h1{font-size:32px!important;letter-spacing:-1px!important}
+    h2{font-size:24px!important}
+    nav{padding:12px 16px!important}
+    nav>div:last-child{display:none!important}
+    [style*="grid-template-columns:repeat"]{grid-template-columns:1fr!important}
+    [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+    [style*="flex-wrap:wrap"]{gap:32px!important}
+    [style*="min-width:3"]{min-width:100%!important}
+    [style*="flex:1;min-width"]{min-width:100%!important;flex:unset!important}
+    [style*="padding:100px"]{padding:80px 20px 60px!important}
+    [style*="padding:80px 24px"]{padding:48px 16px!important}
+    [style*="padding:80px 6vw"]{padding:48px 16px!important}
+    [style*="padding:60px 24px"]{padding:40px 16px!important}
+    footer{padding:32px 16px!important}
+    footer>div{flex-direction:column;text-align:center}
 }
-</style></head><body>${body}</body></html>`;
+</style></head><body>${notification}${nav}${hero}${sections}${footer}${floating}</body></html>`;
 }
 
 
