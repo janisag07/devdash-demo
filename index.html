@@ -1768,7 +1768,7 @@ function getExampleForPrompt(prompt) {
     
     const isDark = pal.bg.match(/^#[012]/);
 
-    return `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5">${fontLink}
+    return `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5"><title>${name}</title>${fontLink}
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -1839,7 +1839,7 @@ function startGen(){
     let i=0;const iv=setInterval(()=>{
         if(i<steps.length){const s=steps[i];fill.style.width=s.p+'%';pct.textContent=s.p+'%';st.textContent=s.t;
         for(let j=1;j<=5;j++){const e=document.getElementById('s'+j);if(j<s.s){e.className='gs done';e.querySelector('.ck').textContent='✓'}else if(j===s.s){e.className='gs on';e.querySelector('.ck').textContent='◉'}else{e.className='gs';e.querySelector('.ck').textContent='○'}}i++}
-        else{clearInterval(iv);gc++;localStorage.setItem('dd_g',gc);uBadge();setTimeout(()=>{try{html=getExampleForPrompt(p)}catch(e){console.error('Generation error:',e);html='<!DOCTYPE html><html><body style="font-family:sans-serif;padding:40px;text-align:center"><h1>Generiert!</h1><p>'+p+'</p></body></html>'}revs=0;uRev();showPage('result')},600)}
+        else{clearInterval(iv);gc++;localStorage.setItem('dd_g',gc);uBadge();setTimeout(()=>{try{html=getExampleForPrompt(p)}catch(e){console.error('Generation error:',e);html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:system-ui,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:40px"><div><h1 style="font-size:28px;margin-bottom:16px">⚠️ Generierung fehlgeschlagen</h1><p style="color:#aaa;font-size:16px">Bitte versuche es erneut oder ändere deinen Prompt.</p></div></body></html>'}revs=0;uRev();showPage('result')},600)}
     },800);
 }
 
