@@ -3,1029 +3,739 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevDash — Professionelle IT-Services in Minuten</title>
+    <title>DevDash — The Future of Development</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         :root {
-            --bg: #050505;
-            --card: #0a0a0a;
-            --card-hover: #0f0f0f;
-            --border: #1a1a1a;
-            --text: #f5f5f5;
-            --muted: #666;
-            --accent-1: #6366f1;
-            --accent-2: #8b5cf6;
-            --accent-3: #ec4899;
-            --glow: rgba(99, 102, 241, 0.15);
+            --cyan: #00f0ff;
+            --magenta: #ff00aa;
+            --purple: #7b2ff7;
+            --blue: #0066ff;
+            --neon-green: #39ff14;
+            --bg: #000;
+            --card: rgba(255,255,255,0.02);
+            --border: rgba(255,255,255,0.06);
+            --text: #eee;
+            --muted: #555;
         }
 
+        html { scroll-behavior: smooth; }
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            background: #000; color: var(--text);
             overflow-x: hidden;
-            cursor: default;
         }
 
-        /* GRAIN OVERLAY */
-        body::before {
-            content: '';
-            position: fixed; inset: 0; z-index: 9999;
-            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-            pointer-events: none;
+        /* ===== GRID BACKGROUND ===== */
+        .grid-bg {
+            position: fixed; inset: 0; z-index: -2;
+            background-image:
+                linear-gradient(rgba(0,240,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,240,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            perspective: 800px;
+        }
+        .grid-bg::after {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, transparent 40%, #000 80%);
         }
 
-        /* ANIMATED GRADIENT MESH */
-        .gradient-mesh {
-            position: fixed; inset: 0; z-index: -1; overflow: hidden;
+        /* ===== AURORA / NEON GLOW ===== */
+        .aurora {
+            position: fixed; inset: 0; z-index: -1; overflow: hidden; opacity: 0.5;
         }
-        .gradient-mesh .orb {
-            position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.3;
-            animation: float 20s infinite;
+        .aurora .blob {
+            position: absolute; border-radius: 50%;
+            filter: blur(120px); mix-blend-mode: screen;
+            animation: auroraMove 25s infinite alternate;
         }
-        .orb-1 { width: 600px; height: 600px; background: var(--accent-1); top: -200px; right: -100px; animation-delay: 0s; }
-        .orb-2 { width: 500px; height: 500px; background: var(--accent-3); bottom: -200px; left: -100px; animation-delay: -7s; }
-        .orb-3 { width: 400px; height: 400px; background: var(--accent-2); top: 40%; left: 30%; animation-delay: -14s; }
+        .blob-1 { width: 800px; height: 400px; background: var(--cyan); top: -15%; left: -10%; animation-delay: 0s; }
+        .blob-2 { width: 600px; height: 600px; background: var(--magenta); top: 30%; right: -15%; animation-delay: -8s; }
+        .blob-3 { width: 500px; height: 300px; background: var(--purple); bottom: -10%; left: 20%; animation-delay: -16s; }
+        @keyframes auroraMove {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            33% { transform: translate(80px, -60px) rotate(5deg) scale(1.1); }
+            66% { transform: translate(-40px, 40px) rotate(-3deg) scale(0.95); }
+            100% { transform: translate(60px, 20px) rotate(2deg) scale(1.05); }
+        }
 
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(50px, -80px) scale(1.1); }
-            50% { transform: translate(-30px, 60px) scale(0.9); }
-            75% { transform: translate(80px, 30px) scale(1.05); }
+        /* ===== SCANLINES ===== */
+        body::after {
+            content: ''; position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
         }
 
-        /* NAV */
+        /* ===== NAV ===== */
         nav {
             position: fixed; top: 0; width: 100%; z-index: 1000;
-            padding: 16px 40px;
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(5,5,5,0.6);
-            backdrop-filter: blur(24px) saturate(180%);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 16px 40px; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(30px) saturate(150%);
+            border-bottom: 1px solid rgba(0,240,255,0.08);
         }
-        .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-        .logo span { 
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+        .logo {
+            font-size: 24px; font-weight: 800; letter-spacing: -1px;
+            background: linear-gradient(90deg, var(--cyan), var(--magenta));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(0,240,255,0.3);
         }
-        .nav-links { display: flex; gap: 32px; align-items: center; }
-        .nav-links a { color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--text); }
-        .nav-cta {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            color: white; padding: 10px 24px; border-radius: 10px;
-            text-decoration: none; font-weight: 600; font-size: 13px;
-            transition: opacity 0.3s, transform 0.2s;
+        .nav-r { display: flex; gap: 28px; align-items: center; }
+        .nav-r a { color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.3s; letter-spacing: 0.5px; }
+        .nav-r a:hover { color: var(--cyan); }
+        .nav-btn {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: #000; padding: 10px 24px; border-radius: 8px;
+            text-decoration: none; font-weight: 700; font-size: 13px;
+            transition: all 0.3s; box-shadow: 0 0 20px rgba(0,240,255,0.2);
         }
-        .nav-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+        .nav-btn:hover { box-shadow: 0 0 40px rgba(0,240,255,0.4); transform: translateY(-1px); }
 
-        /* HERO */
+        /* ===== HERO ===== */
         .hero {
             min-height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
-            padding: 140px 24px 100px; position: relative;
+            padding: 160px 24px 100px; position: relative;
         }
-        .hero-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 500;
-            background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.15);
-            color: var(--accent-1); margin-bottom: 32px;
-            animation: fadeInUp 1s ease;
+        .hero-status {
+            display: inline-flex; align-items: center; gap: 10px;
+            font-family: 'JetBrains Mono', monospace; font-size: 12px;
+            color: var(--neon-green); letter-spacing: 2px; text-transform: uppercase;
+            padding: 8px 24px; border: 1px solid rgba(57,255,20,0.2);
+            border-radius: 4px; margin-bottom: 40px;
+            background: rgba(57,255,20,0.03);
+            animation: fadeInUp 0.8s ease;
         }
-        .hero-badge .pulse-dot {
-            width: 6px; height: 6px; border-radius: 50%; background: #22c55e;
-            animation: pulse 2s infinite;
-        }
+        .hero-status .blink { animation: blink 1s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
         .hero h1 {
-            font-size: clamp(44px, 8vw, 88px); font-weight: 900;
-            line-height: 1.05; letter-spacing: -3px;
-            max-width: 900px; margin-bottom: 24px;
-            animation: fadeInUp 1s ease 0.1s both;
+            font-size: clamp(48px, 9vw, 100px); font-weight: 900;
+            line-height: 1; letter-spacing: -4px;
+            margin-bottom: 28px;
+            animation: fadeInUp 0.8s ease 0.1s both;
         }
-        .hero h1 .gradient-text {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+        .hero h1 .glow {
+            background: linear-gradient(90deg, var(--cyan), var(--magenta), var(--cyan));
+            background-size: 200% 100%;
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-size: 200% 200%;
-            animation: gradientShift 5s ease infinite;
+            animation: shimmer 4s linear infinite;
+            filter: drop-shadow(0 0 30px rgba(0,240,255,0.3));
         }
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
         .hero p {
-            font-size: 18px; color: var(--muted); max-width: 520px;
-            line-height: 1.7; margin-bottom: 48px;
-            animation: fadeInUp 1s ease 0.2s both;
+            font-size: 18px; color: #666; max-width: 540px; line-height: 1.7;
+            margin-bottom: 48px; animation: fadeInUp 0.8s ease 0.2s both;
         }
-        .hero-buttons {
+        .hero-btns {
             display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
-            animation: fadeInUp 1s ease 0.3s both;
+            animation: fadeInUp 0.8s ease 0.3s both;
         }
-        .btn-primary {
+        .btn-glow {
             display: inline-flex; align-items: center; gap: 8px;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            color: white; padding: 16px 36px; border-radius: 14px;
-            text-decoration: none; font-weight: 700; font-size: 16px;
-            transition: all 0.3s; position: relative; overflow: hidden;
-            box-shadow: 0 4px 32px rgba(99,102,241,0.25);
+            padding: 16px 40px; border-radius: 8px; font-weight: 700; font-size: 16px;
+            text-decoration: none; transition: all 0.3s; position: relative;
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: #000; overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,240,255,0.25), inset 0 0 30px rgba(255,255,255,0.1);
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 48px rgba(99,102,241,0.35); }
-        .btn-primary::after {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
-            opacity: 0; transition: opacity 0.3s;
+        .btn-glow:hover { box-shadow: 0 0 60px rgba(0,240,255,0.4); transform: translateY(-2px) scale(1.02); }
+        .btn-glow::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg); animation: shine 3s infinite;
         }
-        .btn-primary:hover::after { opacity: 1; }
-        .btn-secondary {
+        @keyframes shine { 0%{transform:translateX(-100%) rotate(45deg)} 100%{transform:translateX(100%) rotate(45deg)} }
+
+        .btn-ghost {
             display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(255,255,255,0.03); color: var(--text);
-            padding: 16px 36px; border-radius: 14px; text-decoration: none;
-            font-weight: 600; font-size: 16px; border: 1px solid rgba(255,255,255,0.08);
+            padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px;
+            text-decoration: none; color: var(--cyan); border: 1px solid rgba(0,240,255,0.2);
             transition: all 0.3s;
         }
-        .btn-secondary:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); }
+        .btn-ghost:hover { background: rgba(0,240,255,0.05); border-color: rgba(0,240,255,0.4); }
 
-        /* MARQUEE */
-        .marquee-wrap {
-            overflow: hidden; padding: 32px 0;
+        /* ===== STATS BAR ===== */
+        .stats-bar {
+            display: flex; justify-content: center; gap: 64px; padding: 40px 24px;
             border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-            margin-top: 80px; width: 100vw; position: relative; left: 50%; transform: translateX(-50%);
+            margin-top: 80px; flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.4s both;
         }
-        .marquee {
-            display: flex; gap: 64px; animation: scroll 30s linear infinite; white-space: nowrap;
-        }
-        .marquee span {
-            font-size: 14px; font-weight: 600; color: var(--muted); letter-spacing: 2px;
-            text-transform: uppercase; display: flex; align-items: center; gap: 12px;
-        }
-        .marquee span::after { content: '✦'; color: var(--accent-1); font-size: 10px; }
-        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-        /* SECTIONS */
-        section { padding: 120px 24px; max-width: 1200px; margin: 0 auto; }
-        .section-header { text-align: center; margin-bottom: 64px; }
-        .section-label {
-            display: inline-block; font-size: 12px; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 3px;
-            color: var(--accent-1); margin-bottom: 16px;
-        }
-        section h2 { font-size: clamp(32px, 4vw, 48px); font-weight: 800; letter-spacing: -1px; }
-        section .subtitle { color: var(--muted); font-size: 17px; margin-top: 12px; max-width: 500px; margin-inline: auto; }
-
-        /* SERVICES */
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-        .service-card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 20px; padding: 36px; position: relative;
-            overflow: hidden; cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .service-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-1), transparent);
-            opacity: 0; transition: opacity 0.4s;
-        }
-        .service-card:hover { border-color: rgba(99,102,241,0.3); transform: translateY(-4px); }
-        .service-card:hover::before { opacity: 1; }
-        .service-icon {
-            width: 56px; height: 56px; border-radius: 14px; display: flex;
-            align-items: center; justify-content: center; font-size: 28px;
-            margin-bottom: 20px; background: rgba(99,102,241,0.08);
-        }
-        .service-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-        .service-card p { color: var(--muted); font-size: 14px; line-height: 1.6; }
-        .service-meta {
-            display: flex; gap: 16px; margin-top: 20px; padding-top: 16px;
-            border-top: 1px solid var(--border);
-        }
-        .service-meta span {
-            font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px;
-        }
-        .service-meta .time { color: #22c55e; font-weight: 600; }
-
-        /* HOW IT WORKS */
-        .steps-container { position: relative; max-width: 700px; margin: 0 auto; }
-        .step-line {
-            position: absolute; left: 28px; top: 56px; bottom: 56px; width: 1px;
-            background: linear-gradient(to bottom, var(--accent-1), var(--accent-3));
-            opacity: 0.2;
-        }
-        .step {
-            display: flex; gap: 32px; padding: 32px 0; position: relative;
-            opacity: 0; animation: fadeInUp 0.6s ease forwards;
-        }
-        .step:nth-child(2) { animation-delay: 0.1s; }
-        .step:nth-child(3) { animation-delay: 0.2s; }
-        .step:nth-child(4) { animation-delay: 0.3s; }
-        .step:nth-child(5) { animation-delay: 0.4s; }
-        .step-number {
-            flex-shrink: 0; width: 56px; height: 56px; border-radius: 16px;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: 800; position: relative; z-index: 1;
-        }
-        .step-content h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-        .step-content p { color: var(--muted); font-size: 14px; line-height: 1.6; }
-
-        /* DEMO / ORDER */
-        .order-section {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 24px; padding: 48px; position: relative; overflow: hidden;
-        }
-        .order-section::before {
-            content: ''; position: absolute; top: -200px; right: -200px;
-            width: 500px; height: 500px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(99,102,241,0.08), transparent 70%);
-        }
-        .order-tabs { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
-        .order-tab {
-            padding: 10px 22px; border-radius: 10px; border: 1px solid var(--border);
-            background: transparent; color: var(--muted); cursor: pointer;
-            font-size: 14px; font-weight: 500; font-family: inherit;
-            transition: all 0.3s; display: flex; align-items: center; gap: 6px;
-        }
-        .order-tab.active {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            color: white; border-color: transparent;
-        }
-        .order-tab:hover:not(.active) { border-color: #333; color: var(--text); }
-
-        .guide-box {
-            background: rgba(99,102,241,0.04); border: 1px solid rgba(99,102,241,0.1);
-            border-radius: 14px; padding: 24px; margin-bottom: 24px;
-        }
-        .guide-box h4 { font-size: 14px; font-weight: 600; color: var(--accent-1); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .guide-box ul { list-style: none; }
-        .guide-box li {
-            font-size: 13px; color: var(--muted); padding: 4px 0;
-            display: flex; align-items: baseline; gap: 8px;
-        }
-        .guide-box li::before { content: '→'; color: var(--accent-1); flex-shrink: 0; }
-
-        .prompt-input {
-            width: 100%; min-height: 140px; background: rgba(0,0,0,0.4);
-            border: 1px solid var(--border); border-radius: 14px;
-            padding: 20px; color: var(--text); font-family: 'Inter', sans-serif;
-            font-size: 14px; resize: vertical; outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        .prompt-input:focus {
-            border-color: var(--accent-1);
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
-        }
-        .prompt-input::placeholder { color: #333; }
-
-        .submit-row {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-top: 20px; flex-wrap: wrap; gap: 16px;
-        }
-        .submit-info { font-size: 13px; color: var(--muted); }
-        .submit-btn {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            color: white; border: none; padding: 14px 32px; border-radius: 12px;
-            font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
-            transition: all 0.3s; display: flex; align-items: center; gap: 8px;
-        }
-        .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(99,102,241,0.3); }
-        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-        /* PROGRESS */
-        .progress-bar {
-            display: none; margin-top: 24px; background: var(--border);
-            height: 4px; border-radius: 4px; overflow: hidden;
-        }
-        .progress-bar.active { display: block; }
-        .progress-fill {
-            height: 100%; width: 0; border-radius: 4px;
-            background: linear-gradient(90deg, var(--accent-1), var(--accent-3));
-            transition: width 0.3s;
-        }
-        .progress-text {
-            display: none; margin-top: 12px; font-size: 13px; color: var(--muted);
-            text-align: center;
-        }
-        .progress-text.active { display: block; animation: fadeIn 0.3s; }
-
-        /* RESULT */
-        .result-container { display: none; margin-top: 32px; animation: fadeInUp 0.5s ease; }
-        .result-container.visible { display: block; }
-        .result-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 16px;
-        }
-        .result-badge {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 14px; font-weight: 600; color: #22c55e;
-        }
-        .result-badge .dot {
-            width: 8px; height: 8px; border-radius: 50%; background: #22c55e;
-        }
-        .revision-info { font-size: 13px; color: var(--muted); }
-
-        /* SWIPEABLE PREVIEW */
-        .preview-wrapper { position: relative; overflow: hidden; border-radius: 16px; }
-        .preview-frame {
-            width: 100%; height: 500px; border: 1px solid var(--border);
-            border-radius: 16px; overflow: hidden; background: #fff;
-        }
-        .preview-frame iframe { width: 100%; height: 100%; border: none; }
-
-        /* ACTION CARDS - swipeable */
-        .actions-swiper {
-            display: flex; gap: 12px; margin-top: 20px;
-            overflow-x: auto; scroll-snap-type: x mandatory;
-            scrollbar-width: none; -ms-overflow-style: none;
-            padding-bottom: 8px; cursor: grab;
-        }
-        .actions-swiper::-webkit-scrollbar { display: none; }
-        .actions-swiper.grabbing { cursor: grabbing; }
-        .action-card {
-            flex: 0 0 auto; min-width: 200px; scroll-snap-align: start;
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 14px; padding: 20px; cursor: pointer;
-            transition: all 0.3s; text-align: center;
-            user-select: none;
-        }
-        .action-card:hover { border-color: rgba(99,102,241,0.4); transform: translateY(-2px); }
-        .action-card .action-icon { font-size: 28px; margin-bottom: 8px; }
-        .action-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-        .action-card p { font-size: 12px; color: var(--muted); }
-        .action-card.accept { border-color: rgba(34,197,94,0.3); }
-        .action-card.accept:hover { border-color: #22c55e; background: rgba(34,197,94,0.05); }
-
-        .swipe-hint {
-            text-align: center; margin-top: 12px; font-size: 12px; color: #333;
-            animation: bob 2s infinite;
-        }
-        @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
-
-        /* PRICING */
-        .pricing-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .price-card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 20px; padding: 36px; position: relative; overflow: hidden;
-        }
-        .price-card.featured {
-            border-color: rgba(99,102,241,0.3);
-            background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(139,92,246,0.03));
-        }
-        .price-card.featured::before {
-            content: 'BELIEBT'; position: absolute; top: 16px; right: -24px;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            color: white; padding: 4px 40px; font-size: 10px; font-weight: 700;
-            letter-spacing: 1px; transform: rotate(45deg);
-        }
-        .price-category { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-1); font-weight: 600; margin-bottom: 12px; }
-        .price-range { font-size: 36px; font-weight: 900; margin-bottom: 4px; }
-        .price-range span { font-size: 14px; font-weight: 400; color: var(--muted); }
-        .price-compare { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-        .price-compare s { color: #444; }
-        .price-list { list-style: none; margin: 20px 0; }
-        .price-list li { font-size: 14px; padding: 8px 0; color: #aaa; display: flex; align-items: center; gap: 8px; }
-        .price-list li::before { content: '✓'; color: #22c55e; font-weight: 700; }
-        .price-note {
-            margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);
-            font-size: 13px; color: var(--muted); text-align: center;
-        }
-
-        /* CTA SECTION */
-        .cta-section {
-            text-align: center; padding: 120px 24px;
-            background: radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.1), transparent 60%);
-        }
-        .cta-section h2 { font-size: clamp(36px, 5vw, 56px); font-weight: 900; letter-spacing: -2px; margin-bottom: 16px; }
-        .cta-section p { color: var(--muted); font-size: 17px; margin-bottom: 40px; }
-
-        /* FOOTER */
-        footer {
-            text-align: center; padding: 48px 24px; border-top: 1px solid var(--border);
-            color: #333; font-size: 13px;
-        }
-
-        /* PAYMENT MODAL */
-        .modal-overlay {
-            display: none; position: fixed; inset: 0; z-index: 10000;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(12px);
-            align-items: center; justify-content: center; padding: 24px;
-        }
-        .modal-overlay.visible { display: flex; animation: fadeIn 0.3s; }
-        .modal {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 24px; padding: 40px; max-width: 440px; width: 100%;
-            animation: scaleIn 0.3s ease;
-        }
-        .modal h3 { font-size: 22px; font-weight: 800; margin-bottom: 24px; text-align: center; }
-        .cost-breakdown { margin-bottom: 24px; }
-        .cost-row {
-            display: flex; justify-content: space-between; padding: 10px 0;
-            font-size: 14px; border-bottom: 1px solid var(--border);
-        }
-        .cost-row .label { color: var(--muted); }
-        .cost-total {
-            display: flex; justify-content: space-between; padding: 16px 0;
-            font-size: 28px; font-weight: 900; margin-top: 8px;
-        }
-        .cost-total .amount {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+        .stat { text-align: center; }
+        .stat-val {
+            font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 700;
+            background: linear-gradient(90deg, var(--cyan), var(--magenta));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .modal-btn {
-            width: 100%; padding: 16px; border: none; border-radius: 14px;
-            font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit;
-            transition: all 0.3s; margin-top: 8px;
-        }
-        .modal-btn.pay {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            color: white;
-        }
-        .modal-btn.pay:hover { opacity: 0.9; }
-        .modal-btn.cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-        .modal-close { position: absolute; top: 16px; right: 16px; }
+        .stat-lbl { font-size: 12px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
 
-        /* ANIMATIONS */
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* ===== SECTIONS ===== */
+        section { padding: 120px 24px; max-width: 1200px; margin: 0 auto; }
+        .sec-head { text-align: center; margin-bottom: 64px; }
+        .sec-tag {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            letter-spacing: 4px; text-transform: uppercase;
+            color: var(--cyan); margin-bottom: 16px; display: block;
         }
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+        section h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 800; letter-spacing: -2px; }
+        section h2 .accent { color: var(--cyan); }
+        .sec-sub { color: var(--muted); font-size: 16px; margin-top: 12px; max-width: 500px; margin-inline: auto; }
+
+        /* ===== SERVICE CARDS ===== */
+        .services { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+        .svc {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 36px; position: relative;
+            overflow: hidden; cursor: pointer; transition: all 0.4s;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.5); }
+        .svc::before {
+            content: ''; position: absolute; inset: -1px; border-radius: 16px; padding: 1px;
+            background: linear-gradient(135deg, var(--cyan), transparent 50%, var(--magenta));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            opacity: 0; transition: opacity 0.4s;
+        }
+        .svc:hover::before { opacity: 1; }
+        .svc:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,240,255,0.08); }
+        .svc-icon { font-size: 36px; margin-bottom: 20px; display: block; }
+        .svc h3 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+        .svc p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+        .svc-meta {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .svc-time { color: var(--neon-green); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+        .svc-price { color: var(--cyan); font-weight: 700; }
+
+        /* ===== STEPS ===== */
+        .steps { max-width: 700px; margin: 0 auto; }
+        .stp {
+            display: flex; gap: 28px; padding: 28px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .stp:last-child { border: none; }
+        .stp-num {
+            flex-shrink: 0; width: 52px; height: 52px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700;
+            background: rgba(0,240,255,0.05); border: 1px solid rgba(0,240,255,0.15);
+            color: var(--cyan);
+        }
+        .stp h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+        .stp p { color: var(--muted); font-size: 14px; }
+
+        /* ===== ORDER SECTION ===== */
+        .order-box {
+            background: rgba(255,255,255,0.01);
+            border: 1px solid var(--border);
+            border-radius: 20px; padding: 48px; position: relative; overflow: hidden;
+        }
+        .order-box::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), transparent);
+        }
+        .tabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+        .tab {
+            padding: 10px 24px; border-radius: 8px; border: 1px solid var(--border);
+            background: transparent; color: var(--muted); cursor: pointer;
+            font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500;
+            transition: all 0.3s; display: flex; align-items: center; gap: 6px;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: #000; border-color: transparent; font-weight: 700;
+            box-shadow: 0 0 20px rgba(0,240,255,0.15);
+        }
+        .tab:hover:not(.active) { border-color: rgba(0,240,255,0.3); color: var(--text); }
+
+        .guide {
+            background: rgba(0,240,255,0.02); border: 1px solid rgba(0,240,255,0.08);
+            border-radius: 12px; padding: 24px; margin-bottom: 24px;
+        }
+        .guide h4 {
+            font-family: 'JetBrains Mono', monospace; font-size: 12px;
+            color: var(--cyan); letter-spacing: 1px; margin-bottom: 12px;
+        }
+        .guide li {
+            font-size: 13px; color: var(--muted); padding: 3px 0; list-style: none;
+        }
+        .guide li::before { content: '› '; color: var(--cyan); }
+
+        .prompt {
+            width: 100%; min-height: 150px;
+            background: rgba(0,0,0,0.6); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px; color: var(--text);
+            font-family: 'JetBrains Mono', monospace; font-size: 13px;
+            resize: vertical; outline: none; transition: all 0.3s;
+        }
+        .prompt:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(0,240,255,0.08), 0 0 30px rgba(0,240,255,0.05);
+        }
+        .prompt::placeholder { color: #282828; }
+
+        .gen-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 16px; }
+        .gen-hint { font-size: 13px; color: #333; }
+        .gen-btn {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: #000; border: none; padding: 14px 36px; border-radius: 10px;
+            font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+            cursor: pointer; transition: all 0.3s;
+            box-shadow: 0 0 24px rgba(0,240,255,0.2);
+        }
+        .gen-btn:hover { box-shadow: 0 0 48px rgba(0,240,255,0.35); transform: translateY(-2px); }
+        .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* PROGRESS */
+        .prog { display:none; margin-top:24px; height:3px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; }
+        .prog.on { display:block; }
+        .prog-fill { height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--magenta)); border-radius:3px; transition:width 0.4s; }
+        .prog-txt { display:none; text-align:center; margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--cyan); letter-spacing:1px; }
+        .prog-txt.on { display:block; animation:fadeIn 0.3s; }
+
+        /* RESULT */
+        .result { display:none; margin-top:32px; }
+        .result.on { display:block; animation:fadeInUp 0.6s ease; }
+        .result-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+        .result-ok { display:flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--neon-green); }
+        .result-ok .dot { width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 10px var(--neon-green); }
+        .rev-info { font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+        .frame-wrap {
+            border-radius: 14px; overflow: hidden;
+            border: 1px solid rgba(0,240,255,0.1);
+            box-shadow: 0 0 60px rgba(0,240,255,0.05);
+        }
+        .frame-wrap iframe { width:100%; height:500px; border:none; background:#fff; display:block; }
+
+        /* SWIPEABLE ACTIONS */
+        .swiper {
+            display:flex; gap:12px; margin-top:20px; overflow-x:auto;
+            scroll-snap-type:x mandatory; scrollbar-width:none; cursor:grab;
+            padding: 4px 0;
+        }
+        .swiper::-webkit-scrollbar { display:none; }
+        .swiper.grabbing { cursor:grabbing; }
+        .swipe-card {
+            flex:0 0 auto; min-width:160px; scroll-snap-align:start;
+            background: var(--card); border:1px solid var(--border);
+            border-radius:12px; padding:20px; text-align:center;
+            cursor:pointer; transition:all 0.3s; user-select:none;
+        }
+        .swipe-card:hover { border-color:rgba(0,240,255,0.3); transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,0,0,0.3); }
+        .swipe-card.buy { border-color:rgba(57,255,20,0.2); }
+        .swipe-card.buy:hover { border-color:var(--neon-green); box-shadow:0 0 30px rgba(57,255,20,0.1); }
+        .swipe-card .ic { font-size:28px; margin-bottom:8px; }
+        .swipe-card h4 { font-size:13px; font-weight:700; }
+        .swipe-card p { font-size:11px; color:var(--muted); margin-top:2px; }
+        .swipe-hint { text-align:center; margin-top:10px; font-size:11px; color:#222; font-family:'JetBrains Mono',monospace; }
+
+        /* ===== PRICING ===== */
+        .price-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+        .price-card {
+            background:var(--card); border:1px solid var(--border);
+            border-radius:16px; padding:36px; position:relative; overflow:hidden;
+        }
+        .price-card.hot { border-color:rgba(0,240,255,0.2); }
+        .price-card.hot::before {
+            content:'BESTSELLER'; position:absolute; top:16px; right:-28px;
+            background:linear-gradient(135deg,var(--cyan),var(--blue));
+            color:#000; padding:4px 40px; font-size:9px; font-weight:800;
+            letter-spacing:2px; transform:rotate(45deg);
+        }
+        .pc-cat { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--cyan); margin-bottom:16px; }
+        .pc-range { font-size:40px; font-weight:900; letter-spacing:-2px; }
+        .pc-range span { font-size:14px; font-weight:400; color:var(--muted); }
+        .pc-vs { font-size:13px; color:var(--muted); margin:8px 0 20px; }
+        .pc-vs s { color:#333; }
+        .pc-list { list-style:none; }
+        .pc-list li { font-size:13px; padding:6px 0; color:#888; display:flex; align-items:center; gap:8px; }
+        .pc-list li::before { content:'✦'; color:var(--cyan); font-size:8px; }
+        .pc-note { margin-top:24px; padding-top:20px; border-top:1px solid var(--border); font-size:12px; color:#333; text-align:center; }
+
+        /* ===== COMPARISON TABLE ===== */
+        .compare {
+            margin-top: 48px; overflow-x: auto;
+        }
+        .compare table {
+            width: 100%; border-collapse: collapse; font-size: 14px;
+        }
+        .compare th {
+            text-align: left; padding: 16px; font-weight: 600;
+            border-bottom: 1px solid var(--border); color: var(--muted);
+            font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            letter-spacing: 2px; text-transform: uppercase;
+        }
+        .compare td {
+            padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .compare .us { color: var(--cyan); font-weight: 700; }
+        .compare .them { color: #444; }
+        .compare .highlight-row { background: rgba(0,240,255,0.02); }
+
+        /* ===== CTA ===== */
+        .cta-sec {
+            text-align:center; padding:120px 24px;
+            position:relative;
+        }
+        .cta-sec::before {
+            content:''; position:absolute; inset:0; z-index:-1;
+            background:radial-gradient(ellipse at 50% 50%, rgba(0,240,255,0.08), transparent 60%);
+        }
+        .cta-sec h2 { font-size:clamp(36px,5vw,60px); font-weight:900; letter-spacing:-2px; margin-bottom:16px; }
+        .cta-sec p { color:var(--muted); font-size:16px; margin-bottom:40px; }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align:center; padding:48px 24px;
+            border-top:1px solid var(--border); color:#222;
+            font-size:12px; letter-spacing:1px;
         }
 
-        /* SCROLL ANIMATIONS */
-        .reveal {
-            opacity: 0; transform: translateY(30px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
+        /* ===== PAYMENT MODAL ===== */
+        .modal-bg {
+            display:none; position:fixed; inset:0; z-index:10000;
+            background:rgba(0,0,0,0.85); backdrop-filter:blur(20px);
+            align-items:center; justify-content:center; padding:24px;
         }
-        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .modal-bg.on { display:flex; animation:fadeIn 0.3s; }
+        .modal-box {
+            background:#080808; border:1px solid rgba(0,240,255,0.1);
+            border-radius:20px; padding:40px; max-width:440px; width:100%;
+            animation:scaleIn 0.3s; position:relative;
+        }
+        .modal-box::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:1px;
+            background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+        }
+        .modal-box h3 { font-size:20px; font-weight:800; margin-bottom:24px; text-align:center; }
+        .cost-row { display:flex; justify-content:space-between; padding:10px 0; font-size:14px; border-bottom:1px solid rgba(255,255,255,0.04); }
+        .cost-row .lbl { color:var(--muted); }
+        .cost-total { display:flex; justify-content:space-between; padding:20px 0; font-size:32px; font-weight:900; margin-top:8px; }
+        .cost-total .amt { background:linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .modal-pay {
+            width:100%; padding:16px; border:none; border-radius:12px;
+            font-size:15px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif;
+            background:linear-gradient(135deg,var(--cyan),var(--blue));
+            color:#000; margin-top:12px; transition:all 0.3s;
+            box-shadow:0 0 20px rgba(0,240,255,0.2);
+        }
+        .modal-pay:hover { box-shadow:0 0 40px rgba(0,240,255,0.3); }
+        .modal-cancel {
+            width:100%; padding:14px; border:1px solid var(--border); border-radius:12px;
+            background:transparent; color:var(--muted); font-size:14px;
+            cursor:pointer; font-family:'Outfit',sans-serif; margin-top:8px;
+        }
 
-        /* MOBILE */
-        @media (max-width: 768px) {
-            nav { padding: 12px 16px; }
-            .nav-links a:not(.nav-cta) { display: none; }
-            .hero { padding: 120px 16px 60px; }
-            section { padding: 80px 16px; }
-            .order-section { padding: 24px; }
-            .preview-frame { height: 350px; }
-            .pricing-cards { grid-template-columns: 1fr; }
+        /* ANIMS */
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes scaleIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+
+        .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.8s,transform 0.8s; }
+        .reveal.vis { opacity:1; transform:translateY(0); }
+
+        @media(max-width:768px) {
+            nav{padding:12px 16px} .nav-r a:not(.nav-btn){display:none}
+            .hero{padding:120px 16px 60px} section{padding:80px 16px}
+            .order-box{padding:24px} .frame-wrap iframe{height:350px}
+            .stats-bar{gap:32px} .price-grid{grid-template-columns:1fr}
         }
     </style>
 </head>
 <body>
 
-<div class="gradient-mesh">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-</div>
+<div class="grid-bg"></div>
+<div class="aurora"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
 
-<!-- NAV -->
 <nav>
-    <div class="logo">Dev<span>Dash</span></div>
-    <div class="nav-links">
+    <div class="logo">DEVDASH_</div>
+    <div class="nav-r">
         <a href="#services">Services</a>
         <a href="#how">Ablauf</a>
         <a href="#pricing">Preise</a>
-        <a href="#order" class="nav-cta">Jetzt bestellen →</a>
+        <a href="#order" class="nav-btn">Bestellen →</a>
     </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-    <div class="hero-badge">
-        <span class="pulse-dot"></span>
-        KI-generiert in unter 10 Minuten
+    <div class="hero-status"><span class="blink">●</span> SYSTEM ONLINE — BEREIT FÜR AUFTRÄGE</div>
+    <h1>Development.<br><span class="glow">Neu definiert.</span></h1>
+    <p>Professionelle Websites, Bots & Automatisierungen — generiert in Minuten, nicht Wochen. Freelancer-Qualität zum Bruchteil des Preises.</p>
+    <div class="hero-btns">
+        <a href="#order" class="btn-glow">Jetzt bestellen ⚡</a>
+        <a href="#how" class="btn-ghost">So funktioniert's →</a>
     </div>
-    <h1>
-        Dein nächstes Projekt.<br>
-        <span class="gradient-text">In Minuten fertig.</span>
-    </h1>
-    <p>Websites, Bots, Bugfixes & Automatisierungen — professionell, sofort und bezahlbar. Beschreib was du brauchst. Wir liefern.</p>
-    <div class="hero-buttons">
-        <a href="#order" class="btn-primary">Jetzt bestellen ⚡</a>
-        <a href="#how" class="btn-secondary">So funktioniert's →</a>
-    </div>
-
-    <div class="marquee-wrap">
-        <div class="marquee">
-            <span>Landing Pages</span><span>Web Apps</span><span>Discord Bots</span>
-            <span>Telegram Bots</span><span>Bugfixes</span><span>API Integrationen</span>
-            <span>Automatisierungen</span><span>Portfolios</span><span>Online Shops</span>
-            <span>Dashboards</span><span>Scripts</span><span>WhatsApp Bots</span>
-            <span>Landing Pages</span><span>Web Apps</span><span>Discord Bots</span>
-            <span>Telegram Bots</span><span>Bugfixes</span><span>API Integrationen</span>
-            <span>Automatisierungen</span><span>Portfolios</span><span>Online Shops</span>
-            <span>Dashboards</span><span>Scripts</span><span>WhatsApp Bots</span>
-        </div>
+    <div class="stats-bar">
+        <div class="stat"><div class="stat-val">~12 Min</div><div class="stat-lbl">Ø Lieferzeit</div></div>
+        <div class="stat"><div class="stat-val">50+</div><div class="stat-lbl">Gleichzeitige Aufträge</div></div>
+        <div class="stat"><div class="stat-val">70%</div><div class="stat-lbl">Günstiger als Freelancer</div></div>
+        <div class="stat"><div class="stat-val">3×</div><div class="stat-lbl">Gratis Revisionen</div></div>
     </div>
 </section>
 
 <!-- SERVICES -->
 <section id="services">
-    <div class="section-header reveal">
-        <div class="section-label">Services</div>
-        <h2>Alles was du brauchst</h2>
-        <p class="subtitle">Wähle deinen Service. Ein Prompt. Fertig.</p>
-    </div>
-    <div class="services-grid">
-        <div class="service-card reveal" onclick="selectService('website')">
-            <div class="service-icon">🌐</div>
+    <div class="sec-head reveal"><span class="sec-tag">// services</span><h2>Was wir <span class="accent">liefern</span></h2><p class="sec-sub">Wähle deinen Service. Ein Prompt. Fertig.</p></div>
+    <div class="services">
+        <div class="svc reveal" onclick="go('website')">
+            <span class="svc-icon">🌐</span>
             <h3>Websites</h3>
-            <p>Landing Pages, Portfolios, Firmenseiten, Shops — modern, responsive, sofort einsatzbereit.</p>
-            <div class="service-meta">
-                <span class="time">⚡ 5–15 Min</span>
-                <span>ab €99</span>
-            </div>
+            <p>Landing Pages, Portfolios, Firmenseiten, Online-Shops. Modern, responsive, sofort live.</p>
+            <div class="svc-meta"><span class="svc-time">⚡ 8–15 Min</span><span class="svc-price">ab €199</span></div>
         </div>
-        <div class="service-card reveal" onclick="selectService('bot')">
-            <div class="service-icon">🤖</div>
+        <div class="svc reveal" onclick="go('bot')">
+            <span class="svc-icon">🤖</span>
             <h3>Bots</h3>
-            <p>Discord, Telegram, WhatsApp — Chatbots, Moderation, Custom Commands, Integrationen.</p>
-            <div class="service-meta">
-                <span class="time">⚡ 10–20 Min</span>
-                <span>ab €149</span>
-            </div>
+            <p>Discord, Telegram, WhatsApp. Chatbots, Moderation, Commands, API-Anbindung.</p>
+            <div class="svc-meta"><span class="svc-time">⚡ 15–25 Min</span><span class="svc-price">ab €299</span></div>
         </div>
-        <div class="service-card reveal" onclick="selectService('bugfix')">
-            <div class="service-icon">🔧</div>
+        <div class="svc reveal" onclick="go('bugfix')">
+            <span class="svc-icon">🔧</span>
             <h3>Bugfixes</h3>
-            <p>Code kaputt? Schick den Fehler, wir fixen ihn. Jede Sprache, jedes Framework.</p>
-            <div class="service-meta">
-                <span class="time">⚡ 5–10 Min</span>
-                <span>ab €49</span>
-            </div>
+            <p>Dein Code ist kaputt? Fehler rein, Fix raus. Jede Sprache, jedes Framework.</p>
+            <div class="svc-meta"><span class="svc-time">⚡ 5–12 Min</span><span class="svc-price">ab €79</span></div>
         </div>
-        <div class="service-card reveal" onclick="selectService('automation')">
-            <div class="service-icon">⚡</div>
+        <div class="svc reveal" onclick="go('automation')">
+            <span class="svc-icon">⚡</span>
             <h3>Automatisierung</h3>
-            <p>Scripts, Workflows, API-Integrationen, Datenverarbeitung — alles automatisiert.</p>
-            <div class="service-meta">
-                <span class="time">⚡ 10–30 Min</span>
-                <span>ab €129</span>
-            </div>
+            <p>Scripts, Workflows, API-Integrationen, Datenverarbeitung. Alles automatisch.</p>
+            <div class="svc-meta"><span class="svc-time">⚡ 12–30 Min</span><span class="svc-price">ab €249</span></div>
         </div>
     </div>
 </section>
 
 <!-- HOW IT WORKS -->
 <section id="how">
-    <div class="section-header reveal">
-        <div class="section-label">Ablauf</div>
-        <h2>So einfach geht's</h2>
-        <p class="subtitle">Vom Prompt zum fertigen Produkt — in Minuten.</p>
-    </div>
-    <div class="steps-container">
-        <div class="step-line"></div>
-        <div class="step reveal">
-            <div class="step-number">1</div>
-            <div class="step-content">
-                <h3>Service wählen</h3>
-                <p>Website, Bot, Bugfix oder Automatisierung — wähle was du brauchst.</p>
-            </div>
-        </div>
-        <div class="step reveal">
-            <div class="step-number">2</div>
-            <div class="step-content">
-                <h3>Prompt schreiben</h3>
-                <p>Beschreib in einem Prompt genau was du willst. Unsere Anleitung zeigt dir wie.</p>
-            </div>
-        </div>
-        <div class="step reveal">
-            <div class="step-number">3</div>
-            <div class="step-content">
-                <h3>Ergebnis erhalten</h3>
-                <p>Unsere KI generiert dein Produkt in Minuten. Preview direkt im Browser.</p>
-            </div>
-        </div>
-        <div class="step reveal">
-            <div class="step-number">4</div>
-            <div class="step-content">
-                <h3>Revisionen (3× gratis)</h3>
-                <p>Nicht perfekt? Sag was geändert werden soll. Bis zu 3 Revisionen kostenlos.</p>
-            </div>
-        </div>
-        <div class="step reveal">
-            <div class="step-number">5</div>
-            <div class="step-content">
-                <h3>Zufrieden? Zahlen.</h3>
-                <p>Du siehst den Preis transparent aufgeschlüsselt — erst dann zahlst du.</p>
-            </div>
-        </div>
+    <div class="sec-head reveal"><span class="sec-tag">// ablauf</span><h2>5 Schritte. <span class="accent">Fertig.</span></h2><p class="sec-sub">Einfacher als Essen bestellen.</p></div>
+    <div class="steps">
+        <div class="stp reveal"><div class="stp-num">01</div><div><h3>Service wählen</h3><p>Website, Bot, Bugfix oder Automatisierung.</p></div></div>
+        <div class="stp reveal"><div class="stp-num">02</div><div><h3>Prompt schreiben</h3><p>Beschreib in einem Prompt was du brauchst. Unsere Anleitung hilft dir.</p></div></div>
+        <div class="stp reveal"><div class="stp-num">03</div><div><h3>KI generiert</h3><p>Unser System baut dein Produkt in Minuten. Live-Preview im Browser.</p></div></div>
+        <div class="stp reveal"><div class="stp-num">04</div><div><h3>Revisionen</h3><p>Nicht perfekt? Bis zu 3 kostenlose Änderungsrunden.</p></div></div>
+        <div class="stp reveal"><div class="stp-num">05</div><div><h3>Zahlen & erhalten</h3><p>Preis wird transparent berechnet. Erst zahlen wenn du zufrieden bist.</p></div></div>
     </div>
 </section>
 
-<!-- ORDER / DEMO -->
+<!-- ORDER -->
 <section id="order">
-    <div class="section-header reveal">
-        <div class="section-label">Bestellen</div>
-        <h2>Leg los</h2>
-        <p class="subtitle">Wähle einen Service, beschreib dein Projekt, wir liefern.</p>
-    </div>
-
-    <div class="order-section reveal">
-        <div class="order-tabs">
-            <button class="order-tab active" onclick="switchTab(this,'website')">🌐 Website</button>
-            <button class="order-tab" onclick="switchTab(this,'bot')">🤖 Bot</button>
-            <button class="order-tab" onclick="switchTab(this,'bugfix')">🔧 Bugfix</button>
-            <button class="order-tab" onclick="switchTab(this,'automation')">⚡ Automatisierung</button>
+    <div class="sec-head reveal"><span class="sec-tag">// bestellen</span><h2>Leg <span class="accent">los</span></h2></div>
+    <div class="order-box reveal">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab(this,'website')">🌐 Website</button>
+            <button class="tab" onclick="switchTab(this,'bot')">🤖 Bot</button>
+            <button class="tab" onclick="switchTab(this,'bugfix')">🔧 Bugfix</button>
+            <button class="tab" onclick="switchTab(this,'automation')">⚡ Auto</button>
+        </div>
+        <div class="guide"><h4>// PROMPT GUIDE</h4><ul id="guideList">
+            <li>Beschreib den <strong>Zweck</strong> (Portfolio, Firma, Shop...)</li>
+            <li>Nenne <strong>Farben</strong> und Stil (modern, dunkel, minimalistisch...)</li>
+            <li>Welche <strong>Sektionen</strong>? (Hero, Preise, Kontakt...)</li>
+            <li>Welche <strong>Texte/Inhalte</strong> sollen rein?</li>
+            <li>Je <strong>detaillierter</strong> → desto besser das Ergebnis</li>
+        </ul></div>
+        <textarea class="prompt" id="prompt" placeholder="// Dein Prompt hier...&#10;&#10;Beispiel: Landing Page für mein Fitnessstudio 'PowerGym'.&#10;Farben: Schwarz, Rot. Sektionen: Hero mit Slogan,&#10;Kursplan, Preistabelle (3 Pakete), Trainer, Kontaktformular.&#10;Stil: dunkel, modern, energetisch."></textarea>
+        <div class="prog" id="prog"><div class="prog-fill" id="progFill"></div></div>
+        <div class="prog-txt" id="progTxt"></div>
+        <div class="gen-row">
+            <span class="gen-hint">// Detaillierter Prompt = besseres Ergebnis</span>
+            <button class="gen-btn" id="genBtn" onclick="generate()">GENERIEREN ⚡</button>
         </div>
 
-        <div class="guide-box" id="guide">
-            <h4>📋 So schreibst du den perfekten Prompt</h4>
-            <ul id="guide-list">
-                <li>Beschreib den <strong>Zweck</strong> der Website (Portfolio, Firma, Shop...)</li>
-                <li>Nenne <strong>Farben</strong> oder Stil (modern, minimalistisch, dunkel, bunt...)</li>
-                <li>Welche <strong>Sektionen</strong>? (Hero, Über uns, Kontakt, Preise...)</li>
-                <li>Gibt es <strong>Texte/Inhalte</strong> die rein sollen?</li>
-                <li>Je <strong>detaillierter</strong>, desto besser das Ergebnis!</li>
-            </ul>
-        </div>
-
-        <textarea class="prompt-input" id="prompt" placeholder="Beschreib hier genau was du brauchst...
-
-Beispiel: Ich brauche eine Landing Page für mein Fitnessstudio 'PowerGym'. Farben: Schwarz und Rot. Sektionen: Hero mit Slogan, Kursplan, Preistabelle (3 Pakete: Starter 29€, Pro 49€, Elite 89€), Trainer-Vorstellung (3 Personen), Kontaktformular. Stil: modern, dunkel, energetisch."></textarea>
-
-        <div class="progress-bar" id="progress"><div class="progress-fill" id="progressFill"></div></div>
-        <div class="progress-text" id="progressText"></div>
-
-        <div class="submit-row">
-            <span class="submit-info">💡 Je genauer dein Prompt, desto besser das Ergebnis</span>
-            <button class="submit-btn" id="submitBtn" onclick="generate()">
-                Generieren ⚡
-            </button>
-        </div>
-
-        <!-- RESULT -->
-        <div class="result-container" id="result">
-            <div class="result-header">
-                <div class="result-badge"><span class="dot"></span> Fertig</div>
-                <span class="revision-info" id="revisionInfo">Revision 0/3</span>
+        <div class="result" id="result">
+            <div class="result-bar">
+                <div class="result-ok"><span class="dot"></span> COMPLETE</div>
+                <span class="rev-info" id="revInfo">REV 0/3</span>
             </div>
-
-            <div class="preview-wrapper">
-                <div class="preview-frame">
-                    <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
-                </div>
+            <div class="frame-wrap"><iframe id="frame" sandbox="allow-scripts"></iframe></div>
+            <div class="swiper" id="swiper">
+                <div class="swipe-card buy" onclick="showPay()"><div class="ic">💰</div><h4>Kaufen</h4><p>Preis ansehen & zahlen</p></div>
+                <div class="swipe-card" onclick="revise()"><div class="ic">🔄</div><h4>Revision</h4><p>Änderung beschreiben</p></div>
+                <div class="swipe-card" onclick="download()"><div class="ic">📥</div><h4>Download</h4><p>HTML herunterladen</p></div>
+                <div class="swipe-card" onclick="fullscreen()"><div class="ic">🔍</div><h4>Vollbild</h4><p>Neuer Tab</p></div>
+                <div class="swipe-card" onclick="discard()"><div class="ic">✕</div><h4>Verwerfen</h4><p>Neu starten</p></div>
             </div>
-
-            <div class="actions-swiper" id="actionSwiper">
-                <div class="action-card accept" onclick="showPayment()">
-                    <div class="action-icon">✅</div>
-                    <h4>Kaufen</h4>
-                    <p>Zufrieden? Preis ansehen & bezahlen</p>
-                </div>
-                <div class="action-card" onclick="requestRevision()">
-                    <div class="action-icon">🔄</div>
-                    <h4>Revision</h4>
-                    <p>Änderungen beschreiben</p>
-                </div>
-                <div class="action-card" onclick="downloadCode()">
-                    <div class="action-icon">📥</div>
-                    <h4>Preview Code</h4>
-                    <p>HTML herunterladen</p>
-                </div>
-                <div class="action-card" onclick="openFullscreen()">
-                    <div class="action-icon">🔍</div>
-                    <h4>Vollbild</h4>
-                    <p>In neuem Tab öffnen</p>
-                </div>
-                <div class="action-card" onclick="discardResult()">
-                    <div class="action-icon">🗑️</div>
-                    <h4>Verwerfen</h4>
-                    <p>Neu starten</p>
-                </div>
-            </div>
-            <div class="swipe-hint">← nach links & rechts swipen →</div>
+            <div class="swipe-hint">‹ swipe ›</div>
         </div>
     </div>
 </section>
 
 <!-- PRICING -->
 <section id="pricing">
-    <div class="section-header reveal">
-        <div class="section-label">Preise</div>
-        <h2>Freelancer-Qualität. Fairer Preis.</h2>
-        <p class="subtitle">Du zahlst einen Bruchteil von dem, was ein Freelancer kostet — bei gleicher Qualität und 100× schneller.</p>
-    </div>
-    <div class="pricing-cards">
+    <div class="sec-head reveal"><span class="sec-tag">// preise</span><h2>Freelancer-Qualität.<br><span class="accent">Fair berechnet.</span></h2><p class="sec-sub">Bis zu 70% günstiger — bei gleicher Qualität und 100× schneller.</p></div>
+    <div class="price-grid">
         <div class="price-card reveal">
-            <div class="price-category">Websites</div>
-            <div class="price-range">€99 – €499 <span>je nach Umfang</span></div>
-            <div class="price-compare">Freelancer-Preis: <s>€800 – €3.000+</s></div>
-            <ul class="price-list">
-                <li>Landing Pages ab €99</li>
-                <li>Firmenseiten ab €199</li>
-                <li>Shops ab €349</li>
+            <div class="pc-cat">Websites</div>
+            <div class="pc-range">€199–€799 <span>/ Projekt</span></div>
+            <div class="pc-vs">Freelancer: <s>€800 – €5.000+</s></div>
+            <ul class="pc-list">
+                <li>Landing Pages ab €199</li>
+                <li>Firmenseiten ab €349</li>
+                <li>Shops & Web-Apps ab €499</li>
                 <li>3 Revisionen inklusive</li>
-                <li>Responsive Design Standard</li>
+                <li>Responsive Standard</li>
+                <li>Lieferung in ~12 Min</li>
             </ul>
         </div>
-        <div class="price-card featured reveal">
-            <div class="price-category">Bots</div>
-            <div class="price-range">€149 – €599 <span>je nach Umfang</span></div>
-            <div class="price-compare">Freelancer-Preis: <s>€500 – €2.500+</s></div>
-            <ul class="price-list">
-                <li>Discord/Telegram/WhatsApp</li>
+        <div class="price-card hot reveal">
+            <div class="pc-cat">Bots</div>
+            <div class="pc-range">€299–€999 <span>/ Projekt</span></div>
+            <div class="pc-vs">Freelancer: <s>€1.000 – €5.000+</s></div>
+            <ul class="pc-list">
+                <li>Discord / Telegram / WhatsApp</li>
                 <li>Custom Commands & Logic</li>
                 <li>API-Integrationen</li>
                 <li>3 Revisionen inklusive</li>
-                <li>Deployment-ready Code</li>
+                <li>Deployment-ready</li>
+                <li>Lieferung in ~20 Min</li>
             </ul>
         </div>
         <div class="price-card reveal">
-            <div class="price-category">Bugfixes & Automation</div>
-            <div class="price-range">€49 – €399 <span>je nach Umfang</span></div>
-            <div class="price-compare">Freelancer-Preis: <s>€200 – €1.500+</s></div>
-            <ul class="price-list">
-                <li>Bugfixes ab €49</li>
-                <li>Scripts & Workflows ab €129</li>
-                <li>API-Integrationen ab €199</li>
+            <div class="pc-cat">Bugfixes & Automation</div>
+            <div class="pc-range">€79–€699 <span>/ Projekt</span></div>
+            <div class="pc-vs">Freelancer: <s>€300 – €3.000+</s></div>
+            <ul class="pc-list">
+                <li>Bugfixes ab €79</li>
+                <li>Scripts & Workflows ab €249</li>
+                <li>API-Integrationen ab €349</li>
                 <li>Jede Sprache & Framework</li>
                 <li>3 Revisionen inklusive</li>
+                <li>Lieferung in ~10 Min</li>
             </ul>
         </div>
     </div>
-    <p class="reveal" style="text-align:center; color:var(--muted); font-size:14px; margin-top:32px;">
-        Der finale Preis wird nach Fertigstellung berechnet — transparent aufgeschlüsselt. Du zahlst erst wenn du zufrieden bist.
-    </p>
+
+    <div class="compare reveal">
+        <table>
+            <thead><tr><th></th><th style="color:var(--cyan)">DevDash</th><th>Freelancer</th><th>Agentur</th></tr></thead>
+            <tbody>
+                <tr class="highlight-row"><td>Lieferzeit</td><td class="us">~12 Minuten</td><td class="them">1–4 Wochen</td><td class="them">4–12 Wochen</td></tr>
+                <tr><td>Website (Landing Page)</td><td class="us">€199</td><td class="them">€800–€2.000</td><td class="them">€3.000–€8.000</td></tr>
+                <tr class="highlight-row"><td>Bot (Discord/Telegram)</td><td class="us">€299</td><td class="them">€1.000–€3.000</td><td class="them">€5.000+</td></tr>
+                <tr><td>Bugfix</td><td class="us">€79</td><td class="them">€200–€500</td><td class="them">€500+</td></tr>
+                <tr class="highlight-row"><td>Revisionen</td><td class="us">3× gratis</td><td class="them">€50–100/Std</td><td class="them">€120+/Std</td></tr>
+                <tr><td>Verfügbarkeit</td><td class="us">24/7</td><td class="them">Geschäftszeiten</td><td class="them">Geschäftszeiten</td></tr>
+                <tr class="highlight-row"><td>Gleichzeitige Projekte</td><td class="us">Unbegrenzt</td><td class="them">1–3</td><td class="them">Kapazitätsabhängig</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="reveal" style="text-align:center;color:#333;font-size:13px;margin-top:32px;">Finaler Preis wird nach Fertigstellung berechnet. Du zahlst erst wenn du zufrieden bist.</p>
 </section>
 
 <!-- CTA -->
-<div class="cta-section">
-    <h2 class="reveal">Bereit?</h2>
-    <p class="reveal">Dein nächstes Projekt ist nur einen Prompt entfernt.</p>
-    <a href="#order" class="btn-primary reveal" style="display:inline-flex;">Jetzt bestellen ⚡</a>
+<div class="cta-sec">
+    <h2 class="reveal">Die Zukunft ist <span style="color:var(--cyan)">jetzt</span>.</h2>
+    <p class="reveal">Dein nächstes Projekt. Ein Prompt entfernt.</p>
+    <a href="#order" class="btn-glow reveal">Jetzt bestellen ⚡</a>
 </div>
 
-<!-- FOOTER -->
 <footer>
-    <div class="logo" style="font-size:18px; margin-bottom:8px;">Dev<span>Dash</span></div>
-    <p>Professionelle IT-Services in Minuten. © 2026</p>
+    <div class="logo" style="font-size:16px;margin-bottom:8px;">DEVDASH_</div>
+    <p>© 2026 — The Future of Development</p>
 </footer>
 
 <!-- PAYMENT MODAL -->
-<div class="modal-overlay" id="paymentModal">
-    <div class="modal">
+<div class="modal-bg" id="payModal">
+    <div class="modal-box">
         <h3>💰 Preisübersicht</h3>
-        <div class="cost-breakdown">
-            <div class="cost-row"><span class="label">Generierung</span><span id="costGen">€45,00</span></div>
-            <div class="cost-row"><span class="label">Revisionen (0×)</span><span id="costRev">€0,00</span></div>
-            <div class="cost-row"><span class="label">Qualitätsprüfung</span><span>€15,00</span></div>
-            <div class="cost-row"><span class="label">Service & Infrastruktur</span><span id="costService">€39,00</span></div>
+        <div>
+            <div class="cost-row"><span class="lbl">Generierung</span><span id="cGen">€80</span></div>
+            <div class="cost-row"><span class="lbl">Revisionen</span><span id="cRev">€0</span></div>
+            <div class="cost-row"><span class="lbl">QA & Testing</span><span>€25</span></div>
+            <div class="cost-row"><span class="lbl">Service & Infrastruktur</span><span id="cSvc">€94</span></div>
         </div>
-        <div class="cost-total">
-            <span>Gesamt</span>
-            <span class="amount" id="costTotal">€99,00</span>
-        </div>
-        <button class="modal-btn pay" onclick="alert('🚀 Stripe Payment Integration kommt bald!\n\nDiese Demo zeigt den Ablauf.')">
-            Jetzt bezahlen →
-        </button>
-        <button class="modal-btn cancel" onclick="closePayment()" style="margin-top:8px;">Zurück</button>
+        <div class="cost-total"><span>Gesamt</span><span class="amt" id="cTotal">€199</span></div>
+        <button class="modal-pay" onclick="alert('🚀 Stripe Integration kommt bald!')">Jetzt bezahlen →</button>
+        <button class="modal-cancel" onclick="closePay()">Zurück</button>
     </div>
 </div>
 
 <script src="examples.js"></script>
 <script>
-    // --- STATE ---
-    let currentCategory = 'website';
-    let revisionCount = 0;
-    let currentHTML = '';
+let cat='website', revs=0, html='';
 
-    // --- GUIDES ---
-    const guides = {
-        website: {
-            items: [
-                'Beschreib den <strong>Zweck</strong> der Website (Portfolio, Firma, Shop...)',
-                'Nenne <strong>Farben</strong> oder Stil (modern, minimalistisch, dunkel, bunt...)',
-                'Welche <strong>Sektionen</strong>? (Hero, Über uns, Kontakt, Preise...)',
-                'Gibt es <strong>Texte/Inhalte</strong> die rein sollen?',
-                'Je <strong>detaillierter</strong>, desto besser das Ergebnis!'
-            ],
-            placeholder: `Beispiel: Ich brauche eine Landing Page für mein Fitnessstudio 'PowerGym'. Farben: Schwarz und Rot. Sektionen: Hero mit Slogan, Kursplan, Preistabelle (3 Pakete), Trainer-Vorstellung, Kontaktformular. Stil: modern und energetisch.`
-        },
-        bot: {
-            items: [
-                'Welche <strong>Plattform</strong>? (Discord, Telegram, WhatsApp)',
-                'Was soll der Bot <strong>können</strong>? (Commands, Auto-Antworten, Moderation...)',
-                'Gibt es <strong>externe APIs</strong> die angebunden werden?',
-                'Welche <strong>Sprache</strong> soll der Bot sprechen?',
-                'Je <strong>detaillierter</strong>, desto besser!'
-            ],
-            placeholder: `Beispiel: Discord Bot für meinen Gaming-Server. Commands: !rank, !stats, !poll. Willkommensnachrichten und Spam-Filter. Sprache: Deutsch.`
-        },
-        bugfix: {
-            items: [
-                '<strong>Programmiersprache</strong> und Framework angeben',
-                'Beschreib den <strong>Fehler</strong> so genau wie möglich',
-                'Relevanten <strong>Code</strong> einfügen',
-                'Was ist das <strong>erwartete Verhalten</strong>?',
-                '<strong>Fehlermeldung</strong> komplett einfügen!'
-            ],
-            placeholder: `Beispiel: React/Next.js 14 App. TypeError: Cannot read property 'map' of undefined in ProductList. API-Call in useEffect gibt manchmal null zurück.`
-        },
-        automation: {
-            items: [
-                'Was soll <strong>automatisiert</strong> werden?',
-                'Welche <strong>Datenquellen/APIs</strong>?',
-                'Wie oft soll es <strong>laufen</strong>? (Einmalig, täglich, bei Event...)',
-                'Welches <strong>Output-Format</strong>?',
-                'Welche <strong>Zugangsdaten</strong> werden benötigt?'
-            ],
-            placeholder: `Beispiel: Script das täglich Google Maps Bewertungen abruft, in Excel speichert und per E-Mail zusammenfasst. Alarm bei < 3 Sternen.`
-        }
-    };
+const guides={
+    website:{items:['Beschreib den <strong>Zweck</strong> (Portfolio, Firma, Shop...)','Nenne <strong>Farben</strong> und Stil','Welche <strong>Sektionen</strong>?','Welche <strong>Texte</strong> sollen rein?','Je <strong>detaillierter</strong> → besser'],ph:`// Landing Page für Fitnessstudio 'PowerGym'\n// Farben: Schwarz, Rot\n// Sektionen: Hero, Kursplan, Preistabelle, Trainer, Kontakt\n// Stil: dunkel, modern, energetisch`},
+    bot:{items:['Welche <strong>Plattform</strong>? (Discord, Telegram, WhatsApp)','Was soll der Bot <strong>können</strong>?','<strong>APIs</strong> anbinden?','Welche <strong>Sprache</strong>?','Je <strong>detaillierter</strong> → besser'],ph:`// Discord Bot für Gaming-Server\n// Commands: !rank, !stats, !poll\n// Willkommensnachrichten + Spam-Filter\n// Sprache: Deutsch`},
+    bugfix:{items:['<strong>Sprache</strong> & Framework','Den <strong>Fehler</strong> genau beschreiben','<strong>Code</strong> einfügen','<strong>Erwartetes Verhalten</strong>','<strong>Fehlermeldung</strong> komplett'],ph:`// React/Next.js 14\n// TypeError: Cannot read 'map' of undefined\n// API-Call gibt manchmal null zurück\n// [Code hier einfügen]`},
+    automation:{items:['Was soll <strong>automatisiert</strong> werden?','Welche <strong>APIs/Datenquellen</strong>?','Wie oft <strong>laufen</strong>?','Welches <strong>Output-Format</strong>?','Welche <strong>Credentials</strong>?'],ph:`// Täglich Google Maps Bewertungen abrufen\n// In Excel speichern + E-Mail-Zusammenfassung\n// Alarm bei < 3 Sternen`}
+};
 
-    // --- TAB SWITCHING ---
-    function switchTab(el, cat) {
-        document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
-        currentCategory = cat;
-        const guide = guides[cat];
-        document.getElementById('guide-list').innerHTML = guide.items.map(i => `<li>${i}</li>`).join('');
-        document.getElementById('prompt').placeholder = guide.placeholder;
-        hideResult();
-    }
+function switchTab(el,c){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active'); cat=c;
+    const g=guides[c];
+    document.getElementById('guideList').innerHTML=g.items.map(i=>`<li>${i}</li>`).join('');
+    document.getElementById('prompt').placeholder=g.ph;
+    hide();
+}
+function go(c){
+    const tabs=document.querySelectorAll('.tab');
+    ['website','bot','bugfix','automation'].forEach((x,i)=>{if(x===c)switchTab(tabs[i],c)});
+    document.getElementById('order').scrollIntoView({behavior:'smooth'});
+}
 
-    function selectService(cat) {
-        const tabs = document.querySelectorAll('.order-tab');
-        const cats = ['website', 'bot', 'bugfix', 'automation'];
-        const idx = cats.indexOf(cat);
-        if (idx >= 0) { switchTab(tabs[idx], cat); }
-        document.getElementById('order').scrollIntoView({ behavior: 'smooth' });
-    }
+function generate(){
+    const p=document.getElementById('prompt').value.trim();
+    if(!p){document.getElementById('prompt').focus();document.getElementById('prompt').style.boxShadow='0 0 0 3px rgba(255,0,170,0.3)';setTimeout(()=>document.getElementById('prompt').style.boxShadow='',2000);return;}
+    const btn=document.getElementById('genBtn');
+    btn.disabled=true;btn.textContent='GENERATING...';
+    hide();
+    const bar=document.getElementById('prog'),fill=document.getElementById('progFill'),txt=document.getElementById('progTxt');
+    bar.classList.add('on');txt.classList.add('on');
+    const steps=[{p:10,t:'// Analyzing prompt...'},{p:30,t:'// Generating code...'},{p:55,t:'// Building UI components...'},{p:75,t:'// Running QA checks...'},{p:90,t:'// Optimizing...'},{p:100,t:'// ✓ Complete'}];
+    let i=0;
+    const iv=setInterval(()=>{
+        if(i<steps.length){fill.style.width=steps[i].p+'%';txt.textContent=steps[i].t;i++;}
+        else{clearInterval(iv);setTimeout(()=>{bar.classList.remove('on');txt.classList.remove('on');fill.style.width='0';btn.disabled=false;btn.textContent='GENERIEREN ⚡';show(p);},400);}
+    },700);
+}
 
-    // --- GENERATION ---
-    function generate() {
-        const prompt = document.getElementById('prompt').value.trim();
-        if (!prompt) {
-            document.getElementById('prompt').focus();
-            document.getElementById('prompt').style.boxShadow = '0 0 0 3px rgba(236,72,153,0.3)';
-            setTimeout(() => document.getElementById('prompt').style.boxShadow = '', 2000);
-            return;
-        }
+function show(p){revs=0;html=getExampleForPrompt(p);render();document.getElementById('result').classList.add('on');updRev();}
+function hide(){document.getElementById('result').classList.remove('on');}
+function render(){document.getElementById('frame').srcdoc=html;}
+function updRev(){document.getElementById('revInfo').textContent=`REV ${revs}/3`;}
 
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        btn.innerHTML = 'Generiert... ⏳';
-        hideResult();
+function revise(){
+    if(revs>=3){alert('Maximum 3 Revisionen erreicht.');return;}
+    const c=prompt('Was soll geändert werden?');
+    if(c){revs++;updRev();const b=document.getElementById('genBtn');b.disabled=true;b.textContent='REVISING...';setTimeout(()=>{b.disabled=false;b.textContent='GENERIEREN ⚡';render();},1500);}
+}
+function showPay(){
+    const pr={website:{g:80,s:94,t:199},bot:{g:120,s:154,t:299},bugfix:{g:25,s:29,t:79},automation:{g:95,s:129,t:249}};
+    const p=pr[cat]||pr.website;const rc=revs*25;const total=p.g+rc+25+p.s;
+    document.getElementById('cGen').textContent='€'+p.g;
+    document.getElementById('cRev').textContent='€'+rc;
+    document.getElementById('cSvc').textContent='€'+p.s;
+    document.getElementById('cTotal').textContent='€'+total;
+    document.getElementById('payModal').classList.add('on');
+}
+function closePay(){document.getElementById('payModal').classList.remove('on');}
+function download(){const b=new Blob([html],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='devdash-'+cat+'.html';a.click();}
+function fullscreen(){const w=window.open();w.document.write(html);w.document.close();}
+function discard(){if(confirm('Verwerfen und neu starten?')){hide();document.getElementById('prompt').value='';}}
 
-        const bar = document.getElementById('progress');
-        const fill = document.getElementById('progressFill');
-        const text = document.getElementById('progressText');
-        bar.classList.add('active');
-        text.classList.add('active');
+// Swiper drag
+const sw=document.getElementById('swiper');let dn=false,sx,sl;
+sw?.addEventListener('mousedown',e=>{dn=true;sw.classList.add('grabbing');sx=e.pageX-sw.offsetLeft;sl=sw.scrollLeft;});
+sw?.addEventListener('mouseleave',()=>{dn=false;sw.classList.remove('grabbing');});
+sw?.addEventListener('mouseup',()=>{dn=false;sw.classList.remove('grabbing');});
+sw?.addEventListener('mousemove',e=>{if(!dn)return;e.preventDefault();sw.scrollLeft=sl-(e.pageX-sw.offsetLeft-sx)*2;});
 
-        const steps = [
-            { pct: 15, msg: '🔍 Prompt wird analysiert...' },
-            { pct: 35, msg: '🧠 KI generiert Code...' },
-            { pct: 60, msg: '🎨 Design wird erstellt...' },
-            { pct: 80, msg: '✅ Qualitätsprüfung...' },
-            { pct: 100, msg: '🚀 Fertig!' }
-        ];
+// Scroll reveal
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')}),{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 
-        let i = 0;
-        const interval = setInterval(() => {
-            if (i < steps.length) {
-                fill.style.width = steps[i].pct + '%';
-                text.textContent = steps[i].msg;
-                i++;
-            } else {
-                clearInterval(interval);
-                setTimeout(() => {
-                    bar.classList.remove('active');
-                    text.classList.remove('active');
-                    fill.style.width = '0%';
-                    btn.disabled = false;
-                    btn.innerHTML = 'Generieren ⚡';
-                    showResult(prompt);
-                }, 500);
-            }
-        }, 800);
-    }
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});}));
 
-    // --- RESULT ---
-    function showResult(prompt) {
-        revisionCount = 0;
-        currentHTML = getExampleForPrompt(prompt);
-        renderPreview();
-        document.getElementById('result').classList.add('visible');
-        updateRevisionInfo();
-    }
-
-    function renderPreview() {
-        const frame = document.getElementById('previewFrame');
-        frame.srcdoc = currentHTML;
-    }
-
-    function hideResult() {
-        document.getElementById('result').classList.remove('visible');
-    }
-
-    function updateRevisionInfo() {
-        document.getElementById('revisionInfo').textContent = `Revision ${revisionCount}/3`;
-    }
-
-    // --- ACTIONS ---
-    function requestRevision() {
-        if (revisionCount >= 3) {
-            alert('❌ Maximum 3 Revisionen erreicht.\nBitte starte eine neue Bestellung.');
-            return;
-        }
-        const change = window.prompt('Was soll geändert werden?');
-        if (change) {
-            revisionCount++;
-            updateRevisionInfo();
-            // Simulate revision
-            document.getElementById('submitBtn').innerHTML = 'Revision wird generiert... ⏳';
-            document.getElementById('submitBtn').disabled = true;
-            setTimeout(() => {
-                document.getElementById('submitBtn').innerHTML = 'Generieren ⚡';
-                document.getElementById('submitBtn').disabled = false;
-                renderPreview();
-            }, 2000);
-        }
-    }
-
-    function showPayment() {
-        // Dynamic pricing based on category
-        const prices = {
-            website: { gen: 45, service: 39, base: 99 },
-            bot: { gen: 65, service: 49, base: 149 },
-            bugfix: { gen: 20, service: 19, base: 49 },
-            automation: { gen: 55, service: 44, base: 129 }
-        };
-        const p = prices[currentCategory] || prices.website;
-        const revCost = revisionCount * 15;
-        const total = p.gen + revCost + 15 + p.service;
-
-        document.getElementById('costGen').textContent = `€${p.gen},00`;
-        document.getElementById('costRev').textContent = `€${revCost},00`;
-        document.getElementById('costService').textContent = `€${p.service},00`;
-        document.getElementById('costTotal').textContent = `€${total},00`;
-
-        document.getElementById('paymentModal').classList.add('visible');
-    }
-
-    function closePayment() {
-        document.getElementById('paymentModal').classList.remove('visible');
-    }
-
-    function downloadCode() {
-        const blob = new Blob([currentHTML], { type: 'text/html' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'devdash-preview.html';
-        a.click();
-    }
-
-    function openFullscreen() {
-        const w = window.open();
-        w.document.write(currentHTML);
-        w.document.close();
-    }
-
-    function discardResult() {
-        if (confirm('Wirklich verwerfen? Du startest von vorne.')) {
-            hideResult();
-            document.getElementById('prompt').value = '';
-        }
-    }
-
-    // --- SWIPER DRAG ---
-    const swiper = document.getElementById('actionSwiper');
-    let isDown = false, startX, scrollLeft;
-    swiper?.addEventListener('mousedown', (e) => { isDown = true; swiper.classList.add('grabbing'); startX = e.pageX - swiper.offsetLeft; scrollLeft = swiper.scrollLeft; });
-    swiper?.addEventListener('mouseleave', () => { isDown = false; swiper.classList.remove('grabbing'); });
-    swiper?.addEventListener('mouseup', () => { isDown = false; swiper.classList.remove('grabbing'); });
-    swiper?.addEventListener('mousemove', (e) => { if (!isDown) return; e.preventDefault(); const x = e.pageX - swiper.offsetLeft; swiper.scrollLeft = scrollLeft - (x - startX) * 2; });
-
-    // --- SCROLL REVEAL ---
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-    // --- SMOOTH SCROLL ---
-    document.querySelectorAll('a[href^="#"]').forEach(a => {
-        a.addEventListener('click', e => {
-            e.preventDefault();
-            document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
-        });
-    });
-
-    // --- MODAL CLOSE ON BACKDROP ---
-    document.getElementById('paymentModal').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) closePayment();
-    });
+// Modal backdrop close
+document.getElementById('payModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePay();});
 </script>
-
 </body>
 </html>
