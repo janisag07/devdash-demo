@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DevDash — Development, Redefined</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -238,7 +238,7 @@
             width:100%;min-height:150px;background:var(--bg2);
             border:1px solid var(--border2);border-radius:16px;
             padding:18px;color:var(--text);font-family:'JetBrains Mono',monospace;
-            font-size:13px;line-height:1.7;resize:vertical;outline:none;
+            font-size:16px;line-height:1.7;resize:vertical;outline:none;
             transition:all 0.25s;box-shadow:var(--shadow-sm);
         }
         .pb:focus{border-color:var(--g1);box-shadow:0 0 0 3px rgba(108,92,231,0.08),var(--shadow-md)}
@@ -692,7 +692,7 @@ function startGen(){
     let i=0;const iv=setInterval(()=>{
         if(i<steps.length){const s=steps[i];fill.style.width=s.p+'%';pct.textContent=s.p+'%';st.textContent=s.t;
         for(let j=1;j<=5;j++){const e=document.getElementById('s'+j);if(j<s.s){e.className='gs done';e.querySelector('.ck').textContent='✓'}else if(j===s.s){e.className='gs on';e.querySelector('.ck').textContent='◉'}else{e.className='gs';e.querySelector('.ck').textContent='○'}}i++}
-        else{clearInterval(iv);gc++;localStorage.setItem('dd_g',gc);uBadge();setTimeout(()=>{html=getExampleForPrompt(p);revs=0;uRev();showPage('result')},600)}
+        else{clearInterval(iv);gc++;localStorage.setItem('dd_g',gc);uBadge();setTimeout(()=>{try{html=getExampleForPrompt(p)}catch(e){console.error('Generation error:',e);html='<!DOCTYPE html><html><body style="font-family:sans-serif;padding:40px;text-align:center"><h1>Generiert!</h1><p>'+p+'</p></body></html>'}revs=0;uRev();showPage('result')},600)}
     },800);
 }
 
