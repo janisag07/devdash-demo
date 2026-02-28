@@ -1370,9 +1370,9 @@ function comp_menu(rng, pal) {
 
 function comp_social(rng, pal) {
     const links = shuffle(rng, [
-        {name:'Instagram',icon:'📷',url:'#'},{name:'Facebook',icon:'📘',url:'#'},
-        {name:'Twitter/X',icon:'🐦',url:'#'},{name:'LinkedIn',icon:'💼',url:'#'},
-        {name:'YouTube',icon:'🎬',url:'#'},{name:'TikTok',icon:'🎵',url:'#'},
+        {name:'Instagram',icon:'📷',url:'javascript:void(0)'},{name:'Facebook',icon:'📘',url:'javascript:void(0)'},
+        {name:'Twitter/X',icon:'🐦',url:'javascript:void(0)'},{name:'LinkedIn',icon:'💼',url:'javascript:void(0)'},
+        {name:'YouTube',icon:'🎬',url:'javascript:void(0)'},{name:'TikTok',icon:'🎵',url:'javascript:void(0)'},
     ]).slice(0, 3 + Math.floor(rng() * 3));
     return `
     <section style="padding:60px 24px;text-align:center">
@@ -1426,7 +1426,7 @@ function comp_cookie(pal) {
     return `
     <div id="${id}" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;padding:16px 24px;background:${pal.card};border-top:1px solid ${pal.border};box-shadow:0 -4px 20px rgba(0,0,0,0.1)">
         <div style="max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-            <p style="font-size:14px;color:${pal.muted};margin:0;flex:1;min-width:200px">🍪 Wir verwenden Cookies um die Nutzererfahrung zu verbessern. <a href="#" style="color:${pal.primary};text-decoration:underline">Mehr erfahren</a></p>
+            <p style="font-size:14px;color:${pal.muted};margin:0;flex:1;min-width:200px">🍪 Wir verwenden Cookies um die Nutzererfahrung zu verbessern. <a href="javascript:void(0)" style="color:${pal.primary};text-decoration:underline">Mehr erfahren</a></p>
             <div style="display:flex;gap:8px">
                 <button onclick="document.getElementById('${id}').style.display='none';localStorage.setItem('${id}_ok','1')" style="padding:10px 24px;background:${pal.primary};color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px">Akzeptieren</button>
                 <button onclick="document.getElementById('${id}').style.display='none';localStorage.setItem('${id}_ok','1')" style="padding:10px 24px;background:transparent;color:${pal.muted};border:1px solid ${pal.border};border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px">Ablehnen</button>
@@ -1544,7 +1544,7 @@ function comp_login(rng, pal) {
                 <input type="email" placeholder="E-Mail" required style="padding:14px 18px;background:${pal.bg};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;outline:none;font-family:inherit;box-sizing:border-box">
                 <input type="password" placeholder="Passwort" required style="padding:14px 18px;background:${pal.bg};border:1px solid ${pal.border};border-radius:10px;color:${pal.text};font-size:15px;outline:none;font-family:inherit;box-sizing:border-box">
                 <button type="submit" style="padding:16px;background:${pal.primary};color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit">Einloggen</button>
-                <p style="text-align:center;font-size:13px;color:${pal.muted}">Noch kein Konto? <a href="#" style="color:${pal.primary}">Registrieren</a></p>
+                <p style="text-align:center;font-size:13px;color:${pal.muted}">Noch kein Konto? <a href="javascript:void(0)" style="color:${pal.primary}">Registrieren</a></p>
             </form>
             <div id="${id}-ok" style="display:none;margin-top:12px;padding:12px;background:#16a34a15;border-radius:8px;color:#16a34a;font-weight:600;text-align:center;font-size:14px">✓ Erfolgreich eingeloggt!</div>
         </div>
@@ -1611,7 +1611,7 @@ function buildHero(rng, pal, font, name, cat, analysis) {
         `display:inline-flex;align-items:center;gap:8px;background:${ac};color:#fff;padding:14px 32px;border-radius:99px;text-decoration:none;font-weight:600;font-size:15px`,
         `display:inline-flex;align-items:center;gap:8px;background:${pal.text};color:${pal.bg};padding:16px 36px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px`,
     ]);
-    const cta = `<a href="#" style="${ctaStyle}">${ctaLabel}</a>`;
+    const cta = `<a href="#content-start" style="${ctaStyle}" onclick="event.preventDefault();document.getElementById('content-start')?.scrollIntoView({behavior:'smooth'})">${ctaLabel}</a>`;
     
     // Layout variant
     const variant = rPick(rng, ['centered','split','left','fullimg','minimal']);
@@ -1663,7 +1663,7 @@ function getCTALabels(cat) {
 function buildNav(rng, pal, font, name) {
     const isDark = pal.bg.match(/^#[012]/);
     const links = rPick(rng, [['Home','Über uns','Leistungen','Kontakt'],['Start','Services','Preise','Kontakt'],['Home','Angebot','Team','Kontakt']]);
-    const linkHtml = links.map(l => `<a href="#" style="color:${pal.muted};text-decoration:none;font-size:14px;font-weight:500">${l}</a>`).join('');
+    const linkHtml = links.map(l => `<a href="javascript:void(0)" onclick="event.preventDefault();var t=document.querySelector('section');if(t)t.scrollIntoView({behavior:'smooth'})" style="color:${pal.muted};text-decoration:none;font-size:14px;font-weight:500">${l}</a>`).join('');
     const style = rPick(rng, [
         `position:fixed;top:0;left:0;right:0;z-index:9990;display:flex;justify-content:space-between;align-items:center;padding:16px 6vw;background:${isDark?'rgba(0,0,0,0.6)':'rgba(255,255,255,0.8)'};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid ${pal.border}`,
         `position:fixed;top:12px;left:12px;right:12px;z-index:9990;display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:${isDark?'rgba(0,0,0,0.6)':'rgba(255,255,255,0.8)'};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:16px;border:1px solid ${pal.border}`,
@@ -1682,7 +1682,7 @@ function buildFooter(pal, name) {
         <div style="max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
             <div style="font-weight:700;font-size:16px">${name}</div>
             <div style="font-size:13px;color:${pal.muted}">© ${new Date().getFullYear()} ${name}. Alle Rechte vorbehalten.</div>
-            <div style="display:flex;gap:16px;font-size:13px"><a href="#" style="color:${pal.muted};text-decoration:none">Impressum</a><a href="#" style="color:${pal.muted};text-decoration:none">Datenschutz</a><a href="#" style="color:${pal.muted};text-decoration:none">AGB</a></div>
+            <div style="display:flex;gap:16px;font-size:13px"><a href="javascript:void(0)" style="color:${pal.muted};text-decoration:none">Impressum</a><a href="javascript:void(0)" style="color:${pal.muted};text-decoration:none">Datenschutz</a><a href="javascript:void(0)" style="color:${pal.muted};text-decoration:none">AGB</a></div>
         </div>
     </footer>`;
 }
@@ -1717,6 +1717,7 @@ function getExampleForPrompt(prompt) {
     ];
     
     let sections = '';
+    let firstSection = true;
     for (const feat of sectionOrder) {
         if (!analysis.features.includes(feat)) continue;
         switch(feat) {
@@ -1740,6 +1741,11 @@ function getExampleForPrompt(prompt) {
             case 'video': sections += comp_video(rng, pal); break;
             case 'login': sections += comp_login(rng, pal); break;
             case 'notification': break; // handled separately
+        }
+        // Add anchor for CTA scroll target on first section
+        if (firstSection) {
+            sections = '<div id="content-start"></div>' + sections;
+            firstSection = false;
         }
     }
     
@@ -1902,7 +1908,7 @@ function removeFile(i){uploadedFiles.splice(i,1);renderFiles();}
         <span style="color:#fff;font-size:14px;font-weight:600">Vorschau</span>
         <button onclick="closeFull()" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">✕ Zurück</button>
     </div>
-    <iframe id="fullFrame" style="flex:1;border:none;width:100%;background:#fff" sandbox="allow-same-origin"></iframe>
+    <iframe id="fullFrame" style="flex:1;border:none;width:100%;background:#fff" sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
 </div>
 
 </body>
