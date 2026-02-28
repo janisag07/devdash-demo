@@ -8,7 +8,7 @@ function makeRng(prompt) {
     for (let i = 0; i < prompt.length; i++) seed = ((seed << 5) - seed + prompt.charCodeAt(i)) | 0;
     return function() { seed = (seed * 1664525 + 1013904223) & 0xFFFFFFFF; return (seed >>> 0) / 0xFFFFFFFF; };
 }
-function pick(rng, arr) { return arr[Math.floor(rng() * arr.length)]; }
+function rPick(rng, arr) { return arr[Math.floor(rng() * arr.length)]; }
 function pickN(rng, arr, n) { const c=[...arr]; const o=[]; for(let i=0;i<Math.min(n,c.length);i++){const j=Math.floor(rng()*c.length);o.push(c.splice(j,1)[0]);}return o; }
 function shuffle(rng, arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a; }
 
@@ -145,7 +145,7 @@ function getHeroImage(rng, cat) {
         'https://images.unsplash.com/photo-1497215842964-222b430dc094?w=1200&q=80',
         'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1200&q=80',
     ];
-    return pick(rng, pool);
+    return rPick(rng, pool);
 }
 
 function getCardImages(rng, cat) {
@@ -213,7 +213,7 @@ function generatePalette(rng, mood, cat) {
     if (mood === 'dark' || mood === 'neon') pool = palettes.filter(p => p.bg.match(/^#[012]/));
     else if (mood === 'light' || mood === 'minimal') pool = palettes.filter(p => !p.bg.match(/^#[012]/));
     if (pool.length < 3) pool = palettes;
-    return pick(rng, pool);
+    return rPick(rng, pool);
 }
 
 // ===== PREMIUM FONTS (Google Fonts) =====
@@ -235,7 +235,7 @@ function buildHeroVisual(rng, pal, cat) {
     const img = getHeroImage(rng, cat);
     const isDark = pal.bg.match(/^#[012]/);
     
-    return pick(rng, [
+    return rPick(rng, [
         // Real photo with rounded corners
         `<div style="flex:1;min-width:300px;aspect-ratio:4/3;border-radius:20px;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)"><img src="${img}" style="width:100%;height:100%;object-fit:cover" alt=""></div>`,
         // Photo with accent border glow
@@ -252,7 +252,7 @@ function buildHeroVisual(rng, pal, cat) {
 // ===== NAV =====
 function buildNav(rng, pal, font, siteName) {
     const isDark = pal.bg.match(/^#[012]/);
-    const links = pick(rng, [
+    const links = rPick(rng, [
         ['Home','Über uns','Leistungen','Kontakt'],
         ['Start','Services','Preise','Kontakt'],
         ['Home','About','Features','Contact'],
@@ -260,26 +260,26 @@ function buildNav(rng, pal, font, siteName) {
     ]);
     const linkHtml = links.map(l => `<a href="#" style="color:${pal.muted};text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s">${l}</a>`).join('');
     
-    const style = pick(rng, [
+    const style = rPick(rng, [
         `position:fixed;top:16px;left:16px;right:16px;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:${isDark?'rgba(0,0,0,0.6)':'rgba(255,255,255,0.8)'};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:16px;border:1px solid ${pal.border}`,
         `position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:18px 6vw;background:${isDark?'rgba(0,0,0,0.5)':'rgba(255,255,255,0.7)'};backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid ${pal.border}`,
         `position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:20px 8vw`,
         `position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100;display:flex;align-items:center;gap:28px;padding:10px 28px;background:${isDark?'rgba(0,0,0,0.6)':'rgba(255,255,255,0.8)'};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:99px;border:1px solid ${pal.border}`,
     ]);
-    const logoStyle = pick(rng, [
+    const logoStyle = rPick(rng, [
         `font-weight:${font.headWeight};font-size:18px;letter-spacing:-0.5px;color:${pal.text}`,
         `font-weight:700;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:${pal.text}`,
         `font-weight:${font.headWeight};font-size:20px;letter-spacing:-1px;color:${pal.accent}`,
     ]);
-    const ctaBtn = rng() > 0.4 ? `<a href="#" style="padding:8px 20px;background:${pal.accent};color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">${pick(rng,['Kontakt','Starten','Get Started','Buchen'])}</a>` : '';
+    const ctaBtn = rng() > 0.4 ? `<a href="#" style="padding:8px 20px;background:${pal.accent};color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">${rPick(rng,['Kontakt','Starten','Get Started','Buchen'])}</a>` : '';
     
     return `<nav style="${style}"><div style="${logoStyle}">${siteName}</div><div style="display:flex;align-items:center;gap:24px">${linkHtml}${ctaBtn}</div></nav>`;
 }
 
 // ===== CTA BUTTONS =====
 function buildCTA(rng, pal, cat) {
-    const label = pick(rng, getCTALabels(cat));
-    const style = pick(rng, [
+    const label = rPick(rng, getCTALabels(cat));
+    const style = rPick(rng, [
         `display:inline-flex;align-items:center;gap:8px;background:${pal.accent};color:#fff;padding:16px 36px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;transition:all 0.3s;box-shadow:0 4px 14px ${pal.accent}30`,
         `display:inline-flex;align-items:center;gap:8px;background:${pal.accent};color:#fff;padding:14px 32px;border-radius:99px;text-decoration:none;font-weight:600;font-size:15px;transition:all 0.3s`,
         `display:inline-flex;align-items:center;gap:8px;background:${pal.text};color:${pal.bg};padding:16px 36px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;transition:all 0.3s`,
@@ -288,7 +288,7 @@ function buildCTA(rng, pal, cat) {
     ]);
     
     const hasSecond = rng() > 0.5;
-    const secondLabel = pick(rng, ['Mehr erfahren →','Demo ansehen','Tour starten','Kontakt']);
+    const secondLabel = rPick(rng, ['Mehr erfahren →','Demo ansehen','Tour starten','Kontakt']);
     const secondBtn = hasSecond ? `<a href="#" style="display:inline-flex;align-items:center;gap:6px;padding:16px 24px;color:${pal.muted};text-decoration:none;font-weight:500;font-size:15px">${secondLabel}</a>` : '';
     
     return `<div style="display:flex;gap:12px;flex-wrap:wrap;${rng()>0.5?'justify-content:center':''}"><a href="#" style="${style}">${label}</a>${secondBtn}</div>`;
@@ -384,7 +384,7 @@ function getHeroTitle(rng, cat, name, pal) {
         `Qualität,<br>die <span style="color:${ac}">überzeugt</span>`,
         `Dein Partner<br>für <span style="color:${ac}">Exzellenz</span>`,
     ];
-    return pick(rng, list);
+    return rPick(rng, list);
 }
 
 function getHeroSub(rng, cat) {
@@ -398,7 +398,7 @@ function getHeroSub(rng, cat) {
         medical:['Moderne Medizin mit persönlicher Betreuung. Kompetent und fürsorglich.','Ihre Gesundheit ist unsere Priorität — Vorsorge, Diagnostik und Behandlung.','Vertrauen Sie auf jahrelange Erfahrung und modernste Technik.'],
         music:['New Album Out Now — Stream on all platforms worldwide.','Die Tour des Jahres — sichere dir jetzt deine Tickets.','Music that moves. Sounds that stay with you forever.'],
     };
-    return pick(rng, subs[cat] || ['Professionell, zuverlässig und immer für Sie da. Qualität ist unser Versprechen.','Wir bringen Ihre Vision zum Leben — mit Leidenschaft und Expertise.','Innovation trifft Erfahrung. Ihr Partner für nachhaltige Ergebnisse.','Einfach. Schnell. Professionell. Wir machen den Unterschied.']);
+    return rPick(rng, subs[cat] || ['Professionell, zuverlässig und immer für Sie da. Qualität ist unser Versprechen.','Wir bringen Ihre Vision zum Leben — mit Leidenschaft und Expertise.','Innovation trifft Erfahrung. Ihr Partner für nachhaltige Ergebnisse.','Einfach. Schnell. Professionell. Wir machen den Unterschied.']);
 }
 
 function getDefaultName(rng, cat) {
@@ -422,7 +422,7 @@ function getDefaultName(rng, cat) {
         photo:['LensCraft','Moment Studio','PixelPerfect'],
         generic:['NexGen','Bright Solutions','Quantum','Elevate','Zenith','Pulse','Vanguard','Apex'],
     };
-    return pick(rng, names[cat] || names.generic);
+    return rPick(rng, names[cat] || names.generic);
 }
 
 // ===== LAYOUT TEMPLATES — all premium =====
@@ -430,7 +430,7 @@ function getDefaultName(rng, cat) {
 function layoutHeroCentered(rng, pal, font, siteName, heroTitle, heroSub, ctaHtml, sections, navHtml) {
     const img = getHeroImage(rng, detectCategory._lastCat || 'generic');
     const isDark = pal.bg.match(/^#[012]/);
-    const bgVariant = pick(rng, [
+    const bgVariant = rPick(rng, [
         // Gradient overlay on image
         `position:relative;min-height:100vh;background:url('${img}') center/cover no-repeat`,
         // Pure gradient
@@ -450,12 +450,12 @@ function layoutHeroSplit(rng, pal, font, siteName, heroTitle, heroSub, ctaHtml, 
 }
 
 function layoutHeroLeft(rng, pal, font, siteName, heroTitle, heroSub, ctaHtml, sections, navHtml) {
-    const bgEffect = pick(rng, [
+    const bgEffect = rPick(rng, [
         `background:linear-gradient(to right,${pal.accent}08,transparent 50%)`,
         `background:radial-gradient(ellipse at 0% 50%,${pal.accent}12,transparent 60%)`,
         ``,
     ]);
-    return `${navHtml}<div style="min-height:100vh;display:flex;align-items:center;padding:80px 8vw;${bgEffect}"><div style="max-width:640px"><div style="display:inline-block;padding:6px 16px;background:${pal.accent}15;border-radius:99px;font-size:13px;font-weight:600;color:${pal.accent};margin-bottom:24px">${pick(rng,['Neu','Premium','#1 in Deutschland','⭐ Top Rated','Seit 2020'])}</div><h1 style="font-size:clamp(36px,6vw,68px);font-weight:${font.headWeight};letter-spacing:-2.5px;line-height:1.05">${heroTitle}</h1><p style="font-size:18px;color:${pal.muted};margin:24px 0 40px;line-height:1.7;max-width:520px">${heroSub}</p>${ctaHtml}</div></div>${sections}`;
+    return `${navHtml}<div style="min-height:100vh;display:flex;align-items:center;padding:80px 8vw;${bgEffect}"><div style="max-width:640px"><div style="display:inline-block;padding:6px 16px;background:${pal.accent}15;border-radius:99px;font-size:13px;font-weight:600;color:${pal.accent};margin-bottom:24px">${rPick(rng,['Neu','Premium','#1 in Deutschland','⭐ Top Rated','Seit 2020'])}</div><h1 style="font-size:clamp(36px,6vw,68px);font-weight:${font.headWeight};letter-spacing:-2.5px;line-height:1.05">${heroTitle}</h1><p style="font-size:18px;color:${pal.muted};margin:24px 0 40px;line-height:1.7;max-width:520px">${heroSub}</p>${ctaHtml}</div></div>${sections}`;
 }
 
 function layoutHeroFullImage(rng, pal, font, siteName, heroTitle, heroSub, ctaHtml, sections, navHtml) {
@@ -476,7 +476,7 @@ function buildServicesSection(rng, pal, font, items, title) {
     const hasImages = rng() > 0.5;
     const cardImages = hasImages ? getCardImages(rng, detectCategory._lastCat || 'generic') : [];
     
-    const cardVariant = pick(rng, ['clean','bordered','gradient','minimal']);
+    const cardVariant = rPick(rng, ['clean','bordered','gradient','minimal']);
     const cols = items.length <= 3 ? 'repeat(auto-fit,minmax(280px,1fr))' : 'repeat(auto-fit,minmax(240px,1fr))';
     
     return `<div style="padding:100px 6vw;max-width:1200px;margin:0 auto">
@@ -515,7 +515,7 @@ function buildPricingSection(rng, pal, font, plans, title) {
 }
 
 function buildStatsSection(rng, pal, font, stats) {
-    const variant = pick(rng, ['inline','cards','banner']);
+    const variant = rPick(rng, ['inline','cards','banner']);
     if (variant === 'cards') {
         return `<div style="padding:80px 6vw;max-width:1100px;margin:0 auto"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px">${stats.map(s => `<div style="background:${pal.card};border:1px solid ${pal.border};border-radius:16px;padding:28px;text-align:center"><div style="font-size:36px;font-weight:${font.headWeight};letter-spacing:-1px;color:${pal.accent}">${s.val}</div><div style="font-size:13px;color:${pal.muted};margin-top:6px;font-weight:500">${s.label}</div></div>`).join('')}</div></div>`;
     }
@@ -550,8 +550,8 @@ function buildContactSection(rng, pal, font, title) {
 }
 
 function buildCTABanner(rng, pal, font, cat) {
-    const text = pick(rng, ['Bereit loszulegen?','Überzeugt?','Let\'s do this','Starte jetzt','Worauf wartest du?']);
-    const sub = pick(rng, ['Kontaktiere uns noch heute — unverbindlich.','Starte jetzt und überzeuge dich selbst.','Der erste Schritt ist der wichtigste.','Keine versteckten Kosten. Keine Verpflichtungen.']);
+    const text = rPick(rng, ['Bereit loszulegen?','Überzeugt?','Let\'s do this','Starte jetzt','Worauf wartest du?']);
+    const sub = rPick(rng, ['Kontaktiere uns noch heute — unverbindlich.','Starte jetzt und überzeuge dich selbst.','Der erste Schritt ist der wichtigste.','Keine versteckten Kosten. Keine Verpflichtungen.']);
     const isDark = pal.bg.match(/^#[012]/);
     return `<div style="padding:100px 6vw"><div style="max-width:900px;margin:0 auto;text-align:center;padding:60px 40px;background:linear-gradient(135deg,${pal.accent}12,${pal.accent}05);border:1px solid ${pal.accent}20;border-radius:24px">
         <h2 style="font-size:clamp(28px,5vw,44px);font-weight:${font.headWeight};letter-spacing:-1px;margin-bottom:16px">${text}</h2>
@@ -571,7 +571,7 @@ function buildFAQSection(rng, pal, font) {
     ]).slice(0, 3 + Math.floor(rng() * 2));
     
     return `<div style="padding:100px 6vw;max-width:750px;margin:0 auto">
-        <div style="text-align:center;margin-bottom:48px"><h2 style="font-size:clamp(24px,4vw,40px);font-weight:${font.headWeight};letter-spacing:-1px">${pick(rng,['Häufige Fragen','FAQ','Fragen & Antworten'])}</h2></div>
+        <div style="text-align:center;margin-bottom:48px"><h2 style="font-size:clamp(24px,4vw,40px);font-weight:${font.headWeight};letter-spacing:-1px">${rPick(rng,['Häufige Fragen','FAQ','Fragen & Antworten'])}</h2></div>
         ${faqs.map(f => `<div style="border-bottom:1px solid ${pal.border};padding:24px 0">
             <div style="font-weight:700;font-size:16px;margin-bottom:10px">${f.q}</div>
             <div style="font-size:15px;color:${pal.muted};line-height:1.7">${f.a}</div>
@@ -655,7 +655,7 @@ function getServiceTitle(rng, cat) {
         beauty:['Unser Angebot','Beauty Menu','Treatments','Verwöhnprogramm'],
         medical:['Unsere Fachbereiche','Leistungsspektrum','Medizinische Services'],
     };
-    return pick(rng, titles[cat] || ['Unsere Leistungen','Was wir bieten','Services','So können wir helfen']);
+    return rPick(rng, titles[cat] || ['Unsere Leistungen','Was wir bieten','Services','So können wir helfen']);
 }
 
 function getPricing(rng, cat) {
@@ -670,7 +670,7 @@ function getPricing(rng, cat) {
         ],
     };
     const list = all[cat];
-    return list ? pick(rng, list) : [
+    return list ? rPick(rng, list) : [
         {name:'Basic',price:'€49',period:'/Monat',features:['Grundpaket','E-Mail Support','1 Nutzer'],cta:'Starten'},
         {name:'Professional',price:'€99',period:'/Monat',features:['Alles in Basic','Prioritäts-Support','5 Nutzer','Analytics'],cta:'Am beliebtesten'},
         {name:'Enterprise',price:'€249',period:'/Monat',features:['Unlimited','Dedicated Support','Custom Integrationen','SLA'],cta:'Kontaktieren'},
@@ -692,7 +692,7 @@ function getStats(rng, cat) {
         ],
     };
     const list = all[cat];
-    return list ? pick(rng, list) : [{val:'1.000+',label:'Zufriedene Kunden'},{val:'10+',label:'Jahre Erfahrung'},{val:'4.8',label:'Durchschnittsbewertung'},{val:'99%',label:'Weiterempfehlung'}];
+    return list ? rPick(rng, list) : [{val:'1.000+',label:'Zufriedene Kunden'},{val:'10+',label:'Jahre Erfahrung'},{val:'4.8',label:'Durchschnittsbewertung'},{val:'99%',label:'Weiterempfehlung'}];
 }
 
 function getTestimonials(rng) {
@@ -716,7 +716,7 @@ function getExampleForPrompt(prompt) {
     detectCategory._lastCat = cat; // Pass to visual builders
     const mood = detectMood(prompt);
     const pal = generatePalette(rng, mood, cat);
-    const font = pick(rng, allFonts);
+    const font = rPick(rng, allFonts);
     const siteName = extractName(prompt) || getDefaultName(rng, cat);
 
     // Build nav
@@ -738,10 +738,10 @@ function getExampleForPrompt(prompt) {
     if (rng() > 0.4) sectionBuilders.push(() => buildStatsSection(rng, pal, font, getStats(rng, cat)));
 
     // Pricing
-    if (rng() > 0.35) sectionBuilders.push(() => buildPricingSection(rng, pal, font, getPricing(rng, cat), pick(rng, ['Unsere Pakete','Preise','Pricing','Tarife & Pakete'])));
+    if (rng() > 0.35) sectionBuilders.push(() => buildPricingSection(rng, pal, font, getPricing(rng, cat), rPick(rng, ['Unsere Pakete','Preise','Pricing','Tarife & Pakete'])));
 
     // Testimonials
-    if (rng() > 0.4) sectionBuilders.push(() => buildTestimonialsSection(rng, pal, font, getTestimonials(rng), pick(rng, ['Kundenstimmen','Das sagen unsere Kunden','Bewertungen'])));
+    if (rng() > 0.4) sectionBuilders.push(() => buildTestimonialsSection(rng, pal, font, getTestimonials(rng), rPick(rng, ['Kundenstimmen','Das sagen unsere Kunden','Bewertungen'])));
 
     // FAQ
     if (rng() > 0.5) sectionBuilders.push(() => buildFAQSection(rng, pal, font));
@@ -750,7 +750,7 @@ function getExampleForPrompt(prompt) {
     if (rng() > 0.35) sectionBuilders.push(() => buildCTABanner(rng, pal, font, cat));
 
     // Contact
-    if (rng() > 0.3) sectionBuilders.push(() => buildContactSection(rng, pal, font, pick(rng, ['Kontakt','Schreib uns','Get in Touch','Nachricht senden'])));
+    if (rng() > 0.3) sectionBuilders.push(() => buildContactSection(rng, pal, font, rPick(rng, ['Kontakt','Schreib uns','Get in Touch','Nachricht senden'])));
 
     // Ensure minimum sections
     if (sectionBuilders.length < 2) {
@@ -765,7 +765,7 @@ function getExampleForPrompt(prompt) {
     const footer = `<footer style="text-align:center;padding:48px 24px;border-top:1px solid ${pal.border}"><div style="color:${pal.muted};font-size:13px">© 2026 ${siteName}. Alle Rechte vorbehalten.</div></footer>`;
 
     // Pick layout
-    const layoutFn = pick(rng, layoutFns);
+    const layoutFn = rPick(rng, layoutFns);
     const body = layoutFn(rng, pal, font, siteName, heroTitle, heroSub, ctaHtml, sectionsHtml + footer, navHtml);
 
     // Google Font import
